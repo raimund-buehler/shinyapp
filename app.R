@@ -2,7 +2,7 @@ library(shiny)
 
 # Define UI ----
 ui <- fluidPage(
-  titlePanel("title panel"),
+  titlePanel("Decline Effects App"),
   
   sidebarLayout(
     sidebarPanel("Please select a .csv file"),
