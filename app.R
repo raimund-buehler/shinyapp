@@ -5,13 +5,16 @@ ui <- fluidPage(
   titlePanel("Decline Effects App"),
   
   sidebarLayout(
-    sidebarPanel("Please select a .csv file"),
-    mainPanel("main panel")
+    sidebarPanel(fileInput("file", label = ("Please select a .csv file"))),
+    fluidRow(column(4, verbatimTextOutput("value")))
   )
 )
 
 # Define server logic ----
 server <- function(input, output) {
+  output$value <- renderPrint({
+    str(input$file)
+  })
   
 }
 
