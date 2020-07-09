@@ -6,14 +6,16 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(fileInput("file", label = ("Please select a .csv file"))),
-    fluidRow(column(4, verbatimTextOutput("value")))
+    fluidRow(tableOutput("table")),
   )
 )
 
+
 # Define server logic ----
 server <- function(input, output) {
-  output$value <- renderPrint({
-    str(input$file)
+  
+  output$table <- renderTable({
+    read.csv(input$file$datapath)
   })
   
 }
