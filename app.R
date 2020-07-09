@@ -1,4 +1,5 @@
 library(shiny)
+library(foreign)
 
 # Define UI ----
 ui <- fluidPage(
@@ -6,7 +7,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      fileInput(inputId = "file1", label = "Please select a .csv file", accept = ".csv", placeholder = "No file selected")
+      fileInput(inputId = "file1", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
       ),
     mainPanel(
       tabsetPanel(type = "tabs",
@@ -24,11 +25,12 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$table <- renderTable({
+    #render the file that was selected, req(file) is need to avoid error message when no file is uploaded
     file <- input$file1
     
     req(file)
     
-    read.csv(file$datapath)
+    read.spss(file$datapath)
   })
   
   output$about <- renderText({
