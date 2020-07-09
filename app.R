@@ -18,6 +18,7 @@ ui <- fluidPage(
                   tabPanel("Datafile", tableOutput("table")),
                   tabPanel("Plots", textOutput("plots")),
                   tabPanel("Check Colnames", verbatimTextOutput("checkCols")),
+                  tabPanel("Effect size calc", tableOutput("EScalc")),
                   tabPanel("Results", textOutput("results"))
         )
       )
@@ -27,12 +28,17 @@ ui <- fluidPage(
 
 # Define server logic ----
 server <- function(input, output) {
+  data <- reactive({req(input$file)
+               
+           data <- read.spss(input$file$datapath)
+           data$studyname <- trimws(data$studyname)
+           data <- as.data.table(data)
+           data
+          })
   
   output$table <- renderTable({
     #render the file that was selected, req(file) is need to avoid error message when no file is uploaded
-    req(input$file)
-    
-    read.spss(input$file$datapath)
+    data()
   })
   
   output$about <- renderText({
@@ -43,17 +49,28 @@ server <- function(input, output) {
     "This is the plot section"
   })
   
+  #Check Colnames
+  
   output$checkCols <- renderText({
     req(input$file)
-    
-    data <- read.spss(input$file$datapath)
-    data <- as.data.table(data)
-    
+    data <- as.data.table(data())
     type_ES <- input$ES
-    
+
     source(here("check_colnames.R"), local = TRUE)
     report.colnames
   }, sep = "\n")
+  
+  
+  #Cald Effectsizes
+  output$EScalc <- renderTable({
+    req(input$file)
+    data <- as.data.table(data())
+    type_ES <- input$ES
+    
+    source(here("calc_effectsize.R"), local = TRUE)
+    data
+  })
+
 }
 
 # Run the app ----
