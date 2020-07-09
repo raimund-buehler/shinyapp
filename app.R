@@ -5,17 +5,24 @@ ui <- fluidPage(
   titlePanel("Decline Effects App"),
   
   sidebarLayout(
-    sidebarPanel(fileInput("file", label = ("Please select a .csv file"))),
-    fluidRow(tableOutput("table")),
+    sidebarPanel(
+      fileInput(inputId = "file1", label = "Please select a .csv file", accept = ".csv", placeholder = "No file selected")
+      ),
+    mainPanel(
+      tableOutput("table"))
+    )
   )
-)
 
 
 # Define server logic ----
 server <- function(input, output) {
   
   output$table <- renderTable({
-    read.csv(input$file$datapath)
+    file <- input$file1
+    
+    req(file)
+    
+    read.csv(file$datapath)
   })
   
 }
