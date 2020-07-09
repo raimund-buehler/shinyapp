@@ -9,7 +9,13 @@ ui <- fluidPage(
       fileInput(inputId = "file1", label = "Please select a .csv file", accept = ".csv", placeholder = "No file selected")
       ),
     mainPanel(
-      tableOutput("table"))
+      tabsetPanel(type = "tabs",
+                  tabPanel("About", textOutput("about")),
+                  tabPanel("Datafile", tableOutput("table")),
+                  tabPanel("Plots", textOutput("plots")),
+                  tabPanel("Results", textOutput("results"))
+        )
+      )
     )
   )
 
@@ -25,6 +31,17 @@ server <- function(input, output) {
     read.csv(file$datapath)
   })
   
+  output$about <- renderText({
+    "This is the about section"
+  })
+  
+  output$plots <- renderText({
+    "This is the plot section"
+  })
+  
+  output$results <- renderText({
+    "This is the results section"
+  })
 }
 
 # Run the app ----
