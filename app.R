@@ -48,7 +48,6 @@ server <- function(input, output) {
   output$plots <- renderText({
     "This is the plot section"
   })
-  
   #Check Colnames
   
   output$checkCols <- renderText({
