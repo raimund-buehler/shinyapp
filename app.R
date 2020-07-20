@@ -142,7 +142,8 @@ server <- function(input, output, session) {
       "para$id" = para$id,
       "para$pub" = para$pub,
       "para$pubvalpub" = para$pubvalpub,
-      "para$pubvalunpub" = para$pubvalunpub)
+      "para$pubvalunpub" = para$pubvalunpub
+      )
   })
   
   ######SPECIFY DT COLUMS   
@@ -173,7 +174,6 @@ server <- function(input, output, session) {
   })
   
   
-  #<<<<<<< user-input-interface
   output$SingleES <- renderText({
     paste("Effect size:   ", "'", unique(repcols$DT$es), "'", sep = "")
   })
@@ -182,18 +182,33 @@ server <- function(input, output, session) {
   output$EScolumn <- renderUI({
     req(input$file)
     if (length(unique(repcols$DT$es)) == 1 & is.na(repcols$DT$es[1]) == TRUE) {
-      selectInput(inputId = "EScol", label = "Please choose the colum in your dataset that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT)))
+      selectInput(inputId = "EScol", label = "Please choose the colum in your dataset that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$EScol))
     }
   })
   
-  #Set name of EScol in data_reac$DT to para$ES
+  #Create new column in data_reac$DT to contain values of EScol in column named after selected effect size (para$es).
+  #values are recomputed when different column is selected
+  #if another effect size is selected, the previous column is deleted and a new colum is created, named appropriately after the new effect size.
+  #this is not displayed to the user, (as the rendering of the datafile is not reacting on it), but can be seen in e.g. in forest plots
+  #datafile can be made reactive on input$ES and thus will update and display the newly created column.
   
-  # observeEvent(input$EScol, {
-  #   req(input$EScol)
-  #   data <- data_reac$DT
-  #   old <- input$EScol
-  #   new <- para$es
-  #   setnames(data, old, new)})
+  v <- reactiveValues(choices = c())
+    
+    observeEvent(input$ES, {
+    req(input$EScol)
+    v$choices <- append(v$choices, para$es)
+    if(length(v$choices > 1)){
+      esrem <- tail(v$choices, 1)
+      data_reac$DT[, tail(v$choices, 1)] <- NULL
+    }
+  })
+  
+  
+  observe({
+    req(input$EScol)
+    req(para$es)
+    data_reac$DT[, para$es := .SD[[input$EScol]]]
+    })
   
   # sorting variable (forest plot)
   output$sortingvar <- renderUI({
