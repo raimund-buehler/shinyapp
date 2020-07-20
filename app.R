@@ -84,11 +84,6 @@ ui <- fluidPage(
                                                    plotOutput("sunset_funnel"))
                                      ),
                                      
-                                     # plotOutput("normal_funnel"),
-                                     #  plotOutput("sunset_funnel"),
-                                     # uiOutput("select_trimfill"),
-                                     #  uiOutput("choice_egger"),
-                                     
                                      checkboxInput(inputId = "choice_trimfill",
                                                    label = "Show Studies Imputed by Trim-and-Fill"),
                                      checkboxInput(inputId = "choice_egger",
@@ -404,7 +399,7 @@ server <- function(input, output, session) {
     
     # plot forest plot variant
     p <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
-                    study_labels = data[[para$year]],
+                    study_labels = trimws(data[[para$id]]),
                     xlab = choice_es,
                     variant = choice_forest,
                     annotate_CI = TRUE,
