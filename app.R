@@ -15,27 +15,32 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected"),
-      #uiOutput("structure"),
-      uiOutput("EScolumn"),
-      uiOutput("SEcolselect"),
+      
       uiOutput("EStype"),
-      uiOutput("nameselect"),
-      uiOutput("yearselect"),
+      uiOutput("EScolumn"),
+      uiOutput("SEcolumn"),
+      uiOutput("Year"),
+      uiOutput("SampleSize"),
+      uiOutput("StudyID"),
+      uiOutput("PubStatus"),
+      uiOutput("PubValuePub"),
+      uiOutput("PubValueUnpub"),
+      
       uiOutput("primarySelect"),
       uiOutput("candidateSelect"),
       uiOutput("primaryPublSelect"),
       uiOutput("candidatePublSelect"),
-      #textInput(inputId = "primary_name", label = "Please specify the primary study"),
-      #radioButtons(inputId = "ES", label = "Unsure, which is the primary study? Tell us both candidates!", choices = c("yes", "no"))
-      ),
+      #textInput(inputId = "primary_name", label = "Please specify the primary study")
+    ),
     mainPanel(
+      
       navbarPage("",
-                  tabPanel("About", textOutput("about")),
-                  tabPanel("Datafile", tableOutput("table")),
-                  navbarMenu("Plots", 
+                 tabPanel("About", textOutput("about")),
+                 tabPanel("Datafile", tableOutput("table")),
+                 navbarMenu("Plots", 
                             
-                             # Panel for Forest Plots
-                             tabPanel("Forest Plots",
+                            # Panel for Forest Plots
+                            tabPanel("Forest Plots",
                                      fluidRow(
                                        column(7, align = "center",
                                               # Action Buttons for normal and cumulative forest plot
@@ -69,7 +74,7 @@ ui <- fluidPage(
                                                             label = "Descending Order"))
                                      ),
                                      fluidRow(downloadButton("dwn_forest"))),
-
+                            
                             # Panel for Funnel Plots
                             tabPanel("Funnel Plots",
                                      # split output 50:50
@@ -97,167 +102,255 @@ ui <- fluidPage(
                                                    ))
                                      )
                             )),
-                  tabPanel("Check Colnames", verbatimTextOutput("checkCols")),
-                  tabPanel("Effect size calc", tableOutput("EScalc")),
-                  tabPanel("Results", textOutput("results"))
-        )
+                 tabPanel("Check Colnames", verbatimTextOutput("checkCols")),
+                 tabPanel("Effect size calc", tableOutput("EScalc")),
+                 tabPanel("Results", textOutput("results"))
       )
     )
   )
+)
 
 
 # Define server logic ----
 server <- function(input, output, session) {
-## READ DATA FILE and coerce to data.table
-   data <- reactive({
+  ## READ DATA FILE and coerce to data.table
+  
+  data_reac <- reactiveValues()
+  observe({
     req(input$file)
-               
-    data <- read.spss(input$file$datapath)
-    data$studyname <- trimws(data$studyname)
-    data <- as.data.table(data)
-    data
-  })
-   
-   # output$structure <- renderUI({
-   #   req(input$file)
-   #   radioButtons(inputId = "struc", label = "Is the dataset structured according to the requirements?", choices = c("yes", "no"), selected = character(0))
-   # })
-
-## CHOOSE EFFECT SIZE COLUMN
-   
-   output$EScolumn <- renderUI({
-     req(input$file)
-     selectInput(inputId = "chooseEScol", label = "Please choose the variable that contains your effect size values", choices = colnames(data()), selected = character(0))
-   })
-   
-   # standard error
-   output$SEcolselect <- renderUI({
-     req(input$file)
-     selectInput(inputId = "SEcol", label = "Please choose the variable that contains the standard errors",
-                 choices = colnames(data()))
-   })
-   
-##CHOOSE EFFECT SIZE TYPE
-   output$EStype <- renderUI({
-     req(input$chooseEScol)
-     radioButtons(inputId = "ES", label = "Please choose the effect size in your data set", choices = c("z", "r", "d", "g", "OR", "logOR"), selected = character(0))
-   })
-   
-   # studyname
-   output$nameselect <- renderUI({
-     req(input$file)
-     selectInput(inputId = "namecol", label = "Please select the variable that includes unique study IDs",
-                 choices = colnames(data()))
-   })
-   
-   # year
-   output$yearselect <- renderUI({
-     req(input$file)
-     selectInput(inputId = "yearcol", label = "Please select the variable that indicates the publication year",
-                 choices = colnames(data()))
-   })
-   
-   # sorting variable (forest plot)
-   output$sortingvar <- renderUI({
-     req(input$file)
-     selectInput(inputId = "sortingvar",
-                 label = "Select Sorting Variable",
-                 choices = colnames(data()))
-   })
-
-####ASSIGNING PRIMARY STUDY CANDIDATES; CONFIRM BY USER
-  
-  #preselect earliest overall studies in dataset (column "studyname" required)
-  primary_temp <- reactive({
-    data <- data()
-    data[year == min(year)]$studyname
+    data_reac$DT <- as.data.table(read.spss(input$file$datapath))
   })
   
-  #preselect earliest published studies
-  primary_publ_temp <- reactive({
-    data <- data()
-    data[pub == "pub", .SD[year == min(year)]]$studyname
-  })
-  
-  #Let user choose the earliest study, if more than one study of same (earliest) year is found
-  #if less than one: just confirm the study that was found 
-  output$primarySelect <- renderUI({
-    req(input$ES)
-    if(length(primary_temp())>1){
-       radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c(primary_temp(), "unsure"), selected = character(0))
-     } else {
-       radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("yes", "no", "unsure"), selected = character(0))
-     }
-   })
-  
-  #If user selects unsure, checkboxes are displayed of the same preselected studies and user can choose two candidates
-  output$candidateSelect <- renderUI({ 
-  req(input$primaryChoice)
-  if(input$primaryChoice == "unsure"){
-       checkboxGroupInput("candidateChoice", label = "Please select the TWO candidate studies that are most likely the earliest studies!", choices = primary_temp())
-     }
-  })
-  
-  #Set maximum of checkbox choices for primary candidates to two
+  #CHECK COLNAMES
+  repcols <- reactiveValues()
   observe({
-    if(length(input$candidateChoice) > 2){
-      updateCheckboxGroupInput(session, inputId = "candidateChoice", selected= tail(input$candidateChoice, 2))
+    repcols$DT <- {
+      req(input$file)
+      data <- data_reac$DT
+      source(here("check_colnames_shiny.R"), local = TRUE)
+      report.colnames
     }
   })
   
-  #Same thing, but for published studies only
-  output$primaryPublSelect <- renderUI({
-    req(input$primaryChoice)
-    if(length(primary_publ_temp())>1){
-      radioButtons("primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c(primary_publ_temp(), "unsure"), selected = character(0))
-    } else {
-      radioButtons(inputId = "primaryPublChoice", label = paste("Is this the earliest PUBLISHED study in your dataset:", primary_publ_temp(), "?"), choices = c("yes", "no", "unsure"), selected = character(0))
+  output$checkCols <- renderPrint({
+    req(input$file)
+    c(repcols$DT,
+      "para$es" = para$es,
+      "para$se" = para$se,
+      "para$year" = para$year,
+      "para$n" = para$n,
+      "para$id" = para$id,
+      "para$pub" = para$pub,
+      "para$pubvalpub" = para$pubvalpub,
+      "para$pubvalunpub" = para$pubvalunpub)
+  })
+  
+  ######SPECIFY DT COLUMS   
+  
+  ##UI is semi-automated: for each needed parameter, potential column names are checked for matches.
+  ##If a column name matches, the name of the column and it's use is displayed to the user as text (i. e. Effect size used: 'd').
+  ##If there are several matches (i.e. in a data file with several effect sizes), the user is asked to specify which one should be used for the calculation (candidate column names are preselected).
+  ##If no match is found, the user is asked to provide the appropriate column from all column names.
+  ##parameters are stored as reactive values inside "para" and can be used when later sourcing calculation files (e.g. via para$es, para$se etc)
+  
+  ## CHOOSE EFFECT SIZE TYPE
+  
+  para <- reactiveValues()
+  
+  output$EStype <- renderUI({
+    req(input$file)
+    vec <- repcols$DT$es
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$es <- vec[1]
+      verbatimTextOutput("SingleES")
+    } else if (length(unique(vec)) > 1) {
+      para$es <- input$ES
+      selectInput(inputId = "ES", label = "Please choose the effect size in your data set", choices = c("Choose one" = "", unique(vec)), selected = tail(input$ES))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$es <- input$ES
+      selectInput(inputId = "ES", label = "Please choose the effect size in your data set", c("Choose one" = "", "r", "z", "g", "d", "OR", "logOR"), selected = tail(input$ES))
     }
   })
   
-  #select candidates
-  output$candidatePublSelect <- renderUI({ 
-    req(input$primaryPublChoice)
-    if(input$primaryPublChoice == "unsure"){
-      checkboxGroupInput("candidatePublChoice", label = "Please select the TWO candidate PUBLISHED studies that are most likely the earliest studies!", choices = primary_publ_temp())
+  
+  #<<<<<<< user-input-interface
+  output$SingleES <- renderText({
+    paste("Effect size:   ", "'", unique(repcols$DT$es), "'", sep = "")
+  })
+  
+#  If no column name matches, both ES type and column have to be specified
+  output$EScolumn <- renderUI({
+    req(input$file)
+    if (length(unique(repcols$DT$es)) == 1 & is.na(repcols$DT$es[1]) == TRUE) {
+      selectInput(inputId = "EScol", label = "Please choose the colum in your dataset that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT)))
     }
   })
   
-  #limit amount of checked boxes to two
-  observe({
-    if(length(input$candidatePublChoice) > 2){
-      updateCheckboxGroupInput(session, inputId = "candidatePublChoice", selected= tail(input$candidatePublChoice, 2))
+  #Set name of EScol in data_reac$DT to para$ES
+  
+  # observeEvent(input$EScol, {
+  #   req(input$EScol)
+  #   data <- data_reac$DT
+  #   old <- input$EScol
+  #   new <- para$es
+  #   setnames(data, old, new)})
+  
+  # sorting variable (forest plot)
+  output$sortingvar <- renderUI({
+    req(input$file)
+    selectInput(inputId = "sortingvar",
+                label = "Select Sorting Variable",
+                choices = colnames(data_reac$DT))
+  })
+  
+  
+  ##CHOOSE STANDARD ERROR COLUMN
+  
+  output$SEcolumn <- renderUI({
+    req(input$file)
+    vec <- repcols$DT$se
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$se <- vec[1]
+      verbatimTextOutput("SingleSE")
+    } else if (length(unique(vec)) > 1) {
+      para$se <- input$SE
+      selectInput(inputId = "SE", label = "Sampling variance", choices = unique(vec), selected = tail(input$SE))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$se <- input$SE
+      selectInput(inputId = "SE", label = "Sampling variance:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$SE))
     }
   })
   
-  ###DISPLAY DATA TABLE
+  output$SingleSE <- renderText({
+    paste("Sampling variance:   ", "'", unique(repcols$DT$se), "'", sep = "")
+  })
+  
+  # 
+  # ##CHOOSE YEAR
+  
+  output$Year<- renderUI({
+    req(input$file)
+    vec <- repcols$DT$year
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$year <- vec[1]
+      verbatimTextOutput("SingleYear")
+    } else if (length(unique(vec)) > 1) {
+      para$year <- input$year
+      selectInput(inputId = "year", label = "Publication Year:", choices = unique(vec), selected = tail(input$year))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$year <- input$year
+      selectInput(inputId = "year", label = "Publication Year:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$year))
+    }
+  })
+  
+  output$SingleYear <- renderText({
+    paste("Publication Year:   ", "'", unique(repcols$DT$year), "'", sep = "")
+  })
+  
+  ##CHOOSE SAMPLE SIZE
+  
+  output$SampleSize<- renderUI({
+    req(input$file)
+    vec <- repcols$DT$n
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$n <- vec[1]
+      verbatimTextOutput("SingleN")
+    } else if (length(unique(vec)) > 1) {
+      para$n <- input$n
+      selectInput(inputId = "n", label = "Sample size:", choices = unique(vec), selected = tail(input$n))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$n <- input$n
+      selectInput(inputId = "n", label = "Sample size:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$n))
+    }
+  })
+  
+  output$SingleN <- renderText({
+    paste("Sample size:   ", "'", unique(repcols$DT$n), "'", sep = "")
+  })
+  
+  ##CHOOSE STUDY ID
+  output$StudyID<- renderUI({
+    req(input$file)
+    vec <- repcols$DT$id
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$id <- vec[1]
+      verbatimTextOutput("SingleID")
+    } else if (length(unique(vec)) > 1) {
+      para$id <- input$id
+      selectInput(inputId = "id", label = "Study Name:", choices = unique(vec), selected = tail(input$id))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$id <- input$id
+      selectInput(inputId = "id", label = "Study Name:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$id))
+    }
+  })
+  
+  output$SingleID <- renderText({
+    paste("Study Name:   ", "'", unique(repcols$DT$id), "'", sep = "")
+  })
+  ##CHOOSE PUBLICATION STATUS (VALUES)?
+  
+  output$PubStatus<- renderUI({
+    req(input$file)
+    vec <- repcols$DT$pub
+    if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+      para$pub <- vec[1]
+      verbatimTextOutput("SinglePub")
+    } else if (length(unique(vec)) > 1) {
+      para$pub <- input$pub
+      selectInput(inputId = "pub", label = "Publication Status:", choices = unique(vec), selected = tail(input$pub))
+    } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+      para$pub <- input$pub
+      selectInput(inputId = "pub", label = "Publication Status:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$pub))
+    }
+  })
+  
+  output$SinglePub <- renderText({
+    paste("Publication Status:   ", "'", unique(repcols$DT$pub), "'", sep = "")
+  })
+  
+  #values
+  
+  output$PubValuePub <- renderUI({
+    req(input$file)
+    req(para$pub)
+    pubcol <- para$pub
+    para$pubvalpub <- input$pubvalpub
+    selectInput(inputId = "pubvalpub", label = "Please specify, which value in your dataset refers to PUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalpub))
+  })
+  
+  output$PubValueUnpub <- renderUI({
+    req(input$file)
+    req(para$pub)
+    pubcol <- para$pub
+    para$pubvalunpub <- input$pubvalunpub
+    selectInput(inputId = "pubvalunpub", label = "Please specify, which value in your dataset refers to UNPUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalunpub))
+  })
+  
+  
+  
+  ####ASSIGNING PRIMARY STUDY CANDIDATES; CONFIRM BY USER
+  
+  
+  ###TAB OUTPUT
+  #Display Data table
+  
   output$table <- renderTable({
-    data()
+    data_reac$DT
   })
-  #Check Colnames
-  
-  output$checkCols <- renderText({
-    req(input$file)
-    data <- as.data.table(data())
-    type_ES <- input$ES
-
-    source(here("check_colnames.R"), local = TRUE)
-    report.colnames
-  }, sep = "\n")
   
   
   #Calc Effectsizes
   output$EScalc <- renderTable({
     req(input$file)
-    data <- as.data.table(data())
-    setnames(data, input$chooseEScol, as.character(input$ES))
+    data <- data_reac$DT
+    setnames(data, input$EScol, as.character(para$ES))
     type_ES <- input$ES
-    source(here("calc_effectsize.R"), local = TRUE)
+    source(here("calc_effectsize_shiny.R"), local = TRUE)
     data
   })
   
-  output$about <- renderText({
-    "This is the about section"
+  output$about <- renderPrint({
+    c(para$pubvalpub, para$pubvalunpub)
   })
   
   # Create plots ----
@@ -272,8 +365,8 @@ server <- function(input, output, session) {
   # forestplotInput() is created as reactive object
   # which serves as input to the plot via renderPlot() as well as the download function
   forestplotInput <- reactive({
-    req(input$chooseEScol)
-    req(input$SEcol)
+    req(para$es)
+    req(para$se)
     
     # transform selected variant into input for viz_forest
     choice_forest <- switch(input$forestvariant, 
@@ -282,7 +375,7 @@ server <- function(input, output, session) {
                             "Rainforest Plot" = "rain")
     
     # transform selected effect size into axis label
-    choice_es <- switch(input$ES, 
+    choice_es <- switch(para$es, 
                         "z" = "Fisher z",
                         "r" = "Pearson r",
                         "d" = "Cohen d",
@@ -292,11 +385,11 @@ server <- function(input, output, session) {
     
     
     # sort data by selected variable
-    data <- data()[order(get(input$sortingvar), decreasing = input$descendingforest)]
+    data <- data_reac$DT[order(get(input$sortingvar), decreasing = input$descendingforest)]
     
     # plot forest plot variant
-    p <- viz_forest(x = data[, .SD, .SDcols = c(input$chooseEScol, input$SEcol)],
-                    study_labels = data[[input$namecol]],
+    p <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
+                    study_labels = data[[para$year]],
                     xlab = choice_es,
                     variant = choice_forest,
                     annotate_CI = TRUE,
@@ -329,9 +422,9 @@ server <- function(input, output, session) {
   # same approach as for forest plots: *_funnel_input() is created as reactive object
   # serving as input for renderPlot() and download function
   normal_funnel_input <- reactive({
-    req(input$chooseEScol)
-    req(input$SEcol)
-    p <- viz_funnel(data()[, .SD, .SDcols = c(input$chooseEScol, input$SEcol)],
+    req(para$es)
+    req(para$se)
+    p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
                     egger = input$choice_egger,
                     trim_and_fill = input$choice_trimfill)
     as.ggplot(p) + ggtitle("Contour-Enhanced Funnel Plot") +
@@ -344,9 +437,9 @@ server <- function(input, output, session) {
   })
   
   sunset_funnel_input <- reactive({
-    req(input$chooseEScol)
-    req(input$SEcol)
-    p <- viz_sunset(data()[, .SD, .SDcols = c(input$chooseEScol, input$SEcol)])
+    req(para$es)
+    req(para$se)
+    p <- viz_sunset(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)])
     as.ggplot(p) + ggtitle("Sunset Funnel Plot") +
       theme(plot.title = element_text(hjust = 0.5))
   })
@@ -372,7 +465,7 @@ server <- function(input, output, session) {
   
   
   
-
+  
 }
 
 # Run the app ----
