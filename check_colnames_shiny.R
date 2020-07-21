@@ -30,6 +30,15 @@ id <- IDvec[which(IDvec %in% colnames(data))]
 PUBvec <- c("published", "pub", "publ","publication status", "publication_status", "pub status", "pub_status")
 pub <- PUBvec[which(PUBvec %in% colnames(data))]
 
+#xpub <- stringdistmatrix(c("name", "article", "Article", "studyname", "Studyname", "author", "Author", "study_name"), colnames(data), "lv")
+#minipub <- which(xpub == min(xpub), arr.ind = TRUE)
+#data[[minipub[2]]]
+
+##Fuzzy matching idea with stringdistmatrix
+# x <- stringdistmatrix(c("published", "pub", "publ","publication status", "publication_status", "pub status", "pub_status"), colnames(data), "lv")
+# mini <- which(x == min(x), arr.ind = TRUE)
+# data[[mini[2]]]
+
 report.colnames <- data.table("es" = es, "se" = se, "year" = year, "n" = n, "id" = id, "pub" = pub)
 
 
