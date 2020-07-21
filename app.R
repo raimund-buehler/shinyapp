@@ -114,6 +114,14 @@ ui <- fluidPage(
                                                   choiceValues = c("fe", "re"),
                                                   selected = "re"),
                                      uiOutput("select_re_type"),
+                                     h3("Results"),
+                                     textOutput("meta_out_1"),
+                                     p(),
+                                     tableOutput("meta_out_2"),
+                                     p(),
+                                     h4("Test for Heterogeneity"),
+                                     textOutput("meta_out_3"),
+                                     p(),
                                      verbatimTextOutput("meta_res"),
                                      downloadButton(outputId = "dwn_meta_res",
                                                     label = "Download Results"),
@@ -121,7 +129,14 @@ ui <- fluidPage(
                                      ),
                             
                             # Moderator Analyses (Meta-Regression, Subgroup-Analyses)
-                            tabPanel("Moderator Analyses")
+                            tabPanel("Moderator Analyses",
+                                     # h3("Subgroup Analysis With One Categorical Moderator"),
+                                    
+                                     uiOutput("select_catmod"),
+                                     verbatimTextOutput("mod_res"),
+                                     plotOutput("plot_subgroup")
+                            )
+                            
                  ),
                  
                  # Publication Bias Analyses
@@ -269,6 +284,27 @@ meta_res_output <- reactive({
     summary(meta_res_output())
   })
   
+  output$meta_out_1 <- renderText(
+    sprintf("Random-Effects Model (k = %s; tau^2 estimator: %s)", meta_res_output()$k.all, meta_res_output()$method)
+  )
+  
+  output$meta_out_2 <- renderTable(
+    data.frame(txt = c("tau^2 (estimated amount of total heterogeneity):",
+                       "tau (square root of estimated tau^2 value):",
+                       "I^2 (total heterogeneity / total variability):",
+                       "H^2 (total variability / sampling variability):"),
+               val = c(paste(round(meta_res_output()$tau2, 4), " (SE = ", round(meta_res_output()$se.tau2, 4), ")", sep = ""),
+                       round(sqrt(meta_res_output()$tau2), 4),
+                       paste(round(meta_res_output()$I2, 2), "%", sep = ""),
+                       round(meta_res_output()$H2, 2))), colnames = FALSE
+  )
+  
+  output$meta_out_3 <- renderText(
+    sprintf("Q(df = %.0f) = %.4f, p %s", meta_res_output()$k.all - 1, meta_res_output()$QE, 
+            if(meta_res_output()$QEp < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$Qp, 4))})
+  )
+    
+  
   output$dwn_meta_res <- downloadHandler(
     filename = "meta_results.txt",
     content = function(file) {
@@ -340,8 +376,45 @@ output$meta_sens <- renderPlot({
   
 # ** Moderator analyses ----
 
-# **** Subgroup analyses ----
+# **** Subgroup analysis with one categorical moderator ----
+# select moderator
+output$select_catmod <- renderUI({
+  req(data_reac$DT)
+    selectInput(inputId = "select_catmod",
+                label = "Select Moderator Variable",
+                choices = colnames(data_reac$DT))
+  
+})
 
+# do the moderator analysis
+# use estimator chosen in the default meta 
+mod_res_output <- reactive({
+  req(input$metamodel)
+  
+  res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+             mods = ~ factor(data_reac$DT[[input$select_catmod]]),
+             method = estim())
+  
+})
+
+output$mod_res <- renderPrint({
+  summary(mod_res_output())
+})
+
+# subgroup plot
+mod_plot_output <- reactive({
+  req(mod_res_output())
+  viz_forest(x = data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+             group = data_reac$DT[[input$select_catmod]],
+             study_labels = trimws(data_reac$DT[[para$id]]),
+             summary_label = levels(as_factor(data_reac$DT[[input$select_catmod]])),
+             method = estim(),
+             annotate_CI = TRUE)
+})
+
+output$plot_subgroup <- renderPlot(
+  print(mod_plot_output())
+)
 
 # Create plots ----
   # ** Forest plots ----
