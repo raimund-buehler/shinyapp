@@ -36,6 +36,7 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
+  source(here("font correction.R"), local = TRUE),
     tabItems(
       tabItem(tabName = "about",
         h2("ABOUT PAGE")),

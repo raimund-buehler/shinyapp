@@ -23,9 +23,8 @@ output$EStype <- renderUI({
   }
 })
 
-
 output$SingleES <- renderText({
-  paste("Effect size:   ", "'", unique(repcols$DT$es), "'", sep = "")
+  paste("Effect size:       ", "'", unique(repcols$DT$es), "'", sep = "")
 })
 
 #  If no column name matches, both ES type and column have to be specified
@@ -78,10 +77,10 @@ output$SEcolumn <- renderUI({
     verbatimTextOutput("SingleSE")
   } else if (length(unique(vec)) > 1) {
     para$se <- input$SE
-    selectInput(inputId = "SE", label = "Sampling variance", choices = unique(vec), selected = tail(input$SE))
+    selectInput(inputId = "SE", label = "Standard Error:", choices = unique(vec), selected = tail(input$SE))
   } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
     para$se <- input$SE
-    selectInput(inputId = "SE", label = "Sampling variance:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$SE))
+    selectInput(inputId = "SE", label = "Standard Error:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$SE))
   }
 })
 
