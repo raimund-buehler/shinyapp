@@ -222,6 +222,8 @@ server <- function(input, output, session) {
   # ** Meta-Analysis ----
   # Selection of between-study variance estimator
   # Only shown if re-model was selected (default)
+  
+  
   output$select_re_type <- renderUI({
     req(input$metamodel)
     if(input$metamodel == "re"){
@@ -235,30 +237,32 @@ server <- function(input, output, session) {
     }
   })
   
+  # store estimator
+  estim <- reactive({
+    if (input$metamodel == "re"){
+      estim <- switch(input$select_re_type,
+                        "DerSimonian-Laird (DL)" = "DL", 
+                        "Hedges (HE)" = "HE",
+                        "Hunter-Schmidt (HS)" = "HS",
+                        "Sidik-Jonkman (SJ)" = "SJ",
+                        "Maximum-Likelihood (ML)" = "ML",
+                        "Restricted Maximum-Likelihood (REML)" = "REML",
+                        "Empirical Bayes Estimator (EB)" = "EB", 
+                        "Paule-Mandel Estimator (PM)" = "PM")
+    } else if (input$metamodel == "fe"){
+      estim<- "FE"
+    }
+    estim
+  })
+
 
   # Do the meta-analysis
 meta_res_output <- reactive({
     req(input$metamodel)
     
-  # switch chosen estimator to input for rma()
-  re_type <- switch(input$select_re_type,
-                    "DerSimonian-Laird (DL)" = "DL", 
-                    "Hedges (HE)" = "HE",
-                    "Hunter-Schmidt (HS)" = "HS",
-                    "Sidik-Jonkman (SJ)" = "SJ",
-                    "Maximum-Likelihood (ML)" = "ML",
-                    "Restricted Maximum-Likelihood (REML)" = "REML",
-                    "Empirical Bayes Estimator (EB)" = "EB", 
-                    "Paule-Mandel Estimator (PM)" = "PM")
-  
-    
-    if(input$metamodel == "re"){
-      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                 method = re_type)
-    } else if (input$metamodel == "fe"){
-      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]], 
-                 method = "FE")
-    }
+    res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                 method = estim())
+ 
   })
   
   output$meta_res <- renderPrint({
@@ -295,23 +299,10 @@ meta_res_output <- reactive({
                   label = paste(round(es, 2), " (", round(es - 1.96 * se, 2),
                                 "; ", round(es + 1.96 * se, 2), ")", sep = ""))]
   df.sens
-  df.sens
   })
     
   # create forest plot
 output$meta_sens <- renderPlot({
-  
-  # NEEDSFIX: FE
-  re_type <- switch(input$select_re_type,
-                    "DerSimonian-Laird (DL)" = "DL", 
-                    "Hedges (HE)" = "HE",
-                    "Hunter-Schmidt (HS)" = "HS",
-                    "Sidik-Jonkman (SJ)" = "SJ",
-                    "Maximum-Likelihood (ML)" = "ML",
-                    "Restricted Maximum-Likelihood (REML)" = "REML",
-                    "Empirical Bayes Estimator (EB)" = "EB", 
-                    "Paule-Mandel Estimator (PM)" = "PM")
-  
   ggplot(data = res.estim()) + 
     
     # add vertical dashed line to indicate null effect 
@@ -327,8 +318,8 @@ output$meta_sens <- renderPlot({
     # add labels
     geom_text(aes(x = es, y = method_ordered, label = label), vjust = -1.5) +
     
-    # highlight selected estimation method [NEEDSFIX: FE]
-    gghighlight(method == re_type, 
+    # highlight selected estimation method
+    gghighlight(method == estim(), 
                 use_direct_label = FALSE,
                 unhighlighted_params = list(color = "#525252")) +
     
@@ -346,7 +337,13 @@ output$meta_sens <- renderPlot({
 })
   
   
-  # Create plots ----
+  
+# ** Moderator analyses ----
+
+# **** Subgroup analyses ----
+
+
+# Create plots ----
   # ** Forest plots ----
   # creative reactive values to monitor change in forest plot type
   rv <- reactiveValues(type_forest = "standard")
@@ -381,15 +378,31 @@ output$meta_sens <- renderPlot({
     data <- data_reac$DT[order(get(input$sortingvar), decreasing = input$descendingforest)]
     
     # plot forest plot variant
+    # check if metamodel has valid input
+    # if not, use REML as default method
+    if(isTruthy(input$metamodel)){
+      p <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
+                      study_labels = trimws(data[[para$id]]),
+                      xlab = choice_es,
+                      variant = choice_forest,
+                      annotate_CI = TRUE,
+                      type = rv$type_forest,
+                      col = input$forestcol,
+                      method = "REML")
+    } else {
+    # use chosen estimator in tab meta-analysis as method to estimate summary es
     p <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
                     study_labels = trimws(data[[para$id]]),
                     xlab = choice_es,
                     variant = choice_forest,
                     annotate_CI = TRUE,
                     type = rv$type_forest,
-                    col = input$forestcol)
+                    col = input$forestcol,
+                    method = estim())
+    }
     
     if(rv$type_forest == "standard"){
+      
       # add centered title
       as.ggplot(p) + ggtitle("Forest Plot") +
         theme(plot.title = element_text(hjust = 0.5))
@@ -411,6 +424,7 @@ output$meta_sens <- renderPlot({
       ggsave(file, plot = forestplotInput(), device = "png", dpi = 300)
     }
   )
+  
   # ** Funnel plots ----
   # same approach as for forest plots: *_funnel_input() is created as reactive object
   # serving as input for renderPlot() and download function
@@ -454,10 +468,6 @@ output$meta_sens <- renderPlot({
       ggsave(file, plot = sunset_funnel_input(), device = "png", dpi = 300)
     }
   )
-  
-  
-  
-  
   
 }
 
