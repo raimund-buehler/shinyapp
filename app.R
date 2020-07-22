@@ -101,7 +101,7 @@ ui <- fluidPage(
                                      )
                             )),
                  tabPanel("Check Colnames", verbatimTextOutput("checkCols")),
-                 tabPanel("Effect size calc", tableOutput("EScalc")),
+                 #tabPanel("Effect size calc", tableOutput("EScalc")),
                  
                  # create menu for results of meta and publication bias analyses
                  navbarMenu("Meta-Analysis", 
@@ -204,17 +204,17 @@ server <- function(input, output, session) {
   
   
   #Calc Effectsizes
-  output$EScalc <- renderTable({
-    req(input$file)
-    data <- data_reac$DT
-    setnames(data, input$EScol, as.character(para$ES))
-    type_ES <- input$ES
-    source(here("calc_effectsize_shiny.R"), local = TRUE)
-    data
-  })
+  # output$EScalc <- renderTable({
+  #   req(input$file)
+  #   data <- data_reac$DT
+  #   setnames(data, input$EScol, as.character(para$ES))
+  #   type_ES <- input$ES
+  #   source(here("calc_effectsize_shiny.R"), local = TRUE)
+  #   data
+  # })
   
-  output$about <- renderPrint({
-    c(para$pubvalpub, para$pubvalunpub)
+  output$about <- renderText({
+    "This is the about section"
   })
   
   

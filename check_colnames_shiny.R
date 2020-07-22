@@ -15,7 +15,7 @@ SEvec <- paste(ESvec, ".SE", sep = "")
 se <- SEvec[which(SEvec %in% colnames(data))]
 
 ####CHECK FOR YEAR
-YEARvec <- c("year", "study year", "study_year", "pulication year", "publication_year", "pubyear", "pub_year") 
+YEARvec <- c("year", "study year", "study_year", "publication year", "publication_year", "pubyear", "pub_year") 
 year <- YEARvec[which(YEARvec %in% colnames(data))]
 
 ####CHECK FOR SAMPLE SIZE
