@@ -10,19 +10,20 @@ library(ggplotify)
 library(gghighlight)
 library(tidyverse)
 library(shinydashboard)
+library(DT)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Decline Effects App"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("About", tabName = "about"),
-      menuItem("Data", tabName = "file"),
+      menuItem("Data", tabName = "file", icon = icon("table")),
       menuItem("Plots", tabName = "plots",
                menuSubItem("Forest Plot", tabName = "forest"),
-               menuSubItem("Funnel Plot", tabName = "funnel")),
+               menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
       menuItem("Meta-Analysis", tabName = "MA",
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
-               menuSubItem("Moderator Analysis", tabName = "MoA")),
+               menuSubItem("Moderator Analysis", tabName = "MoA"), icon = icon("calculator")),
       menuItem("Publication Bias", tabName = "PB",
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B&M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S&E"),
@@ -30,7 +31,7 @@ ui <- dashboardPage(
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
-               menuSubItem("Test of Excess Significance", tabName = "TES"))
+               menuSubItem("Test of Excess Significance", tabName = "TES"), icon = icon("bolt"))
       
     )
   ),
@@ -40,34 +41,17 @@ ui <- dashboardPage(
         h2("ABOUT PAGE")),
     
       tabItem(tabName = "file",
-
-          column(width = 6,
+        fluidRow(
+          column(width = 4,
             box(
               width = NULL,
               fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
             ),
-            box(
-              width = NULL,
-              uiOutput("EStype"),
-              uiOutput("EScolumn"),
-              uiOutput("SEcolumn"),
-              uiOutput("Year"),
-              uiOutput("SampleSize"),
-              uiOutput("StudyID"),
-              uiOutput("PubStatus"),
-              uiOutput("PubValuePub"),
-              uiOutput("PubValueUnpub"),
-              
-              uiOutput("primarySelect"),
-              uiOutput("candidateSelect"),
-              uiOutput("primaryPublSelect"),
-              uiOutput("candidatePublSelect"),
-              #textInput(inputId = "primary_name", label = "Please specify the primary study")
-            )
+            uiOutput("choices")
           ),
-          column(width = 6,
-            box(title = "Datafile", width = NULL, tableOutput("table"))
+          column(width = 8, uiOutput("table")
           )
+        )
       ),
       tabItem(tabName = "forest", 
               fluidRow(
@@ -177,13 +161,41 @@ server <- function(input, output, session) {
     )
   })
   
+  
+  ##RENDER DATA TABLE
+  output$table <- renderUI({
+    req(input$file)
+    box(title = "Datafile", width = NULL, dataTableOutput("DTable"))
+  }) 
+  
+  output$DTable <- DT::renderDataTable(data_reac$DT,
+                                       options = list(pageLength = 15, info = FALSE, lengthMenu = list(c(15,-1), c("15","All")))
+                        )
+  output$choices <- renderUI({
+    box(title = "Input",
+      width = NULL,
+      uiOutput("EStype"),
+      uiOutput("EScolumn"),
+      uiOutput("SEcolumn"),
+      uiOutput("Year"),
+      uiOutput("SampleSize"),
+      uiOutput("StudyID"),
+      uiOutput("PubStatus"),
+      uiOutput("PubValuePub"),
+      uiOutput("PubValueUnpub"),
+      
+      uiOutput("primarySelect"),
+      uiOutput("candidateSelect"),
+      uiOutput("primaryPublSelect"),
+      uiOutput("candidatePublSelect"),
+      #textInput(inputId = "primary_name", label = "Please specify the primary study")
+    )
+    
+  })
+  
   ######SPECIFY DT COLUMS   
   
   source(here("choose_cols.R"), local = TRUE)
-  
-  output$table <- renderTable({
-    data_reac$DT
-  })
   
   # Analyses ----
   # ** Meta-Analysis ----

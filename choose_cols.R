@@ -86,7 +86,7 @@ output$SEcolumn <- renderUI({
 })
 
 output$SingleSE <- renderText({
-  paste("Sampling variance:   ", "'", unique(repcols$DT$se), "'", sep = "")
+  paste("Standard Error:   ", "'", unique(repcols$DT$se), "'", sep = "")
 })
 
 # 
