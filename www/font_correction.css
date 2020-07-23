@@ -1,22 +1,30 @@
-tags$head(tags$style(HTML("#SingleES{
+#SingleES{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }", "#SingleSE{
+                                background-color: #EBFFE5;
+                                 }
+#SingleSE{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }", "#SingleYear{
+                                background-color: #EBFFE5;
+                                 }
+#SingleYear{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }", "#SingleN{
+                                background-color: #EBFFE5;
+                                 }
+#SingleN{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }", "#SingleID{
+                                background-color: #EBFFE5;
+                                 }
+#SingleID{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }", "#SinglePub{
+                                background-color: #EBFFE5;
+                                 }
+#SinglePub{
                                 font-family:  'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
                                 font-size: 14px;
-                                 }"
-)
-)
-)
+                                background-color: #EBFFE5;
+                                 }
