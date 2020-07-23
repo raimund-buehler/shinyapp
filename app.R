@@ -25,9 +25,9 @@ ui <- dashboardPage(
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
                menuSubItem("Moderator Analysis", tabName = "MoA"), icon = icon("calculator")),
       menuItem("Publication Bias", tabName = "PB",
-               menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B&M"),
-               menuSubItem("Sterne & Egger's Regression", tabName = "S&E"),
-               menuSubItem("Trim-and-Fill", tabName = "TF"),
+               menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
+               menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
+               menuSubItem("Trim-and-Fill", tabName = "T_F"),
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
@@ -121,8 +121,14 @@ ui <- dashboardPage(
                             label = "Download Results"),
               plotOutput("meta_sens")
       ),
-      tabItem(tabName = "MoA", h2("Moderator Analysis"))
-      
+      tabItem(tabName = "MoA", verbatimTextOutput("checkCols")),
+      tabItem(tabName = "B_M", verbatimTextOutput("BM")),
+      tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
+      tabItem(tabname = "T_F", verbatimTextOutput("TRFI")),
+      tabItem(tabName = "pcurve", verbatimTextOutput("pcur")),
+      tabItem(tabName = "puni", verbatimTextOutput("p_uni")),
+      tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
+      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))
       
     )
   )
@@ -149,17 +155,7 @@ server <- function(input, output, session) {
   })
   
   output$checkCols <- renderPrint({
-    req(input$file)
-    c(repcols$DT,
-      "para$es" = para$es,
-      "para$se" = para$se,
-      "para$year" = para$year,
-      "para$n" = para$n,
-      "para$id" = para$id,
-      "para$pub" = para$pub,
-      "para$pubvalpub" = para$pubvalpub,
-      "para$pubvalunpub" = para$pubvalunpub
-    )
+    ranktest(rma$res)
   })
   
   
@@ -198,6 +194,10 @@ server <- function(input, output, session) {
   
   source(here("choose_cols.R"), local = TRUE)
   
+  ######PRIMARY SELECT
+  
+  source(here("primary_select_shiny.R"), local = TRUE)
+  
   # Analyses ----
   # ** Meta-Analysis ----
   # Selection of between-study variance estimator
@@ -217,6 +217,9 @@ server <- function(input, output, session) {
   
   
   # Do the meta-analysis
+  
+  rma <- reactiveValues()
+  
   meta_res_output <- reactive({
     req(input$metamodel)
     
@@ -235,9 +238,11 @@ server <- function(input, output, session) {
     if(input$metamodel == "re"){
       res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
                  method = re_type)
+      rma$res <- res
     } else if (input$metamodel == "fe"){
       res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]], 
                  method = "FE")
+      rma$res <- res
     }
   })
   
@@ -324,6 +329,9 @@ server <- function(input, output, session) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5))
   })
+  
+  
+  ####
   
   
   # Create plots ----
@@ -434,7 +442,30 @@ server <- function(input, output, session) {
       ggsave(file, plot = sunset_funnel_input(), device = "png", dpi = 300)
     }
   )
+
+#####Publication Bias Methods
   
+  output$BM <- renderPrint({
+    ranktest(rma$res)
+  })
+  
+  output$SterneEgger <- renderPrint({
+    regtest(rma$res)
+  }) 
+  
+  output$TRFI <- renderPrint({
+    "shalalala"
+    # sign(rma$res$b)
+    # if (sign(rma$res$b) == 1) {
+    #   trimfill(rma$res, side = "left")
+    # } else if (sign(rma$res$b) == -1) {
+    #   trimfill(rma$res, side = "right")
+    # }
+    
+  })
+  output$pcur <- renderPrint({
+    "shalalalaalala"
+  })
 }
 
 shinyApp(ui = ui, server = server)

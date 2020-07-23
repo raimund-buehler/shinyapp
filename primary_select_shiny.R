@@ -1,38 +1,41 @@
 
 #preselect earliest overall studies in dataset (column "studyname" required)
 primary_temp <- reactive({
+  req(para$id)
+  req(para$year)
   data <- data_reac$DT
-  data[year == min(year)]$studyname
+  min <- which(na.omit(data[[para$year]]) == min(na.omit(data[[para$year]])))
+  data[[para$id]][min]
 })
 
 #preselect earliest published studies
-primary_publ_temp <- reactive({
-  data <- data_reac$DT
-  data[pub == "pub", .SD[year == min(year)]]$studyname
-})
+# primary_publ_temp <- reactive({
+#   data <- data_reac$DT
+#   data[pub == "pub", .SD[year == min(year)]]$studyname
+# })
 
 #Let user choose the earliest study, if more than one study of same (earliest) year is found
 #if less than one: just confirm the study that was found 
 output$primarySelect <- renderUI({
-  req(input$SE)
+  req(input$file)
   if(length(primary_temp())>1){
-    if(input$SE == ""){
+    # if(input$SE == ""){
       radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"))
-    } else {
-      radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"), selected = tail(input$primaryChoice))
-    }
+    # } else {
+    #   radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"), selected = tail(input$primaryChoice))
+    # }
   } else {
-    if(input$SE == ""){
+    # if(input$SE == ""){
       radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no"))
-    } else {
-      radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no"), selected = tail(input$primaryChoice))
-    }
+    # } else {
+    #   radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no"), selected = tail(input$primaryChoice))
+    # }
   }
 })
 
-observeEvent(input$file$name, {
-  updateRadioButtons(session, inputId = "primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"))
-})
+# observeEvent(input$file$name, {
+#   updateRadioButtons(session, inputId = "primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"))
+# })
 
 #If user selects unsure, checkboxes are displayed of the same preselected studies and user can choose two candidates
 output$candidateSelect <- renderUI({
@@ -52,39 +55,39 @@ observe({
 })
 
 #Same thing, but for published studies only
-output$primaryPublSelect <- renderUI({
-  req(input$primaryChoice)
-  if(length(primary_publ_temp())>1){
-    if(input$primaryChoice == ""){
-      radioButtons("primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"))
-    } else {
-      radioButtons("primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"), selected = tail(input$primaryPublChoice))  
-    }  
-  } else {
-    if(input$primaryChoice == ""){
-      radioButtons(inputId = "primaryPublChoice", label = paste("Is this the earliest PUBLISHED study in your dataset:", primary_publ_temp(), "?"), choices = c("None selected" = "", "yes", "no"))
-    } else {
-      radioButtons(inputId = "primaryPublChoice", label = paste("Is this the earliest PUBLISHED study in your dataset:", primary_publ_temp(), "?"), choices = c("None selected" = "", "yes", "no"), selected = tail(input$primaryPublChoice)) 
-    }
-  }
-})
-
-observeEvent(input$file$name, {
-  updateRadioButtons(session, inputId = "primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"))
-})
-
-#select candidates
-output$candidatePublSelect <- renderUI({ 
-  req(input$chooseEScol)
-  req(input$primaryPublChoice)
-  if(input$primaryPublChoice == "unsure"){
-    checkboxGroupInput("candidatePublChoice", label = "Please select the TWO candidate PUBLISHED studies that are most likely the earliest studies!", choices = primary_publ_temp())
-  }
-})
-
-#limit amount of checked boxes to two
-observe({
-  if(length(input$candidatePublChoice) > 2){
-    updateCheckboxGroupInput(session, inputId = "candidatePublChoice", selected= tail(input$candidatePublChoice, 2))
-  }
-})
+# output$primaryPublSelect <- renderUI({
+#   req(input$primaryChoice)
+#   if(length(primary_publ_temp())>1){
+#     if(input$primaryChoice == ""){
+#       radioButtons("primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"))
+#     } else {
+#       radioButtons("primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"), selected = tail(input$primaryPublChoice))  
+#     }  
+#   } else {
+#     if(input$primaryChoice == ""){
+#       radioButtons(inputId = "primaryPublChoice", label = paste("Is this the earliest PUBLISHED study in your dataset:", primary_publ_temp(), "?"), choices = c("None selected" = "", "yes", "no"))
+#     } else {
+#       radioButtons(inputId = "primaryPublChoice", label = paste("Is this the earliest PUBLISHED study in your dataset:", primary_publ_temp(), "?"), choices = c("None selected" = "", "yes", "no"), selected = tail(input$primaryPublChoice)) 
+#     }
+#   }
+# })
+# 
+# observeEvent(input$file$name, {
+#   updateRadioButtons(session, inputId = "primaryPublChoice", label = "Please select the earliest PUBLISHED study in your dataset", choices = c("None selected" = "", primary_publ_temp(), "unsure"))
+# })
+# 
+# #select candidates
+# output$candidatePublSelect <- renderUI({ 
+#   req(input$chooseEScol)
+#   req(input$primaryPublChoice)
+#   if(input$primaryPublChoice == "unsure"){
+#     checkboxGroupInput("candidatePublChoice", label = "Please select the TWO candidate PUBLISHED studies that are most likely the earliest studies!", choices = primary_publ_temp())
+#   }
+# })
+# 
+# #limit amount of checked boxes to two
+# observe({
+#   if(length(input$candidatePublChoice) > 2){
+#     updateCheckboxGroupInput(session, inputId = "candidatePublChoice", selected= tail(input$candidatePublChoice, 2))
+#   }
+# })
