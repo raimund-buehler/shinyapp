@@ -614,7 +614,8 @@ server <- function(input, output, session) {
     req(para$se)
     p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
                     egger = input$choice_egger,
-                    trim_and_fill = input$choice_trimfill)
+                    trim_and_fill = input$choice_trimfill,
+                    method = estim())
     as.ggplot(p) + ggtitle("Contour-Enhanced Funnel Plot") +
       theme(plot.title = element_text(hjust = 0.5))
   })
