@@ -1,0 +1,24 @@
+{
+    "id": "B1A5B6F8",
+    "path": "~/Documents/Arbeit/PraeDoc Pietschnig/main_analysis/03-syntax/syntax-files/bias_pcurve.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1595597313002.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "cursorPosition": "116,2",
+        "scrollLine": "104"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1590568585,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1590568585,
+    "read_only": false,
+    "read_only_alternatives": []
+}

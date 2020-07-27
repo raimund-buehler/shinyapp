@@ -24,10 +24,10 @@ ui <- dashboardPage(
       menuItem("Meta-Analysis", tabName = "MA",
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
                menuSubItem("Moderator Analysis", tabName = "MoA"), icon = icon("calculator")),
-      menuItem("Publication Bias", tabName = "PB",
+      menuItem("Publication Bias",
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
-               menuSubItem("Trim-and-Fill", tabName = "T_F"),
+               menuSubItem("Trim-and-Fill", tabName = "trif"),
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
@@ -124,7 +124,7 @@ ui <- dashboardPage(
       tabItem(tabName = "MoA", verbatimTextOutput("checkCols")),
       tabItem(tabName = "B_M", verbatimTextOutput("BM")),
       tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
-      tabItem(tabname = "T_F", verbatimTextOutput("TRFI")),
+      tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
       tabItem(tabName = "pcurve", verbatimTextOutput("pcur")),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni")),
       tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
@@ -444,28 +444,29 @@ server <- function(input, output, session) {
   )
 
 #####Publication Bias Methods
-  
+  ##Begg and Mazumdar
   output$BM <- renderPrint({
     ranktest(rma$res)
   })
   
+  ##Sterne and Egger
   output$SterneEgger <- renderPrint({
     regtest(rma$res)
   }) 
   
+  ##Trim and Fill
   output$TRFI <- renderPrint({
-    "shalalala"
-    # sign(rma$res$b)
-    # if (sign(rma$res$b) == 1) {
-    #   trimfill(rma$res, side = "left")
-    # } else if (sign(rma$res$b) == -1) {
-    #   trimfill(rma$res, side = "right")
-    # }
-    
+    if (sign(rma$res$b) == 1) {
+      trimfill(rma$res, side = "left")
+    } else if (sign(rma$res$b) == -1) {
+      trimfill(rma$res, side = "right")
+    }
   })
+  
+  ##pcurve
   output$pcur <- renderPrint({
-    "shalalalaalala"
   })
+  
 }
 
 shinyApp(ui = ui, server = server)
