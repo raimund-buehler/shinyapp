@@ -3,22 +3,22 @@
     "path": "~/Documents/GitHub/shinyapp/app.R",
     "project_path": "app.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "3835788733",
     "contents": "",
     "dirty": false,
     "created": 1595507463008.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
-        "cursorPosition": "670,5",
-        "scrollLine": "651"
+        "cursorPosition": "614,35",
+        "scrollLine": "660"
     },
     "folds": "",
-    "lastKnownWriteTime": 1595835895,
+    "lastKnownWriteTime": 1595839377,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1595835895159,
+    "last_content_update": 1595839377,
     "read_only": false,
     "read_only_alternatives": []
 }
