@@ -344,7 +344,10 @@ server <- function(input, output, session) {
   
   output$meta_out_4 <- renderText(
     sprintf("Q(df = %.0f) = %.4f, p %s", meta_res_output()$k.all - 1, meta_res_output()$QE, 
-            if(meta_res_output()$QEp < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$Qp, 4))})
+            if(meta_res_output()$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(meta_res_output()$QEp, 4), 
+                                                                            scientific = FALSE))})
+    
+
   )
   
   
