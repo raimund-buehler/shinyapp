@@ -28,13 +28,14 @@ ui <- dashboardPage(
       
       menuItem("Meta-Analysis", tabName = "MA",
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
-               menuSubItem("Subgroup Analysis", tabName = "MoA"), icon = icon("calculator"),
-               menuSubItem("Meta-Regression", tabName = "metareg")),
+               menuSubItem("Subgroup Analysis", tabName = "MoA"),
+               menuSubItem("Meta-Regression", tabName = "metareg"), icon = icon("calculator")),
       
       menuItem("Publication Bias", tabName = "PB",
+#               >>>>>>> 4f903728099c33f6bc6fb060b89cbd71d75422af
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
-               menuSubItem("Trim-and-Fill", tabName = "T_F"),
+               menuSubItem("Trim-and-Fill", tabName = "trif"),
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
@@ -50,21 +51,21 @@ ui <- dashboardPage(
       
       # ** About ----
       tabItem(tabName = "about",
-        h2("ABOUT PAGE")),
+              h2("ABOUT PAGE")),
       
       # ** Data input ----
       tabItem(tabName = "file",
-        fluidRow(
-          column(width = 4,
-            box(
-              width = NULL,
-              fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
-            ),
-            uiOutput("choices")
-          ),
-          column(width = 8, uiOutput("table")
-          )
-        )
+              fluidRow(
+                column(width = 4,
+                       box(
+                         width = NULL,
+                         fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
+                       ),
+                       uiOutput("choices")
+                ),
+                column(width = 8, uiOutput("table")
+                )
+              )
       ),
       
       # ** Forest Plot ----
@@ -129,10 +130,10 @@ ui <- dashboardPage(
       # ** Meta-Analysis ----
       tabItem(tabName = "MAsub", 
               radioButtons(inputId = "metamodel",
-                            label = "Select Meta-Analytic Model",
-                            choiceNames = c("Fixed-effect Model", "Random-effects Model"),
-                            choiceValues = c("fe", "re"),
-                            selected = "re"),
+                           label = "Select Meta-Analytic Model",
+                           choiceNames = c("Fixed-effect Model", "Random-effects Model"),
+                           choiceValues = c("fe", "re"),
+                           selected = "re"),
               uiOutput("select_re_type"),
               h3("Results"),
               p(),
@@ -150,7 +151,7 @@ ui <- dashboardPage(
               p(),
               verbatimTextOutput("meta_res"),
               downloadButton(outputId = "dwn_meta_res",
-                            label = "Download Results"),
+                             label = "Download Results"),
               downloadButton(outputId = "dwn_meta_res_obj",
                              label = "Download R-Object with Results"),
               plotOutput("meta_sens")
@@ -170,7 +171,7 @@ ui <- dashboardPage(
                             value = FALSE),
               verbatimTextOutput("mod_res"),
               plotOutput("plot_subgroup")
-              ),
+      ),
       
       
       # ** Meta-Regression ----
@@ -181,11 +182,11 @@ ui <- dashboardPage(
                             label = "Knapp and Hartung Adjustment",
                             value = FALSE),
               verbatimTextOutput("meta_reg")
-              ),
+      ),
       
       tabItem(tabName = "B_M", verbatimTextOutput("BM")),
       tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
-      tabItem(tabname = "T_F", verbatimTextOutput("TRFI")),
+      tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
       tabItem(tabName = "pcurve", verbatimTextOutput("pcur")),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni")),
       tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
@@ -230,25 +231,25 @@ server <- function(input, output, session) {
   
   output$DTable <- DT::renderDataTable(data_reac$DT,
                                        options = list(pageLength = 15, info = FALSE, lengthMenu = list(c(15,-1), c("15","All")))
-                        )
+  )
   output$choices <- renderUI({
     box(title = "Input",
-      width = NULL,
-      uiOutput("EStype"),
-      uiOutput("EScolumn"),
-      uiOutput("SEcolumn"),
-      uiOutput("Year"),
-      uiOutput("SampleSize"),
-      uiOutput("StudyID"),
-      uiOutput("PubStatus"),
-      uiOutput("PubValuePub"),
-      uiOutput("PubValueUnpub"),
-      
-      uiOutput("primarySelect"),
-      uiOutput("candidateSelect"),
-      uiOutput("primaryPublSelect"),
-      uiOutput("candidatePublSelect"),
-      #textInput(inputId = "primary_name", label = "Please specify the primary study")
+        width = NULL,
+        uiOutput("EStype"),
+        uiOutput("EScolumn"),
+        uiOutput("SEcolumn"),
+        uiOutput("Year"),
+        uiOutput("SampleSize"),
+        uiOutput("StudyID"),
+        uiOutput("PubStatus"),
+        uiOutput("PubValuePub"),
+        uiOutput("PubValueUnpub"),
+        
+        uiOutput("primarySelect"),
+        uiOutput("candidateSelect"),
+        uiOutput("primaryPublSelect"),
+        uiOutput("candidatePublSelect"),
+        #textInput(inputId = "primary_name", label = "Please specify the primary study")
     )
     
   })
@@ -304,7 +305,7 @@ server <- function(input, output, session) {
                method = estim())
     
   })  
-
+  
   # **** Prep output ----
   
   output$meta_res <- renderPrint({
@@ -343,7 +344,10 @@ server <- function(input, output, session) {
   
   output$meta_out_4 <- renderText(
     sprintf("Q(df = %.0f) = %.4f, p %s", meta_res_output()$k.all - 1, meta_res_output()$QE, 
-            if(meta_res_output()$QEp < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$Qp, 4))})
+            if(meta_res_output()$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(meta_res_output()$QEp, 4), 
+                                                                            scientific = FALSE))})
+    
+
   )
   
   
@@ -613,7 +617,8 @@ server <- function(input, output, session) {
     req(para$se)
     p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
                     egger = input$choice_egger,
-                    trim_and_fill = input$choice_trimfill)
+                    trim_and_fill = input$choice_trimfill,
+                    method = estim())
     as.ggplot(p) + ggtitle("Contour-Enhanced Funnel Plot") +
       theme(plot.title = element_text(hjust = 0.5))
   })
@@ -648,30 +653,32 @@ server <- function(input, output, session) {
       ggsave(file, plot = sunset_funnel_input(), device = "png", dpi = 300)
     }
   )
-
-#####Publication Bias Methods
+  
+  #####Publication Bias Methods
+  ##Begg and Mazumdar
   
   output$BM <- renderPrint({
-    ranktest(rma$res)
+    ranktest(meta_res_output())
   })
   
+  ##Sterne and Egger
   output$SterneEgger <- renderPrint({
-    regtest(rma$res)
+    regtest(meta_res_output())
   }) 
   
+  ##Trim and Fill
   output$TRFI <- renderPrint({
-    "shalalala"
-    # sign(rma$res$b)
-    # if (sign(rma$res$b) == 1) {
-    #   trimfill(rma$res, side = "left")
-    # } else if (sign(rma$res$b) == -1) {
-    #   trimfill(rma$res, side = "right")
-    # }
-    
+    if (sign(meta_res_output()$b) == 1) {
+      trimfill(meta_res_output(), side = "left")
+    } else if (sign(meta_res_output()$b) == -1) {
+      trimfill(meta_res_output(), side = "right")
+    }
   })
+  
+  ##pcurve
   output$pcur <- renderPrint({
-    "shalalalaalala"
   })
+  
 }
 
 shinyApp(ui = ui, server = server)
