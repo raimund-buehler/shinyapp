@@ -1,0 +1,35 @@
+# ----------------------------------------------------------------------------------------
+# R Code for MA2 of "How biased is the literature in Psychological Science?"     
+# File content: TRIM-AND-FILL ANALYSIS                 
+# Last update: 26 05 2020                                                         
+# Authors: Magdalena Siegel & Jakob Pietschnig                                  
+# Contact: magdalena.siegel@univie.ac.at                                         
+# ----------------------------------------------------------------------------------------
+
+#### DATA CHECK ----
+# checks if object res.rma has been stored in environment and creates it, if not
+if (exists("res.rma")==FALSE) {
+  res.rma <- data[, rma(yi = z, vi = z.SE^2, method = "ML")]
+} 
+
+
+#### TRIM AND FILL ANALYSIS (Duval & Tweedie, 2000a, 2000b) ----
+if (sign(res.rma$b) == 1) {
+  res.tf <- data[, trimfill(res.rma, side = "left")]
+} else if (sign(res.rma$b) == -1) {
+  res.tf <- data[, trimfill(res.rma, side = "right")]
+}
+
+# draws funnel plot using metafor function
+metafor::funnel(res.tf)
+
+
+#### FUNNEL PLOT ----
+# **** open device
+png(filename = here(sprintf("%s%s_funnel.png", plots.loc, filename)))
+
+# **** plot trim-and-fill funnel plot 
+metafor::funnel(res.tf)
+
+# **** shut device
+dev.off()

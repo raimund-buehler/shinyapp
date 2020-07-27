@@ -1,4 +1,3 @@
-# LIBRARIES ----
 library(shiny)
 library(shinyWidgets)
 library(foreign)
@@ -13,11 +12,8 @@ library(tidyverse)
 library(shinydashboard)
 library(DT)
 
-# UI ----
 ui <- dashboardPage(
   dashboardHeader(title = "Decline Effects App"),
-  
-  # Sidebar ----
   dashboardSidebar(
     sidebarMenu(
       menuItem("About", tabName = "about"),
@@ -25,12 +21,9 @@ ui <- dashboardPage(
       menuItem("Plots", tabName = "plots",
                menuSubItem("Forest Plot", tabName = "forest"),
                menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
-      
       menuItem("Meta-Analysis", tabName = "MA",
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
-               menuSubItem("Subgroup Analysis", tabName = "MoA"), icon = icon("calculator"),
-               menuSubItem("Meta-Regression", tabName = "metareg")),
-      
+               menuSubItem("Moderator Analysis", tabName = "MoA"), icon = icon("calculator")),
       menuItem("Publication Bias", tabName = "PB",
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
@@ -42,17 +35,12 @@ ui <- dashboardPage(
       
     )
   ),
-  
-  # Body ----
   dashboardBody(
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "font_correction.css")),
     tabItems(
-      
-      # ** About ----
       tabItem(tabName = "about",
         h2("ABOUT PAGE")),
-      
-      # ** Data input ----
+    
       tabItem(tabName = "file",
         fluidRow(
           column(width = 4,
@@ -66,8 +54,6 @@ ui <- dashboardPage(
           )
         )
       ),
-      
-      # ** Forest Plot ----
       tabItem(tabName = "forest", 
               fluidRow(
                 column(7, align = "center",
@@ -102,8 +88,6 @@ ui <- dashboardPage(
                                      label = "Descending Order"))
               ),
               fluidRow(downloadButton("dwn_forest"))),
-      
-      # ** Funnel Plot ----
       tabItem(tabName = "funnel", 
               fluidRow(
                 splitLayout(cellWidths = c("50%", "50%"), 
@@ -125,8 +109,6 @@ ui <- dashboardPage(
                 )
               )
       ),
-      
-      # ** Meta-Analysis ----
       tabItem(tabName = "MAsub", 
               radioButtons(inputId = "metamodel",
                             label = "Select Meta-Analytic Model",
@@ -134,55 +116,12 @@ ui <- dashboardPage(
                             choiceValues = c("fe", "re"),
                             selected = "re"),
               uiOutput("select_re_type"),
-              h3("Results"),
-              p(),
-              h4("Model Type"),
-              textOutput("meta_out_1"),
-              p(),
-              h4("Summary Effect"),
-              textOutput("meta_out_2"),
-              p(),
-              h4("Heterogeneity Statistics"),
-              tableOutput("meta_out_3"),
-              p(),
-              h4("Test for Heterogeneity"),
-              textOutput("meta_out_4"),
-              p(),
               verbatimTextOutput("meta_res"),
               downloadButton(outputId = "dwn_meta_res",
                             label = "Download Results"),
-              downloadButton(outputId = "dwn_meta_res_obj",
-                             label = "Download R-Object with Results"),
               plotOutput("meta_sens")
       ),
-      
-      # ** Subgroup Analysis ----
-      tabItem(tabName = "MoA",
-              h3("Subgroup Analysis With One Categorical Moderator"),
-              
-              uiOutput("select_catmod"),
-              uiOutput("select_ref_mod"),
-              checkboxInput(inputId = "mod_intrcpt", 
-                            label = "Model with Intercept",
-                            value = FALSE),
-              checkboxInput("knha_mod", 
-                            label = "Knapp and Hartung Adjustment",
-                            value = FALSE),
-              verbatimTextOutput("mod_res"),
-              plotOutput("plot_subgroup")
-              ),
-      
-      
-      # ** Meta-Regression ----
-      tabItem(tabName = "metareg",
-              h3("Meta-Regression"),
-              uiOutput("select_reg_mod"),
-              checkboxInput("knha_reg", 
-                            label = "Knapp and Hartung Adjustment",
-                            value = FALSE),
-              verbatimTextOutput("meta_reg")
-              ),
-      
+      tabItem(tabName = "MoA", verbatimTextOutput("checkCols")),
       tabItem(tabName = "B_M", verbatimTextOutput("BM")),
       tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
       tabItem(tabname = "T_F", verbatimTextOutput("TRFI")),
@@ -195,8 +134,6 @@ ui <- dashboardPage(
   )
 )
 
-
-# SERVER ----
 server <- function(input, output, session) {
   ## READ DATA FILE and coerce to data.table
   
@@ -263,7 +200,7 @@ server <- function(input, output, session) {
   
   # Analyses ----
   # ** Meta-Analysis ----
-  # **** Selection of between-study variance estimator
+  # Selection of between-study variance estimator
   # Only shown if re-model was selected (default)
   output$select_re_type <- renderUI({
     req(input$metamodel)
@@ -278,10 +215,16 @@ server <- function(input, output, session) {
     }
   })
   
-  # store estimator
-  estim <- reactive({
-    if (input$metamodel == "re"){
-      estim <- switch(input$select_re_type,
+  
+  # Do the meta-analysis
+  
+  rma <- reactiveValues()
+  
+  meta_res_output <- reactive({
+    req(input$metamodel)
+    
+    # switch chosen estimator to input for rma()
+    re_type <- switch(input$select_re_type,
                       "DerSimonian-Laird (DL)" = "DL", 
                       "Hedges (HE)" = "HE",
                       "Hunter-Schmidt (HS)" = "HS",
@@ -290,62 +233,22 @@ server <- function(input, output, session) {
                       "Restricted Maximum-Likelihood (REML)" = "REML",
                       "Empirical Bayes Estimator (EB)" = "EB", 
                       "Paule-Mandel Estimator (PM)" = "PM")
+    
+    
+    if(input$metamodel == "re"){
+      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                 method = re_type)
+      rma$res <- res
     } else if (input$metamodel == "fe"){
-      estim<- "FE"
+      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]], 
+                 method = "FE")
+      rma$res <- res
     }
-    estim
   })
-  
-  # **** Run the meta-analysis ----
-  meta_res_output <- reactive({
-    req(input$metamodel)
-    
-    res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-               method = estim())
-    
-  })  
-
-  # **** Prep output ----
   
   output$meta_res <- renderPrint({
     summary(meta_res_output())
   })
-  
-  output$meta_out_1 <- renderText(
-    sprintf("%s Model; k = %s%s", 
-            if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
-            meta_res_output()$k.all,
-            if(input$metamodel == "fe"){paste("")} else {sprintf("; tau^2 estimator: %s", meta_res_output()$method)})
-  )
-  
-  
-  output$meta_out_2 <- renderText(
-    sprintf("%s = %.2f, se = %.2f, 95%% CI [%.2f; %.2f], p %s, z = %.2f", 
-            para$es,
-            meta_res_output()$b,
-            meta_res_output()$se,
-            meta_res_output()$ci.lb,
-            meta_res_output()$ci.ub,
-            if(meta_res_output()$pval < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$pval, 4))},
-            meta_res_output()$zval)
-  )
-  
-  output$meta_out_3 <- renderTable(
-    data.frame(txt = c("tau^2 (estimated amount of total heterogeneity):",
-                       "tau (square root of estimated tau^2 value):",
-                       "I^2 (total heterogeneity / total variability):",
-                       "H^2 (total variability / sampling variability):"),
-               val = c(paste(round(meta_res_output()$tau2, 4), " (SE = ", round(meta_res_output()$se.tau2, 4), ")", sep = ""),
-                       round(sqrt(meta_res_output()$tau2), 4),
-                       paste(round(meta_res_output()$I2, 2), "%", sep = ""),
-                       round(meta_res_output()$H2, 2))), colnames = FALSE
-  )
-  
-  output$meta_out_4 <- renderText(
-    sprintf("Q(df = %.0f) = %.4f, p %s", meta_res_output()$k.all - 1, meta_res_output()$QE, 
-            if(meta_res_output()$QEp < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$Qp, 4))})
-  )
-  
   
   output$dwn_meta_res <- downloadHandler(
     filename = "meta_results.txt",
@@ -355,15 +258,6 @@ server <- function(input, output, session) {
       sink()
     }
   )
-  
-  output$dwn_meta_res_obj <- downloadHandler(
-    filename = "meta_results.RDS",
-    content = function(file){
-      saveRDS(meta_res_output(), file = file)
-    }
-  )
-  
-  # **** Sensitivity Analysis Plot ----
   
   res.estim <- reactive({
     req(data_reac$DT)
@@ -386,10 +280,23 @@ server <- function(input, output, session) {
                     label = paste(round(es, 2), " (", round(es - 1.96 * se, 2),
                                   "; ", round(es + 1.96 * se, 2), ")", sep = ""))]
     df.sens
+    df.sens
   })
   
   # create forest plot
   output$meta_sens <- renderPlot({
+    
+    # NEEDSFIX: FE
+    re_type <- switch(input$select_re_type,
+                      "DerSimonian-Laird (DL)" = "DL", 
+                      "Hedges (HE)" = "HE",
+                      "Hunter-Schmidt (HS)" = "HS",
+                      "Sidik-Jonkman (SJ)" = "SJ",
+                      "Maximum-Likelihood (ML)" = "ML",
+                      "Restricted Maximum-Likelihood (REML)" = "REML",
+                      "Empirical Bayes Estimator (EB)" = "EB", 
+                      "Paule-Mandel Estimator (PM)" = "PM")
+    
     ggplot(data = res.estim()) + 
       
       # add vertical dashed line to indicate null effect 
@@ -405,8 +312,8 @@ server <- function(input, output, session) {
       # add labels
       geom_text(aes(x = es, y = method_ordered, label = label), vjust = -1.5) +
       
-      # highlight selected estimation method
-      gghighlight(method == estim(), 
+      # highlight selected estimation method [NEEDSFIX: FE]
+      gghighlight(method == re_type, 
                   use_direct_label = FALSE,
                   unhighlighted_params = list(color = "#525252")) +
       
@@ -424,120 +331,7 @@ server <- function(input, output, session) {
   })
   
   
-  # ** Subgroup analysis with one categorical moderator  ----
-  
-  # **** Select moderator ----
-  output$select_catmod <- renderUI({
-    req(data_reac$DT)
-    lvl <- apply(data_reac$DT, 2, function(x) {
-      length(levels(as_factor(x)))
-    })
-    preselect_mod <- names(which(lvl == min(lvl)))[1]
-    selectInput(inputId = "select_catmod",
-                label = "Select Moderator Variable",
-                choices = colnames(data_reac$DT),
-                selected = preselect_mod)
-    
-  })
-  
-  # **** Select reference category ----
-  output$select_ref_mod <- renderUI({
-    selectInput(inputId = "select_ref_mod",
-                label = "Select Reference Category of Moderator",
-                choices = levels(factor(data_reac$DT[[input$select_catmod]])))
-    
-  })
-  
-  # **** Do the moderator analysis ----
-  
-  # use estimator chosen in the default meta 
-  mod_res_output <- reactive({
-    req(input$metamodel)
-    
-    # do the moderator analysis
-    
-    if(input$mod_intrcpt == FALSE){
-      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                 mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                                  ref = input$select_ref_mod) - 1,
-                 method = estim(),
-                 knha = input$knha_mod)
-    } else if (input$mod_intrcpt == TRUE){
-      res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                 mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                                 ref = input$select_ref_mod),
-                 method = estim(),
-                 knha = input$knha_mod)
-      
-    }
-    res_out <- res
-    
-    # **** Shorten names of coefficients in object ----
-    attr(res_out$beta, "dimnames")[[1]] <- gsub(".*)","", attr(res$beta, "dimnames")[[1]])
-    res_out
-  })
-  
-  output$mod_res <- renderPrint({
-    print(mod_res_output())
-  })
-  
-  # ** Subgroup plot ----
-  mod_plot_output <- reactive({
-    req(mod_res_output())
-    df <- data.table(mod_res_output()$beta, keep.rownames = TRUE)
-    df[, `:=` (ci_ub =  mod_res_output()$ci.ub,
-               ci_lb = mod_res_output()$ci.lb,
-               rn = str_to_title(rn))]
-    colnames(df) <- c("mod", "es", "ci.ub", "ci.lb")
-    df[, label := paste0(round(es, 2), " (", round(ci.lb, 2), "; ", round(ci.ub, 2), ")")]
-    
-    ggplot(data = df) +
-      xlim(c(-2, 2)) +
-      xlab("Effect size") +
-      ylab("Subgroup") +
-      geom_vline(xintercept = 0, linetype = "dashed") +
-      geom_point(aes(x = es, y = mod)) +
-      geom_segment(aes(x = ci.lb, xend = ci.ub, 
-                       y = mod, yend = mod)) +
-      geom_text(aes(x = es, y = mod, label = label), vjust = -2) + 
-      theme_minimal()
-    
-  })
-  
-  output$plot_subgroup <- renderPlot(
-    print(mod_plot_output())
-  )
-  
-  # ** Meta-Regression ----
-  
-  # **** Select moderators ----
-  output$select_reg_mod <- renderUI({
-    req(data_reac$DT)
-    selectInput(inputId = "select_reg_mod",
-                label = "Select all moderator variables",
-                choices = colnames(data_reac$DT),
-                multiple = TRUE)
-  })
-  
-  # **** Do the meta-regression ----
-  meta_reg_output <- reactive({
-    req(input$select_reg_mod)
-    
-    # paste all moderators as formula 
-    mods <- paste0("data_reac$DT[[", "'", input$select_reg_mod, "'", "]]", collapse = " + ")
-    
-    # do the analysis
-    res.reg <- rma(data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                   mods = as.formula(paste("~", mods)),
-                   method = estim(),
-                   knha = input$knha_reg)
-    
-    
-  })
-  
-  output$meta_reg <- renderPrint({
-    print(meta_reg_output())
-  })
+  ####
   
   
   # Create plots ----
