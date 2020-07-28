@@ -63,7 +63,8 @@ output$sortingvar <- renderUI({
   req(input$file)
   selectInput(inputId = "sortingvar",
               label = "Select Sorting Variable",
-              choices = colnames(data_reac$DT))
+              choices = colnames(data_reac$DT),
+              selected = para$year)
 })
 
 

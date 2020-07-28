@@ -21,15 +21,17 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("About", tabName = "about"),
-      menuItem("Data", tabName = "file", icon = icon("table")),
-      menuItem("Plots", tabName = "plots",
-               menuSubItem("Forest Plot", tabName = "forest"),
-               menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
+      menuItem("Data", tabName = "file", icon = icon("table"),
+               coll),
       
-      menuItem("Meta-Analysis", tabName = "MA",
+      menuItem("Meta-Analysis", tabName = "MA", selected = TRUE,
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
                menuSubItem("Subgroup Analysis", tabName = "MoA"),
                menuSubItem("Meta-Regression", tabName = "metareg"), icon = icon("calculator")),
+      
+      menuItem("Plots", tabName = "plots",
+               menuSubItem("Forest Plot", tabName = "forest"),
+               menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
       
       menuItem("Publication Bias", tabName = "PB",
 #               >>>>>>> 4f903728099c33f6bc6fb060b89cbd71d75422af
@@ -59,13 +61,16 @@ ui <- dashboardPage(
                 column(width = 4,
                        box(
                          width = NULL,
+                         collapsible = TRUE,
                          fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
                        ),
                        uiOutput("choices")
                 ),
-                column(width = 8, uiOutput("table")
+                  column(width = 8,
+                         uiOutput("table")
+                         )
                 )
-              )
+              
       ),
       
       # ** Forest Plot ----
@@ -281,6 +286,9 @@ server <- function(input, output, session) {
   
   # store estimator
   estim <- reactive({
+    validate(
+      need(isTruthy(input$select_re_type), "")
+    )
     if (input$metamodel == "re"){
       estim <- switch(input$select_re_type,
                       "DerSimonian-Laird (DL)" = "DL", 
@@ -299,10 +307,19 @@ server <- function(input, output, session) {
   
   # **** Run the meta-analysis ----
   meta_res_output <- reactive({
-    req(input$metamodel)
+    # req(input$metamodel)
+    validate(
+      need(isTruthy(data_reac$DT[[para$es]]) & isTruthy(data_reac$DT[[para$se]]), 
+           "Please select columns for effect size and standard error"))
+    validate(
+      need(isTruthy(estim()), 
+           "Please select estimation method"))
+    
+    
     
     res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
                method = estim())
+    
     
   })  
   
@@ -370,7 +387,10 @@ server <- function(input, output, session) {
   # **** Sensitivity Analysis Plot ----
   
   res.estim <- reactive({
-    req(data_reac$DT)
+    validate(
+      need(isTruthy(data_reac$DT[[para$es]]) & isTruthy(data_reac$DT[[para$se]]), 
+           "Please select columns for effect size and standard error"))
+    
     
     # calculate all models
     estim <- c("FE", "DL", "HE", "HS", "SJ", "ML", "REML", "EB", "PM")
@@ -394,6 +414,8 @@ server <- function(input, output, session) {
   
   # create forest plot
   output$meta_sens <- renderPlot({
+    req(res.estim())
+    req(estim())
     ggplot(data = res.estim()) + 
       
       # add vertical dashed line to indicate null effect 
@@ -432,7 +454,10 @@ server <- function(input, output, session) {
   
   # **** Select moderator ----
   output$select_catmod <- renderUI({
-    req(data_reac$DT)
+    validate(
+      need(isTruthy(meta_res_output()), 
+           "Please run meta-analysis first"))
+    
     lvl <- apply(data_reac$DT, 2, function(x) {
       length(levels(as_factor(x)))
     })
@@ -446,6 +471,9 @@ server <- function(input, output, session) {
   
   # **** Select reference category ----
   output$select_ref_mod <- renderUI({
+    req(meta_res_output())
+
+    
     selectInput(inputId = "select_ref_mod",
                 label = "Select Reference Category of Moderator",
                 choices = levels(factor(data_reac$DT[[input$select_catmod]])))
@@ -456,8 +484,11 @@ server <- function(input, output, session) {
   
   # use estimator chosen in the default meta 
   mod_res_output <- reactive({
-    req(input$metamodel)
-    
+    req(input$select_catmod)
+    req(input$select_ref_mod)
+    validate(
+      need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
+    )
     # do the moderator analysis
     
     if(input$mod_intrcpt == FALSE){
@@ -482,12 +513,17 @@ server <- function(input, output, session) {
   })
   
   output$mod_res <- renderPrint({
+    req(mod_res_output())
     print(mod_res_output())
   })
   
   # ** Subgroup plot ----
   mod_plot_output <- reactive({
-    req(mod_res_output())
+    
+    validate(
+      need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
+    )
+    
     df <- data.table(mod_res_output()$beta, keep.rownames = TRUE)
     df[, `:=` (ci_ub =  mod_res_output()$ci.ub,
                ci_lb = mod_res_output()$ci.lb,
