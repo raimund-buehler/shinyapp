@@ -21,8 +21,8 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("About", tabName = "about"),
-      menuItem("Data", tabName = "file", icon = icon("table"),
-               coll),
+      menuItem("Data", tabName = "file", icon = icon("table")),
+               
       
       menuItem("Meta-Analysis", tabName = "MA", selected = TRUE,
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
@@ -34,7 +34,6 @@ ui <- dashboardPage(
                menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
       
       menuItem("Publication Bias", tabName = "PB",
-#               >>>>>>> 4f903728099c33f6bc6fb060b89cbd71d75422af
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
                menuSubItem("Trim-and-Fill", tabName = "trif"),
@@ -472,6 +471,7 @@ server <- function(input, output, session) {
   # **** Select reference category ----
   output$select_ref_mod <- renderUI({
     req(meta_res_output())
+    req(input$select_catmod)
 
     
     selectInput(inputId = "select_ref_mod",
