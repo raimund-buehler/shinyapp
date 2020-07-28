@@ -45,7 +45,6 @@ ui <- dashboardPage(
                 column(width = 4,
                        box(
                          width = NULL,
-                         collapsible = TRUE,
                          fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
                        ),
                        uiOutput("choices")
@@ -72,7 +71,7 @@ ui <- dashboardPage(
               # plot forest plot
               fluidRow(
                 column(7,
-                       plotOutput("forest")),
+                       uiOutput("forest")),
                 column(5,
                        # select forest plot variant
                        selectInput(inputId = "forestvariant",
@@ -89,7 +88,14 @@ ui <- dashboardPage(
                        uiOutput("sortingvar"),
                        
                        checkboxInput(inputId = "descendingforest",
-                                     label = "Descending Order"))
+                                     label = "Descending Order"),
+                       sliderInput("forestheight", label = "Please choose plot height (px)",
+                                   min = 100,
+                                   max = 2000,
+                                   value = 800)
+
+                       )
+                
               ),
               fluidRow(downloadButton("dwn_forest"))),
       
