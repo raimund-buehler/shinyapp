@@ -1,0 +1,35 @@
+# ----------------------------------------------------------------------------------------
+# R Code for MA2 of "How biased is the literature in Psychological Science?"     
+# File content: P-UNIFORM, P-UNIFORM*                    
+# Last update: 26 05 2020                                                         
+# Authors: Magdalena Siegel & Jakob Pietschnig                                  
+# Contact: magdalena.siegel@univie.ac.at                                         
+# ----------------------------------------------------------------------------------------
+
+# P UNIFORM ----
+# stores results of puniform analysis in object res.puniform, 
+# contingent on sign of summary effect (r metric), Irwin-Hall estimator
+if (sign(res.rma$b) == 1) {
+  res.puniform <- data_dir[, puniform(ri = r,ni = n, side="right",method="P")]
+} else if (sign(res.rma$b) == -1) {
+  res.puniform <- data_dir[, puniform(ri = r,ni = n, side="left",method="P")]
+}
+
+
+# P UNIFORM STAR ----
+if (sign(res.rma$b) == 1) {
+  res.puniform.star <- data[, puni_star(ri = r,ni = n, side="right")]
+} else if (sign(res.rma$b) == -1) {
+  res.puniform.star <- data[, puni_star(ri = r,ni = n, side="left")]
+}
+
+# TRANSFORMATIONS INTO Z METRIC ----
+# puni
+z.puniform <- 0.5 * log((1 + res.puniform$est) / (1 - res.puniform$est))
+z.lb.puniform <- 0.5 * log((1 + res.puniform$ci.lb) / (1 - res.puniform$ci.lb))
+z.ub.puniform <- 0.5*log((1 + res.puniform$ci.ub) / (1 - res.puniform$ci.ub))
+
+# puni star
+z.puniform.star <- 0.5 * log((1 + res.puniform.star$est) / (1 - res.puniform.star$est))
+z.lb.puniform.star <- 0.5 * log((1 + res.puniform.star$ci.lb) / (1 - res.puniform.star$ci.lb))
+z.ub.puniform.star <- 0.5*log((1 + res.puniform.star$ci.ub) / (1 - res.puniform.star$ci.ub))

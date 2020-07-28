@@ -1,0 +1,24 @@
+{
+    "id": "2B297BC8",
+    "path": "~/Documents/GitHub/shinyapp/app.R",
+    "project_path": "app.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1595841515041.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "cursorPosition": "190,62",
+        "scrollLine": "176"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1595846097,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1595846097578,
+    "read_only": false,
+    "read_only_alternatives": []
+}
