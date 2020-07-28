@@ -39,31 +39,38 @@ mod_res_output <- reactive({
     need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
   )
   # do the moderator analysis
+  # moderator analysis is run twice (with/without intercept in model spec)
+  l <- list()
+  l$no_intrcpt <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                             mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                              ref = input$select_ref_mod) - 1,
+                             method = estim(),
+                             knha = input$knha_mod)
   
-  if(input$mod_intrcpt == FALSE){
-    res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-               mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                                ref = input$select_ref_mod) - 1,
-               method = estim(),
-               knha = input$knha_mod)
-  } else if (input$mod_intrcpt == TRUE){
-    res <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-               mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                               ref = input$select_ref_mod),
-               method = estim(),
-               knha = input$knha_mod)
-    
-  }
-  res_out <- res
+  l$intrcpt <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                          mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                          ref = input$select_ref_mod),
+                          method = estim(),
+                          knha = input$knha_mod)
+              
   
   # **** Shorten names of coefficients in object ----
-  attr(res_out$beta, "dimnames")[[1]] <- gsub(".*)","", attr(res$beta, "dimnames")[[1]])
-  res_out
+  l.out <- lapply(l, function(x){
+    attr(x$beta, "dimnames")[[1]] <- gsub(".*)","", attr(x$beta, "dimnames")[[1]])
+    x
+  })
+  
+  l.out
+
 })
 
 output$mod_res <- renderPrint({
   req(mod_res_output())
-  print(mod_res_output())
+  if (input$mod_intrcpt == FALSE){
+  print(mod_res_output()$no_intrcpt)
+  } else if (input$mod_intrcpt == TRUE) {
+    print(mod_res_output()$intrcpt)
+  }
 })
 
 # ** Subgroup plot ----
@@ -73,9 +80,9 @@ mod_plot_output <- reactive({
     need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
   )
   
-  df <- data.table(mod_res_output()$beta, keep.rownames = TRUE)
-  df[, `:=` (ci_ub =  mod_res_output()$ci.ub,
-             ci_lb = mod_res_output()$ci.lb,
+  df <- data.table(mod_res_output()$no_intrcpt$beta, keep.rownames = TRUE)
+  df[, `:=` (ci_ub =  mod_res_output()$no_intrcpt$ci.ub,
+             ci_lb = mod_res_output()$no_intrcpt$ci.lb,
              rn = str_to_title(rn))]
   colnames(df) <- c("mod", "es", "ci.ub", "ci.lb")
   df[, label := paste0(round(es, 2), " (", round(ci.lb, 2), "; ", round(ci.ub, 2), ")")]
