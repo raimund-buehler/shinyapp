@@ -21,6 +21,9 @@ observeEvent(input$cumulforest, {rv$type_forest <- "cumulative"})
 forestplotInput <- reactive({
   req(para$es)
   req(para$se)
+  req(para$id)
+  req(input$sortingvar)
+  
   
   # transform selected variant into input for viz_forest
   choice_forest <- switch(input$forestvariant, 
@@ -62,6 +65,7 @@ forestplotInput <- reactive({
 })
 
 output$forest <- renderPlot({
+  req(forestplotInput())
   print(forestplotInput())
 })
 
@@ -87,6 +91,7 @@ normal_funnel_input <- reactive({
 })
 
 output$normal_funnel <- renderPlot({
+  req(normal_funnel_input())
   print(normal_funnel_input())
   
 })
@@ -100,6 +105,7 @@ sunset_funnel_input <- reactive({
 })
 
 output$sunset_funnel <- renderPlot({
+  req(sunset_funnel_input())
   print(sunset_funnel_input())
 })
 # download funnel plots

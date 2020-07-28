@@ -25,5 +25,6 @@ meta_reg_output <- reactive({
 })
 
 output$meta_reg <- renderPrint({
+  req(meta_reg_output())
   print(meta_reg_output())
 })

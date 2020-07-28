@@ -59,6 +59,7 @@ meta_res_output <- reactive({
 # **** Prep output ----
 
 output$meta_res <- renderPrint({
+  req(meta_res_output())
   summary(meta_res_output())
 })
 
@@ -149,6 +150,10 @@ res.estim <- reactive({
 output$meta_sens <- renderPlot({
   req(res.estim())
   req(estim())
+  
+  # this suppresses the warning for the layer
+  # I would usually not do this but for the plot alone it is fine
+  suppressWarnings(
   ggplot(data = res.estim()) + 
     
     # add vertical dashed line to indicate null effect 
@@ -167,6 +172,7 @@ output$meta_sens <- renderPlot({
     # highlight selected estimation method
     gghighlight(method == estim(), 
                 use_direct_label = FALSE,
+                use_group_by = FALSE,
                 unhighlighted_params = list(color = "#525252")) +
     
     # set x-axis limits
@@ -180,4 +186,5 @@ output$meta_sens <- renderPlot({
     # set theme and center title
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5))
+  )
 })

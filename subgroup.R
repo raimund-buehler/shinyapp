@@ -93,6 +93,8 @@ mod_plot_output <- reactive({
   
 })
 
-output$plot_subgroup <- renderPlot(
+output$plot_subgroup <- renderPlot({
+  req(mod_plot_output())
   print(mod_plot_output())
+        }
 )
