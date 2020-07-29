@@ -185,7 +185,14 @@ ui <- dashboardPage(
       tabItem(tabName = "B_M", verbatimTextOutput("BM")),
       tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
       tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
-      tabItem(tabName = "pcurve", verbatimTextOutput("pcur")),
+      
+      # pcurve ----
+      tabItem(tabName = "pcurve", 
+              column(width = 7,
+              plotOutput("pcurve_plot", height = "600px")),
+              column(width = 5,
+                     h3("Input for pcurve Web-App"),
+                     verbatimTextOutput("pcurve_input"))),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))

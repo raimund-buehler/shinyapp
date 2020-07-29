@@ -20,8 +20,7 @@ output$TRFI <- renderPrint({
 
 ##pcurve
 ##Where is the file altered? 
-output$pcur <- renderPrint({
-})
+source(here("pcurve_demo.R"), local = TRUE)
 
 ##puniform
 ##needs r, --> calc-effectsize
