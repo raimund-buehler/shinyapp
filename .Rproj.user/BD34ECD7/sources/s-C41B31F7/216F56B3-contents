@@ -1,0 +1,43 @@
+# ----------------------------------------------------------------------------------------
+# R Code for MA2 of "How biased is the literature in Psychological Science?"     
+# File content: TEST OF EXCESS SIGNIFICANCE                      
+# Last update: 26 05 2020                                                         
+# Authors: Magdalena Siegel & Jakob Pietschnig                                  
+# Contact: magdalena.siegel@univie.ac.at                                         
+# ----------------------------------------------------------------------------------------
+
+# EXCESS OF SIGNIFICANCE TEST - Ioannidis & Trikalinos (2007) ----
+
+# **** number of significant studies (stored in ksign of for.power object), contingent on sign of summary effect (O) ----
+
+if (sign(res.rma$b) == 1) {
+  O <- data[, puniform(ri = r,ni = n, side="right", method="P")]$ksig
+} else if (sign(res.rma$b)==-1) {
+  O <- data[, puniform(ri = r,ni = n, side="left", method="P")]$ksig
+}
+
+## number of studies (overall)
+kall<-length(data$r)
+
+## estimation of summary effect (z metric, fixed effect) and conversion to r
+MA.ES.z <- data[, rma(z, z.SE^2, method = "FE")]
+MA.ES.r <- as.numeric((exp(2 * MA.ES.z$b) - 1) / (exp(2 * MA.ES.z$b) + 1))
+
+# Calculating average power based on effect size estimate of overall effect
+P.ind.all.e <- mapply(pwr.r.test, n = data$n, r = MA.ES.r)
+PowP.ind.all.e <- sapply(P.ind.all.e[4, 1:kall], as.numeric)
+MeanPowerInd.all.e <- mean(PowP.ind.all.e) #average power for detecting summary effect
+
+# estimated number of significant studies = power * k = E
+E <- MeanPowerInd.all.e * kall
+
+
+### chisquare for difference between observed and expected significant studies (A)
+ 
+A<-((O - E)^2 / E) + ((O - E)^2 / (kall - E)) ## for.power$ksig are observed sign. studies
+A
+res.it<-pchisq(A, df = 1, lower.tail = F)
+
+# caution: there may be fewer observed than expected significant studies, 
+# then the sign of for.res.it would be negative
+for.res.it <- O - E

@@ -15,6 +15,9 @@ library(DT)
 library(puniform)
 library(stringr)
 library(poibin)
+library(weightr)
+library(pwr)
+
 
 # UI ----
 source(here("ui_x.R"), local = TRUE)

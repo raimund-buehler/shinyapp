@@ -1,0 +1,24 @@
+{
+    "id": "6626A6FA",
+    "path": "~/Documents/GitHub/shinyapp/primary_select_shiny.R",
+    "project_path": "primary_select_shiny.R",
+    "type": "r_source",
+    "hash": "3661945831",
+    "contents": "",
+    "dirty": false,
+    "created": 1595942193924.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "cursorPosition": "51,2",
+        "scrollLine": "34"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1596023933,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1596023933645,
+    "read_only": false,
+    "read_only_alternatives": []
+}

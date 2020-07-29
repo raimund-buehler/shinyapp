@@ -45,7 +45,6 @@ ui <- dashboardPage(
                 column(width = 4,
                        box(
                          width = NULL,
-                         collapsible = TRUE,
                          fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
                        ),
                        uiOutput("choices")
@@ -178,7 +177,7 @@ ui <- dashboardPage(
       tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
       tabItem(tabName = "pcurve", verbatimTextOutput("pcur")),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
-      tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
+      tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))
       
     )

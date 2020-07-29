@@ -194,7 +194,7 @@ ui <- dashboardPage(
                      h3("Input for pcurve Web-App"),
                      verbatimTextOutput("pcurve_input"))),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
-      tabItem(tabName = "SelMod", verbatimTextOutput("Sel_Mod")),
+      tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))
       
     )
