@@ -38,6 +38,13 @@ server <- function(input, output, session) {
   data_reac$DTall <- data
   })
   
+  output$dwn_dat <- downloadHandler(
+    filename = "dat.RDS",
+    content = function(file){
+      saveRDS(data_reac$DTall, file = file)
+    }
+  )
+  
   ######PRIMARY SELECT
   
   source(here("primary_select_shiny.R"), local = TRUE)

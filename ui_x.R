@@ -52,6 +52,9 @@ ui <- dashboardPage(
                 column(width = 8,
                        uiOutput("table")
                 )
+              ),
+              fluidRow(
+                downloadButton(outputId = "dwn_dat", label = "Download Data With Converted Effect Sizes")
               )
               
       ),
