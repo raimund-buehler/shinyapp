@@ -1,0 +1,42 @@
+# ----------------------------------------------------------------------------------------
+# R Code for MA2 of "How biased is the literature in Psychological Science?"     
+# File content: SELECTION MODELS VEVEA & WOODS
+# Last update: 09 06 2020                                                         
+# Authors: Magdalena Siegel & Jakob Pietschnig                                  
+# Contact: magdalena.siegel@univie.ac.at                                         
+# ----------------------------------------------------------------------------------------
+
+# Specifications ----
+
+# specify p-value cutpoints
+vevwoo_steps <- c(.005, .010, .050, .100, .250, .350, .500, .650, .750, .900,
+                  .950, .990, .995, 1.00)
+
+# specify weights for the selection models according to Vevea & Woods (2005)
+vevwoo_weights_list <- list(moderate_one = c(1.0, .99, .95, .90, .80, .75, .65, .60,
+                                             .55, .50, .50, .50, .50, .50),
+                            severe_one = c(1.0, .99, .90, .75, .60, .50, .40,
+                                           .35, .30, .25, .10, .10, .10, .10),
+                            moderate_two = c(1.0, .99, .95, .90, .80, .75, .60,
+                                             .60, .75, .80, .90, .95, .99, 1.0),
+                            severe_two = c(1.0, .99, .90, .75, .60, .50, .25, .25,
+                                           .50, .60, .75, .90, .99, 1.0))
+
+# Run all four models
+# Use coined effect sizes in case of negative initial effect
+if (sign_primary == -1){
+  vevwoo.res <- lapply(vevwoo_weights_list, function(x){
+    data[, weightfunct(effect = z, 
+                       v = z.SE^2,
+                       steps = vevwoo_steps,
+                       weights = rev(x))]
+  })
+} else {
+  vevwoo.res <- lapply(vevwoo_weights_list, function(x){
+    data[, weightfunct(effect = z, 
+                       v = z.SE^2,
+                       steps = vevwoo_steps,
+                       weights = x)]
+  })
+}
+

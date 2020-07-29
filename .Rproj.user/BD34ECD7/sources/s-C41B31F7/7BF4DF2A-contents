@@ -1,0 +1,129 @@
+##########################################################################################
+##### R Code for MA2 of "How biased is the literature in Psychological Science?"     #####
+##### File content: MASTERFILE                                                       #####
+#### Last update: 26 05 2020                                                         #####  
+#### Authors: Jakob Pietschnig & Magdalena Siegel                                    #####
+#### Contact: magdalena.siegel@univie.ac.at                                          ##### 
+#### Study: darvishi et al. (2015) - PLOS-048                                           #####
+##########################################################################################
+
+#################### MANUAL ENTRIES START ####################
+{
+  # specify user
+  user <- "Raimund"
+  
+  # specify where data for lightning plot should be stored
+  lightning.loc <- "02-output/lightning-calc/PLOS/"
+  
+  # specify location of individual syntax files (call libraries, transformations, calculations, df.out template)
+  syntax.loc <- "03-syntax/syntax-files/"
+  
+  # specify location of data file to be loaded
+  data.loc <-"01-input/sav-calc/PLOS/"
+  
+  # specify location of generated plots (trim-and-fill, cumulative)
+  plots.loc <- "02-output/plots-calc/PLOS/"
+  
+  # specify where results from weighted mean calculations for JP regression should be stored
+  jpreg.loc <- "02-output/joinpoint-calc/PLOS/"
+  
+  # specify where datastring and results from pcurve should be stored
+  # top level only, location of individual folder will be added automatically according to filename
+  pcurve.loc <-"02-output/pcurve-calc/PLOS/"
+  
+  # specify where output file should be stored
+  res.loc <-"02-output/results-calc/PLOS/"
+  
+  # specify where report file should be stored
+  report.loc <-"02-output/reports-calc/PLOS/"
+  
+  # specify filename (author (yyyy), author1 & author2 (yyyy), author1 et al. (yyyy))
+  filename <- "darvishi et al. (2015)"
+  
+  # specify number of .sav-table to read in 
+  tablenum <-1
+  
+  # specify ID of study
+  ID <-"PLOS-048"
+  
+  # specify name of primary study 
+  # attention: remove trailing and leading whitespace, needs to be an exact match with input file!
+  ID_primary <- "Beck 1989"
+  ID_primary_publ <-"Beck 1989"
+  # unsure which study is the primary study? tell us both!
+  primary_unsure <-"no"
+  primary_cand1 <- ""
+  primary_cand2 <-""
+  primary_unsure_publ <-"no"
+  primary_cand1_publ <- ""
+  primary_cand2_publ <- "" 
+  
+  # specify type of effect (d, g, r, z, OR, logOR)
+  type_ES <- "logOR"
+  if (!(type_ES %in% c("d","g","r","z","OR","logOR"))) {
+    stop("Please specify valid type of effect size!")
+  }
+  
+  # are only published studies included in dataset (yes/no/unsure)?
+  pb_only <-"yes"
+}
+#################### MANUAL ENTRIES STOP ####################
+
+#### PACKAGES ----
+library(here)
+source(here(sprintf("%sload_packages.R",syntax.loc)), echo = TRUE)
+
+#### DATA -----
+data <- read.spss(here(sprintf("%s%s_table %d.sav", data.loc, filename, tablenum)), to.data.frame = T)
+data$studyname <- trimws(data$studyname) #trims leading and trailing whitespace
+data <- as.data.table(data)
+
+#### CHECK COLUMN NAMES -----
+source(here(sprintf("%scheck_colnames.R", syntax.loc)))
+
+#### EFFECT SIZE TRANSFORMATION ----
+run <- 1
+source(here(sprintf("%scalc_effectsize.R", syntax.loc)))
+
+#### QUICK CHECK OF DATA ----
+source(here(sprintf("%scheck_data.R", syntax.loc)))
+
+#### PREP DATA FOR LIGHTNING PLOT -----
+source(here(sprintf("%sprep_lightningplot.R", syntax.loc)))
+
+#### RANDOM EFFECTS MA AND CROSSTEMPORAL REGRESSION ----
+source(here(sprintf("%scalc_rma-ctreg.R", syntax.loc)), echo = TRUE)
+
+#### SAMPLE SIZE WEIGHTED MEANS/YEAR FOR JOINPOINT REGRESSION ----
+source(here(sprintf("%sprep_jpreg.R", syntax.loc)), echo = TRUE)  
+
+
+
+#################### BIAS ANALYSES START ####################
+
+
+##### **** Trim and Fill ----
+source(here(sprintf("%sbias_tf.R", syntax.loc)), echo = TRUE)
+
+##### **** Begg & Mazumdar, Sterne & Egger ----
+source(here(sprintf("%sbias_bm-se-petpeese.R",syntax.loc)), echo = TRUE)
+
+#### *** Vevea & Woods selection models -----
+source(here(sprintf("%sbias_vevwoo.R",syntax.loc)), echo = TRUE)
+
+#### **** p curve analysis ----
+source(here(sprintf("%sbias_pcurve.R",syntax.loc)), echo = TRUE)
+
+####  **** p uniform analysis ----
+source(here(sprintf("%sbias_puni.R",syntax.loc)), echo = TRUE)
+
+#### **** Ioannidis & Trikalinos excess of significance ----
+source(here(sprintf("%sbias_tes.R",syntax.loc)), echo = TRUE)
+
+#################### BIAS ANALYSES END  ####################
+
+####  ADDITIONAL OBJECTS ---- 
+source(here(sprintf("%sprep_addvars.R",syntax.loc)), echo = TRUE)
+
+#### OUTPUT FILE ----
+source(here(sprintf("%sprep_output.R",syntax.loc)), echo = TRUE)
