@@ -52,6 +52,9 @@ ui <- dashboardPage(
                 column(width = 8,
                        uiOutput("table")
                 )
+              ),
+              fluidRow(
+                downloadButton(outputId = "dwn_dat", label = "Download Data With Converted Effect Sizes")
               )
               
       ),
@@ -71,7 +74,7 @@ ui <- dashboardPage(
               # plot forest plot
               fluidRow(
                 column(7,
-                       plotOutput("forest")),
+                       uiOutput("forest")),
                 column(5,
                        # select forest plot variant
                        selectInput(inputId = "forestvariant",
@@ -88,7 +91,14 @@ ui <- dashboardPage(
                        uiOutput("sortingvar"),
                        
                        checkboxInput(inputId = "descendingforest",
-                                     label = "Descending Order"))
+                                     label = "Descending Order"),
+                       sliderInput("forestheight", label = "Please choose plot height (px)",
+                                   min = 100,
+                                   max = 2000,
+                                   value = 800)
+
+                       )
+                
               ),
               fluidRow(downloadButton("dwn_forest"))),
       

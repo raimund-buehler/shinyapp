@@ -64,12 +64,31 @@ forestplotInput <- reactive({
   }
 })
 
-output$forest <- renderPlot({
-  req(forestplotInput())
-  print(forestplotInput())
+plotheight <- reactive({
+  paste0(input$forestheight, "px")
 })
 
+output$forestplotOut <- renderPlot(
+ print(forestplotInput())
+)
+
+output$forest <- renderUI({
+  req(forestplotInput())
+  plotOutput("forestplotOut", height = plotheight(), width = "100%")
+})
+
+#output$forest <- renderPlot(height = input$forest_height, 
+                         #   {
+ # req(forestplotInput())
+  #print(forestplotInput())
+#})
+
+
 # download forest plot
+plotheight_inch <- reactive({
+  plotheight()/300
+})
+
 output$dwn_forest <- downloadHandler(
   filename = "forestplot.png",
   content = function(file) {
