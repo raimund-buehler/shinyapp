@@ -13,8 +13,11 @@ library(tidyverse)
 library(shinydashboard)
 library(DT)
 library(puniform)
+library(stringr)
+library(poibin)
 library(weightr)
 library(pwr)
+
 
 # UI ----
 source(here("ui_x.R"), local = TRUE)
@@ -22,6 +25,7 @@ source(here("ui_x.R"), local = TRUE)
 
 # SERVER ----
 server <- function(input, output, session) {
+  
   ####DATA INPUT
   
   source(here("data_input.R"), local = TRUE)
