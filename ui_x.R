@@ -181,7 +181,7 @@ ui <- dashboardPage(
                             value = FALSE),
               verbatimTextOutput("meta_reg")
       ),
-      
+      ## ** Pubbias ----
       tabItem(tabName = "B_M", verbatimTextOutput("BM")),
       tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
       tabItem(tabName = "trif", verbatimTextOutput("TRFI")),

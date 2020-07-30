@@ -3,15 +3,15 @@
     "path": "~/Documents/GitHub/shinyapp/choose_cols.R",
     "project_path": "choose_cols.R",
     "type": "r_source",
-    "hash": "1282501009",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1595842098860.0,
     "source_on_save": false,
     "relative_order": 4,
     "properties": {
-        "cursorPosition": "139,2",
-        "scrollLine": "127"
+        "cursorPosition": "14,7",
+        "scrollLine": "0"
     },
     "folds": "",
     "lastKnownWriteTime": 1596015063,

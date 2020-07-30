@@ -1,21 +1,30 @@
 ##Begg and Mazumdar----
 
 output$BM <- renderPrint({
-  ranktest(meta_res_output())
+  tryCatch(ranktest(meta_res_output()),
+      error = function(e){
+      "Please execute the Meta-Analysis first!"
+              })
 })
 
 ##Sterne and Egger----
 output$SterneEgger <- renderPrint({
-  regtest(meta_res_output())
+  tryCatch(regtest(meta_res_output()),
+           error = function(e){
+             "Please execute the Meta-Analysis first!"
+           })
 }) 
 
 ##Trim and Fill----
 output$TRFI <- renderPrint({
+  tryCatch(
   if (sign(meta_res_output()$b) == 1) {
     trimfill(meta_res_output(), side = "left")
   } else if (sign(meta_res_output()$b) == -1) {
     trimfill(meta_res_output(), side = "right")
-  }
+  },            error = function(e){
+    "Please execute the Meta-Analysis first!"
+  })
 })
 
 ##pcurve----
@@ -27,20 +36,26 @@ output$pcur <- renderPrint({
 ##needs r, --> calc-effectsize
 output$p_uni <- renderPrint({
   n <- para$n
+  tryCatch(
   if (sign(meta_res_output()$b) == 1){
     puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right",method="P")
   } else if (sign(meta_res_output()$b) == -1) {
     puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
-  }
+  },           error = function(e){
+    "Please execute the Meta-Analysis first!"
+  })
 })
 
 output$p_uni_star <- renderPrint({
   n <- para$n
+  tryCatch(
   if (sign(meta_res_output()$b) == 1){
     puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right")
   } else if (sign(meta_res_output()$b) == -1) {
     puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left")
-  }
+  },            error = function(e){
+    "Please execute the Meta-Analysis first!"
+  })
 })
 
 ##Vevea and woods selection models----
@@ -94,10 +109,14 @@ observe({
   SelMods$sev2 <- vevwoo.res$severe_two
 })
 
-output$modone <- renderPrint({SelMods$mod1})
-output$sevone <- renderPrint({SelMods$sev1})
-output$modtwo <- renderPrint({SelMods$mod2})
-output$sevtwo <- renderPrint({SelMods$sev2})
+output$modone <- renderPrint({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
+  SelMods$mod1})
+output$sevone <- renderPrint({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
+  SelMods$sev1})
+output$modtwo <- renderPrint({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
+  SelMods$mod2})
+output$sevtwo <- renderPrint({validate(need(isTruthy(SelMods$sev2), "Please select the earliest study in your dataset!"))
+  SelMods$sev2})
 
 # EXCESS OF SIGNIFICANCE TEST - Ioannidis & Trikalinos (2007) ----
 
@@ -105,8 +124,9 @@ output$sevtwo <- renderPrint({SelMods$sev2})
 #TES <- reactiveValues()
 
 output$TestOfExc <- renderPrint({
-  
+  tryCatch({
   data <- as.data.table(data_reac$DTall)
+  
   res.rma <- meta_res_output()
   
   if (sign(res.rma$b) == 1) {
@@ -140,5 +160,9 @@ output$TestOfExc <- renderPrint({
   # caution: there may be fewer observed than expected significant studies, 
   # then the sign of for.res.it would be negative
   for.res.it <- O - E
-  paste("chisquare-test for difference between observed and expected significant studies:\n p = ", res.it)
+  
+  paste("chisquare-test for difference between observed and expected significant studies:\n p = ", res.it)}
+, error = function(e){
+  "Please execute the Meta-Analysis first!"
+})
 })
