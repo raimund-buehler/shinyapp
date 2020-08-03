@@ -1,4 +1,6 @@
 # P-curve
+# Note: this matches the original pcurve code as closely as possible
+# it is definitely not the most efficient way
 
 # Put calculations done inside the pcurve app into reactive
 # put objects necessary for outputs (plots, table, input datastring) into list

@@ -190,19 +190,21 @@ ui <- dashboardPage(
       tabItem(tabName = "pcurve", 
               fluidRow(
               column(width = 7,
-              plotOutput("pcurve_plot", height = "600px")),
+                     box(title = "pcurve Plot", collapsible = TRUE, collapsed = TRUE, width = 12,
+              plotOutput("pcurve_plot", height = "600px"),
+              downloadButton("dwn_pcurve_plot", label = "Download Plot"))),
               column(width = 5,
-                     h3("Input for pcurve Web-App"),
-                     verbatimTextOutput("pcurve_input"))),
+                     box(title = "Input for pcurve Web-App", collapsible = TRUE,
+                         collapsed = TRUE, width = 12,
+                     verbatimTextOutput("pcurve_input"))
+                     )
+              ),
               fluidRow(
-                h3("Results of Binomial and Continuous Tests"),
+                h3("Results of Binomial and Continuous Tests", align = "center"),
                 tableOutput("pcurve_table"),
-                h3("Statistical Power"),
+                h3("Statistical Power", align = "center"),
                 textOutput("pcurve_power"),
-                textOutput("pcurve_power_ci")),
-              fluidRow(
-                downloadButton("dwn_pcurve_plot", label = "Download Plot")
-              )
+                textOutput("pcurve_power_ci"))
               ),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
