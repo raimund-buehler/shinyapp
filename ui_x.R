@@ -188,11 +188,22 @@ ui <- dashboardPage(
       
       # pcurve ----
       tabItem(tabName = "pcurve", 
+              fluidRow(
               column(width = 7,
               plotOutput("pcurve_plot", height = "600px")),
               column(width = 5,
                      h3("Input for pcurve Web-App"),
                      verbatimTextOutput("pcurve_input"))),
+              fluidRow(
+                h3("Results of Binomial and Continuous Tests"),
+                tableOutput("pcurve_table"),
+                h3("Statistical Power"),
+                textOutput("pcurve_power"),
+                textOutput("pcurve_power_ci")),
+              fluidRow(
+                downloadButton("dwn_pcurve_plot", label = "Download Plot")
+              )
+              ),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))

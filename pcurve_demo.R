@@ -283,9 +283,15 @@ pcurve <- reactive({
                   hat = hat,
                   power.ci.lb = power.ci.lb,
                   power.ci.ub = power.ci.ub,
+                  Zppr = Zppr,
+                  Zppr.half = Zppr.half,
+                  Zpp33 = Zpp33,
+                  Zpp33.half = Zpp33.half,
                   p.Zppr = p.Zppr,
                   p.Zppr.half = p.Zppr.half,
                   p.Zpp33 = p.Zpp33,
+                  p.Zpp33.half = p.Zpp33.half,
+                  binom.r = binom.r,
                   binom.33 = binom.33,
                   ksig = ksig,
                   khalf = khalf,
@@ -301,7 +307,7 @@ pcurve <- reactive({
   
 # Main plot ----
 
-  output$pcurve_plot <- renderPlot({
+  pcurve_plot_params <- reactive({
     req(pcurve())
     source(here("pcurve_functions.R"), local = TRUE)
    
@@ -326,126 +332,22 @@ pcurve <- reactive({
   
   #5.3 Red line
   red=c(20,20,20,20,20)
+  return(list(green = green,
+              blue = blue,
+              red = red))
+  })
   
   #5.4 Make the graph ----
-  #Note: R_temp & filek are parameterS set at the beggining of the program for the location of files
-  # png(filename = "/Users/uni/Documents/FWF/pcurveplot-test/mainfig.png", width=2600, height=2400, res=400)  
-  
-  #5.4.1  Define x-axis as p-values (.01, .02..)
-  x = c(.01,.02,.03,.04,.05)
-  
-  #5.4.2 Plot the observed p-curve
-  par(mar=c(6,5.5,1.5,3)) 
-  #5.4.3 Does blue line cross over  68% in when p>.02?
-  #Does blue line go above 68%? If yes, move up graph so that legend is not interrupted by it
-  moveup=max(max(blue[2:5])-66,0)  #moveup by difference between blue and 68
-  ylim=c(0,105+moveup)
-  legend.top=100+moveup
-  
-  #5.4.4 Start the plot  
-  plot(x,blue,   type='l', col='dodgerblue2',  main="",
-       lwd=2, xlab="", ylab="", xaxt="n",yaxt="n", xlim=c(0.01,0.051),
-       ylim=ylim, bty='L', las=1,axes=F)  	
-  
-  #5.4.5 x-axis value labels
-  x_=c(".01",".02",".03",".04",".05")
-  axis(1,at=x,labels=x_)
-  #5.4.6 y-axis value labels
-  y_=c("0%","25%","50%","75%","100%")
-  y=c(0,25,50,75,100)
-  axis(2,at=y,labels=y_,las=1,cex.axis=1.2)
-  
-  #5.4.7 Add y-axis label
-  mtext("Percentage of test results",font=2,side=2,line=3.85,cex=1.25)
-  #5.4.8 Add y-axis label
-  mtext("p            ",font=4,side=1,line=2.3,cex=1.25)
-  mtext(" -value",      font=2,side=1,line=2.3,cex=1.25)
-  
-  #5.4.9 Add little point in actual frequencies
-  points(x,blue,type="p",pch=20,bg="dodgerblue2",col="dodgerblue2")
-  #5.4.10 Add value-labels
-  text(x+.00075,blue+3.5,percent(round(blue)/100),col='black', cex=.75)
-  #5.4.11 Add red and green lines
-  lines(x,red,   type='l', col='firebrick2',    lwd=1.5, lty=3)
-  lines(x,green, type='l', col='springgreen4',  lwd=1.5, lty=5)
-  
-  #5.4.12 Legend
-  #x Position of text 
-  tab1=.023          #Labels for line at p=.023 in x-axis
-  tab2=tab1+.0015    #Test results and power esimates at tab1+.0015
-  #gaps in y positions
-  gap1=9             #between labels
-  gap2=4             #between lable and respective test (e.g., "OBserved p-curve" and "power estimate")
-  
-  #Color of font for test results
-  font.col='gray44'  
-  
-  #Legend for blue line
-  #Put together the text for power estimate in a single variable
-  text.blue=paste0("Power estimate: ",percent(pcurve()$hat),", CI(",
-                   percent(pcurve()$power.ci.lb),",",
-                   percent(pcurve()$power.ci.ub),")")
-  #Print it
-  text(tab1,legend.top,     adj=0,cex=.85,bquote("Observed "*italic(p)*"-curve"))
-  text(tab2,legend.top-gap2,adj=0,cex=.68,text.blue,col=font.col)
-  
-  #Legend for red line           
-  text.red=bquote("Tests for right-skewness: "*italic(p)*""[Full]~.(pcurve()$p.Zppr)*",  "*italic(p)*""[Half]~.(pcurve()$p.Zppr.half))
-  #note: .() within bquote prints the value rather than the variable name
-  text(tab1,legend.top-gap1,    adj=0,cex=.85, "Null of no effect" )  
-  text(tab2,legend.top-gap1-gap2,  adj=0,cex=.68, text.red, col=font.col ) 
-  
-  #Legend for green line           
-  text.green=bquote("Tests for flatness:            "*italic(p)*""[Full]~.(pcurve()$p.Zpp33)*",  "*italic(p)*""[Binomial]~.(pcurve()$binom.33))
-  text(tab1,legend.top-2*gap1,    adj=0,cex=.85,"Null of 33% power") 
-  text(tab2,legend.top-2*gap1-gap2,  adj=0,cex=.68,text.green,col=font.col) 
-  
-  #LINES in the legend:
-  segments(x0=tab1-.005,x1=tab1-.001,y0=legend.top,y1=legend.top,      col='dodgerblue2',lty=1,lwd=1.5) 
-  segments(x0=tab1-.005,x1=tab1-.001,y0=legend.top-gap1,  y1=legend.top-gap1,col='firebrick2',lty=3,lwd=1.5)      
-  segments(x0=tab1-.005,x1=tab1-.001,y0=legend.top-2*gap1,y1=legend.top-2*gap1,col='springgreen4',lty=2,lwd=1.5)      
-  #Box for the legend
-  rect(tab1-.0065,legend.top-2*gap1-gap2-3,tab1+.029,legend.top+3,border='gray85')   
-  
-  #NOTE AT BOTTOM   
-  
-  #Number of tests in p-curve      
-  msgx=bquote("Note: The observed "*italic(p)*"-curve includes "*.(pcurve()$ksig)*
-                " statistically significant ("*italic(p)*" < .05) results, of which "*.(pcurve()$khalf)*
-                " are "*italic(p)*" < .025.")
-  mtext(msgx,side=1,line=4,cex=.65,adj=0)
-  #Number of n.s. results entered
-  kns=pcurve()$ktot-pcurve()$ksig
-  if (kns==0) ns_msg="There were no non-significant results entered." 	
-  if (kns==1) ns_msg=bquote("There was one additional result entered but excluded from "*italic(p)*"-curve because it was "*italic(p)*" > .05.") 	
-  if (kns>1)  ns_msg=bquote("There were "*.(kns)*" additional results entered but excluded from "*italic(p)*"-curve because they were "*italic(p)*" > .05.")
-  mtext(ns_msg,side=1,line=4.75,cex=.65,adj=0)
-  
-  ###############################################################################  
-  #(6)  SAVE PP-VALUE CALCULATIONS TO TEXT FILES ----
-  ##############################################################################  
-  
-  #6.1 Table contains the original text enter, the corresponding p-value, the pp-values, and Z-scores for those pp-values
-  # table_calc=data.frame(raw, p, ppr, ppr.half, pp33, pp33.half, 
-  #                      qnorm(ppr),  qnorm(ppr.half), qnorm(pp33), qnorm(pp33.half))
-  #6.2 Headers
-  #headers1=c("Entered statistic","p-value", "ppr", "ppr half", "pp33%","pp33 half",
-  #          "Z-R","Z-R half","Z-33","z-33 half")
-  #6.3 Put headers onto table
-  #table_calc=setNames(table_calc,headers1)
-  
-  #6.4 Save it
-  # write.table(table_calc,sep="	", row.names=FALSE, 
-  # file=here(pcurve.loc, filename, paste("Calculations_",filek,".txt", sep="")))
-  
-  #6.5 Save results behind p-curve figure
-  # headers2=c("p-value","Observed (blue)","Power 33% (Green)", "Flat (Red)")
-  # table_figure=setNames(data.frame(x,blue,green,red),headers2)
-  #Save it to file
-  # write.table(table_figure, sep="	",row.names=FALSE, 
-  #file=here(pcurve.loc, filename, paste("FigNumbers_",filek,".txt", sep="")))
-  
+  pcurve_plot <- reactive({
+    source(here("pcurve_plot.R"), local = TRUE)
+
 })
+  
+  # Print plot ----
+  
+  output$pcurve_plot <- renderPlot({
+    pcurve_plot()
+  })
  
 # Results Section ----
   
@@ -457,5 +359,51 @@ pcurve <- reactive({
     paste(pcurve()$raw, collapse = "\n")
   })
   
+# Download Figure -----
   
+  output$dwn_pcurve_plot <- downloadHandler(
+    filename = "pcurve_plot.png",
+    content = function(file) {
+      png(file, width=2600, height=2400, res=400)
+      source(here("pcurve_plot.R"), local = TRUE)
+       dev.off()
+    })
+
+    
   
+
+# Display Results Table ----
+  
+  pcurve_table <- reactive({
+    
+    dt <- data.frame(rows = c("Studies contain evidential value", "Studies' evidential value, if any, is inadequate"),
+                     binp = c(paste0("p ", pcurve()$binom.r), paste0("p ", pcurve()$binom.33)),
+                     fullp = c(paste0("Z = ", pcurve()$Zppr, " p ",pcurve()$p.Zppr), 
+                               paste0("Z = ", pcurve()$Zpp33, " p ", pcurve()$p.Zpp33)),
+                     halfp = c(paste0("Z = ", pcurve()$Zppr.half, " p ", pcurve()$p.Zppr.half), 
+                               paste0("Z = ", pcurve()$Zpp33.half, " p ", pcurve()$p.Zpp33.half)))
+    dt
+    
+  })
+  
+  output$pcurve_table <- function(){
+    kable(pcurve_table(), col.names = rep("", 4), align = c("l", rep("c", 3))) %>%
+      kable_styling("striped") %>%
+      column_spec(1, bold = T, width = "25em") %>%
+      add_header_above(c(" " = 2, "Full p-curve\n (p's < .05)" = 1, "Half p-curve\n (p's < .05)" = 1)) %>%
+      add_header_above(c("", "Binomial Test" = 1, "Continuous Test" = 2))
+    
+  }
+  
+  output$pcurve_power <- renderText({
+    paste0("Power of tests included in p-curve (correcting for selective reporting): ",
+           percent(pcurve()$hat))
+  })
+  
+  output$pcurve_power_ci <- renderText({
+    paste0(
+           "90% Confidence interval: ",
+           percent(pcurve()$power.ci.lb), 
+           " ; ",
+           percent(pcurve()$power.ci.ub))
+  })
