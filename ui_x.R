@@ -18,16 +18,18 @@ ui <- dashboardPage(
                menuSubItem("Forest Plot", tabName = "forest"),
                menuSubItem("Funnel Plot", tabName = "funnel"), icon = icon("chart-area")),
       
-      menuItem("Publication Bias", tabName = "PB",
+      menuItem("Publication Bias", tabName = "PB", icon = icon("bolt"),
                menuSubItem("Begg & Mazumdar's Rank Test", tabName = "B_M"),
                menuSubItem("Sterne & Egger's Regression", tabName = "S_E"),
                menuSubItem("Trim-and-Fill", tabName = "trif"),
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
-               menuSubItem("Test of Excess Significance", tabName = "TES"), icon = icon("bolt"))
-      
+               menuSubItem("Test of Excess Significance", tabName = "TES"),
+               menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
+               )
     )
+               
   ),
   
   # Body ----
@@ -208,7 +210,50 @@ ui <- dashboardPage(
               ),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
-      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))
+      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
+      
+      # ** Summary Page ----
+      tabItem(tabName = "pubbias_summary",
+              fluidRow(
+                box("Thresholds", width = 12, collapsible = TRUE,
+                    h4("Thresholds based on p-values", align = "center"),
+                    fluidRow(
+                      box(textInput("BM_p", label = "Begg & Mazumdar", value = "0.10"), width = 4),
+                      box(textInput("SE_p", label = "Sterne & Egger", value = "0.10"), width = 4),
+                      box(textInput("PETPEESE_p", label = "PET-PEESE", value = "0.10"), width = 4),
+                    ),
+                    fluidRow(
+                      box(textInput("TES_p", label = "Test of Excess Significance", value = "0.10"), width = 4),
+                      box(textInput("puni_p", label = "Puniform", value = "0.05"), width = 4),
+                      box(textInput("punistar_p", label = "Puniform*", value = "0.05"), width = 4)
+                    ),
+                    h4("Thresholds based on discrepancy between summary effect and adjusted estimate", 
+                       align = "center"),
+                    fluidRow(
+                      box(textInput("tf_adj", label = "Trim-and-Fill", value = "0.20"), width = 6),
+                      box(textInput("sel_adj", label = "Selection Models", value = "0.20"), width = 6)
+                    ))
+                
+              ),
+              fluidRow(
+                h3("Small Study Effects", align = "center"),
+                box("Begg & Mazumdar", width = 3, collapsible = TRUE),
+                box("Sterne & Egger", width = 3, collapsible = TRUE),
+                box("PET-PEESE", width = 3, collapsible = TRUE),
+                box("Trim-and-Fill", width = 3, collapsible = TRUE)
+              ),
+              fluidRow(
+                h3("p-value Based Methods", align = "center"),
+                box("pcurve", width = 4, collapsible = TRUE),
+                box("puniform", width = 4, collapsible = TRUE),
+                box("puniform*", width = 4, collapsible = TRUE)
+              ),
+              fluidRow(
+                h3("Other Methods", align = "center"),
+                box("Test of Excess Significance", width = 6, collapsible = TRUE),
+                box("Selection Models (Vevea & Woods)", width = 6, collapsible = TRUE)
+              )
+              )
       
     )
   )

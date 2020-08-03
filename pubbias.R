@@ -28,7 +28,6 @@ output$TRFI <- renderPrint({
 })
 
 ##pcurve----
-##Where is the file altered? 
 source(here("pcurve_demo.R"), local = TRUE)
 
 ##puniform----
