@@ -25,14 +25,11 @@ ui <- dashboardPage(
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
-#<<<<<<< HEAD
-               menuSubItem("Test of Excess Significance", tabName = "TES"), icon = icon("bolt"),
-               menuSubItem("Summary", tabName = "pubsum")),
-#=======
                menuSubItem("Test of Excess Significance", tabName = "TES"),
+               menuSubItem("Summary", tabName = "pubsum"),
                menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
                )
-#>>>>>>> e46991e2dbff2b0ed8dfb9cb2df4467bf957179a
+    )
     ),
   
   # Body ----
@@ -214,9 +211,8 @@ ui <- dashboardPage(
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
-#<<<<<<< HEAD
+
       tabItem(tabName = "pubsum", uiOutput("pubboxes1"), uiOutput("pubboxes2"), uiOutput("pubboxes3")),
-#=======
       
       # ** Summary Page ----
       tabItem(tabName = "pubbias_summary",
@@ -260,8 +256,6 @@ ui <- dashboardPage(
                 box("Selection Models (Vevea & Woods)", width = 6, collapsible = TRUE)
               )
               )
-      
-#>>>>>>> e46991e2dbff2b0ed8dfb9cb2df4467bf957179a
     )
   )
 )

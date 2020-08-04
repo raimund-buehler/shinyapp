@@ -17,6 +17,7 @@ library(stringr)
 library(poibin)
 library(weightr)
 library(pwr)
+library(kableExtra)
 
 
 # UI ----
