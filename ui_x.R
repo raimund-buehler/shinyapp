@@ -215,7 +215,7 @@ ui <- dashboardPage(
       # ** Summary Page ----
       tabItem(tabName = "pubbias_summary",
               fluidRow(
-                box("Thresholds", width = 12, collapsible = TRUE,
+                box(title = "Thresholds", width = 12, collapsible = TRUE, collapsed = TRUE,
                     h4("Thresholds based on p-values", align = "center"),
                     fluidRow(
                       box(textInput("BM_p", label = "Begg & Mazumdar", value = "0.10"), width = 4),
