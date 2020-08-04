@@ -18,6 +18,7 @@ library(poibin)
 library(weightr)
 library(pwr)
 library(kableExtra)
+library(haven)
 
 
 # UI ----
@@ -43,13 +44,7 @@ server <- function(input, output, session) {
   source(here("calc_effectsize.R"), local = TRUE)
   data_reac$DTall <- data
   })
-  
-  output$dwn_dat <- downloadHandler(
-    filename = "dat.RDS",
-    content = function(file){
-      saveRDS(data_reac$DTall, file = file)
-    }
-  )
+
   
   ######PRIMARY SELECT
   
@@ -74,6 +69,9 @@ server <- function(input, output, session) {
   
   #####Publication Bias Methods
   source(here("pubbias.R"), local = TRUE)
+  
+  # Download Section ----
+  source(here("downloads.R"), local = TRUE)
   
 }
 
