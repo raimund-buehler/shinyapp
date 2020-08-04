@@ -27,7 +27,8 @@ ui <- dashboardPage(
                menuSubItem("Selection Models", tabName = "SelMod"),
                menuSubItem("Test of Excess Significance", tabName = "TES"),
                menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
-               )
+               ),
+      menuItem("Report & Downloads", tabName = "dwn", icon = icon("download"))
     )
                
   ),
@@ -253,6 +254,9 @@ ui <- dashboardPage(
                 box("Test of Excess Significance", width = 6, collapsible = TRUE),
                 box("Selection Models (Vevea & Woods)", width = 6, collapsible = TRUE)
               )
+              ),
+      tabItem("dwn", 
+              h2("Download Full Report")
               )
       
     )
