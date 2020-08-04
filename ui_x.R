@@ -26,12 +26,12 @@ ui <- dashboardPage(
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
                menuSubItem("Test of Excess Significance", tabName = "TES"),
+               menuSubItem("Summary", tabName = "pubsum"),
                menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
                ),
       menuItem("Report & Downloads", tabName = "dwn", icon = icon("download"))
     )
-               
-  ),
+    ),
   
   # Body ----
   dashboardBody(
@@ -185,9 +185,9 @@ ui <- dashboardPage(
               verbatimTextOutput("meta_reg")
       ),
       ## ** Pubbias ----
-      tabItem(tabName = "B_M", verbatimTextOutput("BM")),
-      tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
-      tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
+      tabItem(tabName = "B_M", infoBoxOutput("BMhelp"), verbatimTextOutput("BM")),
+      tabItem(tabName = "S_E", infoBoxOutput("SEhelp"), verbatimTextOutput("SterneEgger")),
+      tabItem(tabName = "trif", infoBoxOutput("TRFIhelp"), verbatimTextOutput("TRFI")),
       
       # pcurve ----
       tabItem(tabName = "pcurve", 
@@ -212,6 +212,8 @@ ui <- dashboardPage(
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
+
+      tabItem(tabName = "pubsum", uiOutput("pubboxes1"), uiOutput("pubboxes2"), uiOutput("pubboxes3")),
       
       # ** Summary Page ----
       tabItem(tabName = "pubbias_summary",
@@ -258,7 +260,6 @@ ui <- dashboardPage(
       tabItem("dwn", 
               h2("Download Full Report")
               )
-      
     )
   )
 )

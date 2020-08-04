@@ -3,7 +3,7 @@
     "path": "~/Documents/GitHub/shinyapp/pubbias.R",
     "project_path": "pubbias.R",
     "type": "r_source",
-    "hash": "2054148620",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1595929360601.0,
@@ -11,15 +11,15 @@
     "relative_order": 12,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "163,107",
-        "scrollLine": "145"
+        "cursorPosition": "6,44",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1596103198,
+    "lastKnownWriteTime": 1596528995,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1596103198710,
+    "last_content_update": 1596528995479,
     "read_only": false,
     "read_only_alternatives": []
 }

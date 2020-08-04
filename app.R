@@ -23,7 +23,6 @@ library(kableExtra)
 # UI ----
 source(here("ui_x.R"), local = TRUE)
 
-
 # SERVER ----
 server <- function(input, output, session) {
   
