@@ -34,7 +34,7 @@ output$SEhelp <- renderInfoBox({
   fluidRow(
     box("This test can be used to examine whether a relationship exists between the observed outcomes 
     and the chosen predictor (default = standard error). If such a relationship is present, then this 
-    usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias", 
+    usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias.", 
     title = "Sterne & Egger's Regression", width = NULL)
   )
 }) 
