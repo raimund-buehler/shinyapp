@@ -3,7 +3,7 @@
     "path": "~/Documents/GitHub/shinyapp/ui_x.R",
     "project_path": "ui_x.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "2790613535",
     "contents": "",
     "dirty": false,
     "created": 1595927752576.0,
@@ -11,15 +11,15 @@
     "relative_order": 6,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "134,24",
-        "scrollLine": "124"
+        "cursorPosition": "187,6",
+        "scrollLine": "180"
     },
     "folds": "",
-    "lastKnownWriteTime": 1596025616,
+    "lastKnownWriteTime": 1596528255,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1596025616892,
+    "last_content_update": 1596528255229,
     "read_only": false,
     "read_only_alternatives": []
 }

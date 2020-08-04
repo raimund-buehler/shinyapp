@@ -25,8 +25,8 @@ ui <- dashboardPage(
                menuSubItem("p-curve", tabName = "pcurve"),
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
-               menuSubItem("Test of Excess Significance", tabName = "TES"), icon = icon("bolt"))
-      
+               menuSubItem("Test of Excess Significance", tabName = "TES"), icon = icon("bolt"),
+               menuSubItem("Summary", tabName = "pubsum"))
     )
   ),
   
@@ -182,9 +182,9 @@ ui <- dashboardPage(
               verbatimTextOutput("meta_reg")
       ),
       ## ** Pubbias ----
-      tabItem(tabName = "B_M", verbatimTextOutput("BM")),
-      tabItem(tabName = "S_E", verbatimTextOutput("SterneEgger")),
-      tabItem(tabName = "trif", verbatimTextOutput("TRFI")),
+      tabItem(tabName = "B_M", infoBoxOutput("BMhelp"), verbatimTextOutput("BM")),
+      tabItem(tabName = "S_E", infoBoxOutput("SEhelp"), verbatimTextOutput("SterneEgger")),
+      tabItem(tabName = "trif", infoBoxOutput("TRFIhelp"), verbatimTextOutput("TRFI")),
       
       # pcurve ----
       tabItem(tabName = "pcurve", 
@@ -195,8 +195,8 @@ ui <- dashboardPage(
                      verbatimTextOutput("pcurve_input"))),
       tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
-      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc"))
-      
+      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
+      tabItem(tabName = "pubsum", uiOutput("pubboxes1"), uiOutput("pubboxes2"), uiOutput("pubboxes3"))
     )
   )
 )
