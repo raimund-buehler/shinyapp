@@ -103,5 +103,12 @@ mod_plot_output <- reactive({
 output$plot_subgroup <- renderPlot({
   req(mod_plot_output())
   print(mod_plot_output())
-        }
+}
+)
+  
+
+output$sbgrp_example <- renderPlot({
+  req(mod_plot_output())
+  print(mod_plot_output())
+}
 )

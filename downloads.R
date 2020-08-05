@@ -52,6 +52,14 @@ output$dwn_sbgrp_res_obj <- downloadHandler(
   }
 )
 
+# subgroup analysis ----
+output$dwn_sbgrp <- downloadHandler(
+  filename = "subgroup_analysis.png",
+  content = function(file) {
+    ggsave(file, plot = mod_plot_output(), device = "png", dpi = 300)
+  }
+)
+
 # meta-regression ----
 output$dwn_metareg_res <- downloadHandler(
   filename = "metaregression_results.txt",
@@ -121,3 +129,77 @@ output$dwn_sens <- downloadHandler(
     ggsave(file, plot = meta_sens(), device = "png", dpi = 300)
   }
 )
+
+# Publication Bias ----
+# ** Small Study Effects ----
+out_dwn_sse <- reactive({
+  fileext <- switch(input$dwn_select_filetype_sse,
+         "Results (.txt)" = ".txt",
+         "R-Object (.rds)" = ".rds")
+  fileext
+})
+
+output$dwn_bm <- downloadHandler(
+  filename = function(){
+   fileext <-  switch(input$dwn_select_filetype_sse,
+           "Results (.txt)" = ".txt",
+           "R-Object (.rds)" = ".rds")
+    paste0("results_beggmazumdar", fileext)},
+  content = function(file){
+    if(input$dwn_select_filetype_sse == "Results (.txt)"){
+      sink(file)
+      print(BMres$res)
+      sink()
+    } else if(input$dwn_select_filetype_sse == "R-Object (.rds)"){
+      saveRDS(BMres$res, file)
+    }
+  }
+
+)
+
+output$dwn_se <- downloadHandler(
+  filename = function(){
+    fileext <-  switch(input$dwn_select_filetype_sse,
+                       "Results (.txt)" = ".txt",
+                       "R-Object (.rds)" = ".rds")
+    paste0("results_sterneegger", fileext)},
+  content = function(file){
+    if(input$dwn_select_filetype_sse == "Results (.txt)"){
+      sink(file)
+      print(SEres$res)
+      sink()
+    } else if(input$dwn_select_filetype_sse == "R-Object (.rds)"){
+      saveRDS(SEres$res, file)
+    }
+  }
+  
+)
+
+output$dwn_tf <- downloadHandler(
+  filename = function(){
+    fileext <-  switch(input$dwn_select_filetype_sse,
+                       "Results (.txt)" = ".txt",
+                       "R-Object (.rds)" = ".rds")
+    paste0("results_trimfill", fileext)},
+  content = function(file){
+    if(input$dwn_select_filetype_sse == "Results (.txt)"){
+      sink(file)
+      print(TFres$res)
+      sink()
+    } else if(input$dwn_select_filetype_sse == "R-Object (.rds)"){
+      saveRDS(TFres$res, file)
+    }
+  }
+  
+)
+
+# *pvalue-based methods ----
+
+
+output$dwn_pcurve_plot <- downloadHandler(
+  filename = "pcurve_plot.png",
+  content = function(file) {
+    png(file, width=2600, height=2400, res=400)
+    source(here("pcurve_plot.R"), local = TRUE)
+    dev.off()
+  })
