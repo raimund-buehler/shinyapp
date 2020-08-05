@@ -102,21 +102,6 @@ output$meta_out_4 <- renderText(
 )
 
 
-output$dwn_meta_res <- downloadHandler(
-  filename = "meta_results.txt",
-  content = function(file) {
-    sink(file)
-    print(meta_res_output())
-    sink()
-  }
-)
-
-output$dwn_meta_res_obj <- downloadHandler(
-  filename = "meta_results.RDS",
-  content = function(file){
-    saveRDS(meta_res_output(), file = file)
-  }
-)
 
 # **** Sensitivity Analysis Plot ----
 
@@ -147,7 +132,7 @@ res.estim <- reactive({
 })
 
 # create forest plot
-output$meta_sens <- renderPlot({
+meta_sens <- reactive({
   req(res.estim())
   req(estim())
   
@@ -187,4 +172,14 @@ output$meta_sens <- renderPlot({
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5))
   )
+})
+
+# Plot for Output
+output$meta_sens <- renderPlot({
+  meta_sens()
+})
+
+# Plot for Preview
+output$sens_example <- renderPlot({
+  meta_sens()
 })

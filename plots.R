@@ -18,6 +18,7 @@ observeEvent(input$cumulforest, {rv$type_forest <- "cumulative"})
 # Draw forest plot 
 # forestplotInput() is created as reactive object
 # which serves as input to the plot via renderPlot() as well as the download function
+# two versions are created for print and screen, using different font sizes
 forestplotInput <- reactive({
   req(para$es)
   req(para$se)
@@ -43,8 +44,10 @@ forestplotInput <- reactive({
   
   # sort data by selected variable
   data <- data_reac$DT[order(get(input$sortingvar), decreasing = input$descendingforest)]
-  
-  # plot forest plot variant
+
+
+   
+  # plot forest plot variant (screen)
   p <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
                   study_labels = trimws(data[[para$id]]),
                   xlab = choice_es,
@@ -55,13 +58,37 @@ forestplotInput <- reactive({
   
   if(rv$type_forest == "standard"){
     # add centered title
-    as.ggplot(p) + ggtitle("Forest Plot") +
+  p.screen <-   as.ggplot(p) + ggtitle("Forest Plot") +
       theme(plot.title = element_text(hjust = 0.5))
     
   } else if (rv$type_forest == "cumulative"){
-    as.ggplot(p) + ggtitle("Cumulative Forest Plot") +
+  p.screen <-  as.ggplot(p) + ggtitle("Cumulative Forest Plot") +
       theme(plot.title = element_text(hjust = 0.5))
   }
+  
+  # plot forest plot variant (print)
+  p.pr <- viz_forest(x = data[, .SD, .SDcols = c(para$es, para$se)],
+                  study_labels = trimws(data[[para$id]]),
+                  xlab = choice_es,
+                  variant = choice_forest,
+                  annotate_CI = TRUE,
+                  type = rv$type_forest,
+                  text_size = 6,
+                  col = input$forestcol)
+  
+  if(rv$type_forest == "standard"){
+    # add centered title
+    p.print <-   as.ggplot(p.pr) + ggtitle("Forest Plot") +
+      theme(plot.title = element_text(hjust = 0.5))
+    
+  } else if (rv$type_forest == "cumulative"){
+    p.print <-  as.ggplot(p.pr) + ggtitle("Cumulative Forest Plot") +
+      theme(plot.title = element_text(hjust = 0.5))
+  }
+  
+  
+  return(list(p.screen = p.screen,
+              p.print = p.print))
 })
 
 plotheight <- reactive({
@@ -69,7 +96,7 @@ plotheight <- reactive({
 })
 
 output$forestplotOut <- renderPlot(
- print(forestplotInput())
+ print(forestplotInput()$p.screen)
 )
 
 output$forest <- renderUI({
@@ -77,24 +104,7 @@ output$forest <- renderUI({
   plotOutput("forestplotOut", height = plotheight(), width = "100%")
 })
 
-#output$forest <- renderPlot(height = input$forest_height, 
-                         #   {
- # req(forestplotInput())
-  #print(forestplotInput())
-#})
 
-
-# download forest plot
-plotheight_inch <- reactive({
-  plotheight()/300
-})
-
-output$dwn_forest <- downloadHandler(
-  filename = "forestplot.png",
-  content = function(file) {
-    ggsave(file, plot = forestplotInput(), device = "png", dpi = 300)
-  }
-)
 # ** Funnel plots ----
 # same approach as for forest plots: *_funnel_input() is created as reactive object
 # serving as input for renderPlot() and download function
@@ -127,17 +137,3 @@ output$sunset_funnel <- renderPlot({
   req(sunset_funnel_input())
   print(sunset_funnel_input())
 })
-# download funnel plots
-# currently only .png is supported
-output$dwn_funnel <- downloadHandler(
-  filename = "funnelplot.png",
-  content = function(file) {
-    ggsave(file, plot = normal_funnel_input(), device = "png", dpi = 300)
-  }
-)
-output$dwn_funnelsunset <- downloadHandler(
-  filename = "sunset-funnelplot.png",
-  content = function(file) {
-    ggsave(file, plot = sunset_funnel_input(), device = "png", dpi = 300)
-  }
-)
