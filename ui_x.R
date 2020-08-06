@@ -351,10 +351,28 @@ ui <- dashboardPage(
                                      
                                      downloadBttn("dwn_sens",
                                                   label = "Download Plot (.png)",
-                                                  size = "xs",
+                                                  size = "s",
                                                   style = "stretch",
                                                   block = TRUE))),
-                        tabPanel("Subgroup Analysis"),
+                        tabPanel("Subgroup Analysis",
+                                 dropdown(
+                                   h6("Preview"),
+                                   plotOutput("sbgrp_example"),
+                                   style = "stretch", icon = icon("search"),
+                                   status = "primary", 
+                                   width = "500px",
+                                   animate = animateOptions(
+                                     enter = animations$fading_entrances$fadeInLeftBig,
+                                     exit = animations$fading_exits$fadeOutRightBig),
+                                   tooltip = tooltipOptions(title = "Click to see preview")
+                                 ),
+                                 
+                                 downloadBttn("dwn_sbgrp",
+                                              label = "Download Plot (.png)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE)),
+                 
                         tabPanel("Funnel Plots",
                                  box(width = 6,
                                           dropdown(
@@ -419,8 +437,61 @@ ui <- dashboardPage(
                 box(title = "Publication Bias Analyses", 
                     collapsible = TRUE, collapsed = TRUE, width = 6,
                  tabBox(id = "dwnbx_pubbias", width = 12, side = "right",
-                        tabPanel("Small Study Effects"),
-                        tabPanel("p-value Based Methods"),
+                        tabPanel("Small Study Effects",
+                                 prettyRadioButtons(
+                                   inputId = "dwn_select_filetype_sse",
+                                   label = "Choose Output Format:", 
+                                   choices = c("Results (.txt)", "R-Object (.rds)"),
+                                   selected = "Results (.txt)",
+                                   icon = icon("check"), 
+                                   bigger = TRUE,
+                                   # status = "info",
+                                   animation = "jelly"
+                                 ),
+                                 downloadBttn("dwn_bm", "Download Results Begg & Mazumdar",
+                                              style = "stretch",
+                                              size = "s",
+                                              block = TRUE),
+                                 downloadBttn("dwn_se", "Download Results Sterne & Egger",
+                                              style = "stretch",
+                                              size = "s",
+                                              block = TRUE),
+                                 downloadBttn("dwn_petpeese", "Download Results PET-PEESE",
+                                              style = "stretch",
+                                              size = "s",
+                                              block = TRUE),
+                                 downloadBttn("dwn_tf", "Download Results Trim-and-Fill",
+                                              style = "stretch",
+                                              size = "s",
+                                              block = TRUE),
+                                 ),
+                        tabPanel("p-value Based Methods",
+                                 box(width = 6,
+                                   h6("p-curve"),
+                                   dropdown(
+                                     h6("Preview"),
+                                     plotOutput("pcurve_example"),
+                                     style = "stretch", icon = icon("search"),
+                                     status = "primary", 
+                                     width = "500px",
+                                     animate = animateOptions(
+                                       enter = animations$fading_entrances$fadeInLeftBig,
+                                       exit = animations$fading_exits$fadeOutRightBig),
+                                     tooltip = tooltipOptions(title = "Click to see preview")
+                                   ),
+                                   downloadBttn(outputId = "dwn_pcurve_plot",
+                                                label = "Download pcurve Plot (.png)",
+                                                size = "s",
+                                                style = "stretch",
+                                                block = TRUE)
+                                   
+                                   
+                                   
+                                 ),
+                                 box(width = 6,
+                                     h6("puniform and puniform*")
+                                     )
+                                 ),
                         tabPanel("Other Methods")))
               ),
               fluidRow(

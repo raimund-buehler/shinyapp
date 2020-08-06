@@ -363,13 +363,7 @@ pcurve <- reactive({
   
 # Download Figure -----
   
-  output$dwn_pcurve_plot <- downloadHandler(
-    filename = "pcurve_plot.png",
-    content = function(file) {
-      png(file, width=2600, height=2400, res=400)
-      source(here("pcurve_plot.R"), local = TRUE)
-       dev.off()
-    })
+
 
     
   
