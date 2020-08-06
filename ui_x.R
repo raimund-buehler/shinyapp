@@ -191,7 +191,8 @@ ui <- dashboardPage(
               column(width = 7,
                      box(title = "pcurve Plot", collapsible = TRUE, collapsed = TRUE, width = 12,
               plotOutput("pcurve_plot", height = "600px"),
-              downloadButton("dwn_pcurve_plot", label = "Download Plot"))),
+             # downloadButton("dwn_pcurve_plot", label = "Download Plot")
+              )),
               column(width = 5,
                      box(title = "Input for pcurve Web-App", collapsible = TRUE,
                          collapsed = TRUE, width = 12,
