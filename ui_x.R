@@ -183,7 +183,7 @@ ui <- dashboardPage(
       ## ** Pubbias ----
       tabItem(tabName = "B_M", fluidRow(infoBoxOutput("BMhelp"), valueBoxOutput("BMtau"), valueBoxOutput("BMp")), textOutput("BMref")),
       tabItem(tabName = "S_E", fluidRow(infoBoxOutput("SEhelp"), valueBoxOutput("SEz"), valueBoxOutput("SEp"), box(title = "Model Results", tableOutput("SEmodel"))), textOutput("SEref")),
-      tabItem(tabName = "trif", fluidRow(infoBoxOutput("TRFIhelp", width = NULL), valueBoxOutput("TRFIk0"), valueBoxOutput("TRFIside"), valueBoxOutput("TRFIest"), box(title = "Model Results", tableOutput("TRFImodel"), width = NULL)), textOutput("TRFIref")),
+      tabItem(tabName = "trif", fluidRow(infoBoxOutput("TRFIhelp"), valueBoxOutput("TRFIk0"), valueBoxOutput("TRFIside"), valueBoxOutput("TRFIest"), box(title = "Model Results", tableOutput("TRFImodel"))), textOutput("TRFIref")),
       
       # pcurve ----
       tabItem(tabName = "pcurve", 
@@ -205,7 +205,7 @@ ui <- dashboardPage(
                 textOutput("pcurve_power"),
                 textOutput("pcurve_power_ci"))
               ),
-      tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
+      tabItem(tabName = "puni", tableOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
 

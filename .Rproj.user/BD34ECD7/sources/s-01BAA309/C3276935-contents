@@ -72,18 +72,6 @@ output$SEref <- renderText("Egger, M., Davey Smith, G., Schneider, M., & Minder,
 
 ##Trim and Fill----
 TFres <- reactiveValues()
-# output$TRFI <- renderPrint({
-#   tryCatch(
-#   if (sign(meta_res_output()$b) == 1) {
-#     TFres$res <- trimfill(meta_res_output(), side = "left")
-#     TFres$res
-#   } else if (sign(meta_res_output()$b) == -1) {
-#     TFres$res <- trimfill(meta_res_output(), side = "right")
-#     TFres$res
-#   },            error = function(e){
-#     "Please execute the Meta-Analysis first!"
-#   })
-# })
 
 output$TRFIk0 <- renderValueBox({
   valueBox(
@@ -157,7 +145,7 @@ source(here("pcurve_demo.R"), local = TRUE)
 ##puniform----
 ##needs r, --> calc-effectsize
 PUNIres <- reactiveValues()
-output$p_uni <- renderPrint({
+output$p_uni <- renderTable({
   n <- para$n
   tryCatch(
   if (sign(meta_res_output()$b) == 1){

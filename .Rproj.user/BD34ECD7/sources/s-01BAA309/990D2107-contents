@@ -28,7 +28,8 @@ ui <- dashboardPage(
                menuSubItem("Test of Excess Significance", tabName = "TES"),
                menuSubItem("Summary", tabName = "pubsum"),
                menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
-               )
+               ),
+      menuItem("Report & Downloads", tabName = "dwn", icon = icon("download"))
     )
     ),
   
@@ -54,10 +55,8 @@ ui <- dashboardPage(
                 column(width = 8,
                        uiOutput("table")
                 )
-              ),
-              fluidRow(
-                downloadButton(outputId = "dwn_dat", label = "Download Data With Converted Effect Sizes")
               )
+
               
       ),
       
@@ -92,8 +91,10 @@ ui <- dashboardPage(
                        # select variable to sort forest plot
                        uiOutput("sortingvar"),
                        
-                       checkboxInput(inputId = "descendingforest",
-                                     label = "Descending Order"),
+                       materialSwitch(inputId = "descendingforest",
+                                     label = "Descending Order",
+                                     value = FALSE,
+                                     status = "success"),
                        sliderInput("forestheight", label = "Please choose plot height (px)",
                                    min = 100,
                                    max = 2000,
@@ -101,8 +102,8 @@ ui <- dashboardPage(
 
                        )
                 
-              ),
-              fluidRow(downloadButton("dwn_forest"))),
+              )
+      ),
       
       # ** Funnel Plot ----
       tabItem(tabName = "funnel", 
@@ -112,19 +113,16 @@ ui <- dashboardPage(
                             plotOutput("sunset_funnel"))
               ),
               
-              checkboxInput(inputId = "choice_trimfill",
-                            label = "Show Studies Imputed by Trim-and-Fill"),
-              checkboxInput(inputId = "choice_egger",
-                            label = "Show Egger's Regression Line"),
-              fluidRow(
-                splitLayout(cellWidths = c("50%", "50%"),
-                            downloadButton("dwn_funnel",
-                                           label = "Download Funnel Plot"),
-                            downloadButton("dwn_funnelsunset",
-                                           label = "Download Sunset Funnel Plot"
-                            )
-                )
-              )
+              materialSwitch(inputId = "choice_trimfill",
+                            label = "Show Studies Imputed by Trim-and-Fill",
+                            value = FALSE,
+                            status = "success"),
+              materialSwitch(inputId = "choice_egger",
+                            label = "Show Egger's Regression Line",
+                            value = FALSE,
+                            status = "success")
+                
+              
       ),
       
       # ** Meta-Analysis ----
@@ -150,10 +148,6 @@ ui <- dashboardPage(
               textOutput("meta_out_4"),
               p(),
               verbatimTextOutput("meta_res"),
-              downloadButton(outputId = "dwn_meta_res",
-                             label = "Download Results"),
-              downloadButton(outputId = "dwn_meta_res_obj",
-                             label = "Download R-Object with Results"),
               plotOutput("meta_sens")
       ),
       
@@ -163,12 +157,14 @@ ui <- dashboardPage(
               
               uiOutput("select_catmod"),
               uiOutput("select_ref_mod"),
-              checkboxInput(inputId = "mod_intrcpt", 
+              materialSwitch(inputId = "mod_intrcpt", 
                             label = "Model with Intercept",
-                            value = FALSE),
-              checkboxInput("knha_mod", 
+                            value = FALSE,
+                            status = "success"),
+              materialSwitch("knha_mod", 
                             label = "Knapp and Hartung Adjustment",
-                            value = FALSE),
+                            value = FALSE,
+                            status = "success"),
               verbatimTextOutput("mod_res"),
               plotOutput("plot_subgroup")
       ),
@@ -178,15 +174,16 @@ ui <- dashboardPage(
       tabItem(tabName = "metareg",
               h3("Meta-Regression"),
               uiOutput("select_reg_mod"),
-              checkboxInput("knha_reg", 
+              materialSwitch("knha_reg", 
                             label = "Knapp and Hartung Adjustment",
-                            value = FALSE),
+                            value = FALSE,
+                            status = "success"),
               verbatimTextOutput("meta_reg")
       ),
       ## ** Pubbias ----
       tabItem(tabName = "B_M", fluidRow(infoBoxOutput("BMhelp"), valueBoxOutput("BMtau"), valueBoxOutput("BMp")), textOutput("BMref")),
       tabItem(tabName = "S_E", fluidRow(infoBoxOutput("SEhelp"), valueBoxOutput("SEz"), valueBoxOutput("SEp"), box(title = "Model Results", tableOutput("SEmodel"))), textOutput("SEref")),
-      tabItem(tabName = "trif", fluidRow(infoBoxOutput("TRFIhelp", width = NULL), valueBoxOutput("TRFIk0"), valueBoxOutput("TRFIside"), valueBoxOutput("TRFIest"), box(title = "Model Results", tableOutput("TRFImodel"), width = NULL)), textOutput("TRFIref")),
+      tabItem(tabName = "trif", fluidRow(infoBoxOutput("TRFIhelp"), valueBoxOutput("TRFIk0"), valueBoxOutput("TRFIside"), valueBoxOutput("TRFIest"), box(title = "Model Results", tableOutput("TRFImodel"))), textOutput("TRFIref")),
       
       # pcurve ----
       tabItem(tabName = "pcurve", 
@@ -208,7 +205,7 @@ ui <- dashboardPage(
                 textOutput("pcurve_power"),
                 textOutput("pcurve_power_ci"))
               ),
-      tabItem(tabName = "puni", verbatimTextOutput("p_uni"), verbatimTextOutput("p_uni_star")),
+      tabItem(tabName = "puni", tableOutput("p_uni"), verbatimTextOutput("p_uni_star")),
       tabItem(tabName = "SelMod", verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo")),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
 
@@ -254,6 +251,183 @@ ui <- dashboardPage(
                 h3("Other Methods", align = "center"),
                 box("Test of Excess Significance", width = 6, collapsible = TRUE),
                 box("Selection Models (Vevea & Woods)", width = 6, collapsible = TRUE)
+              )
+              ),
+      
+      # ** Download Page ----
+      tabItem("dwn",
+              br(),
+              fluidRow(
+              # h2("Report", align = "center"),
+              column(width = 5, offset = 4,
+              downloadBttn("dwn_report", label = "Download Full Report", 
+                           style = "stretch", size = "lg")
+              ),
+              br(),
+              ),
+              fluidRow(
+                h4("Download Single Results, Plots, and R-Objects", align = "center"),
+                br(),
+                
+                # **** Dwn: Data ----
+                box(title = "Data (Including Converted Effect Sizes)", collapsible = TRUE, collapsed = TRUE, width = 6,
+                                    prettyRadioButtons(
+                                      inputId = "dwn_select_filetype",
+                                      label = "Choose Output Format:", 
+                                      choices = c(".sav", ".rds"),
+                                      selected = ".sav",
+                                      icon = icon("check"), 
+                                      bigger = TRUE,
+                                      # status = "info",
+                                      animation = "jelly"
+                                    ),
+                    downloadBttn("dwn_data",
+                                 label = "Download Data",
+                                 block = TRUE,
+                                 style = "stretch")
+                    
+                                    
+                           ),
+                
+                # **** Dwn: Meta ----
+                box(title = "Meta-Analysis", collapsible = TRUE, collapsed = TRUE, width = 6,
+                    tabBox(id = "dwnbx_meta", width = 12, side = "right", selected = "Meta-Analysis",
+                           tabPanel("Meta-Regression",
+                                    downloadBttn(outputId = "dwn_metareg_res",
+                                                 label = "Download Results as Text (.txt)",
+                                                 style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s"),
+                                    downloadBttn(outputId = "dwn_metareg_res_obj",
+                                                 label = "Download R-Object with Results (.rds)",
+                                                 style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s")
+                                    ),
+                           tabPanel("Subgroup Analysis",
+                                    downloadBttn(outputId = "dwn_sbgrp_res",
+                                                 label = "Download Results as Text (.txt)",
+                                                 style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s"),
+                                    downloadBttn(outputId = "dwn_sbgrp_res_obj",
+                                                 label = "Download R-Object with Results (.rds)",
+                                                 style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s")
+                           ),
+                           tabPanel("Meta-Analysis",
+                                    downloadBttn(outputId = "dwn_meta_res",
+                                                 label = "Download Results as Text (.txt)",
+                                                 style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s"),
+                                    downloadBttn(outputId = "dwn_meta_res_obj",
+                                                   label = "Download R-Object with Results (.rds)",
+                                                  style = "stretch",
+                                                 block = TRUE,
+                                                 size = "s")
+                           )))
+              ),
+              
+              # **** Dwn: Plots ----
+              fluidRow(
+                box(title = "Plots", 
+                    collapsible = TRUE, collapsed = TRUE, width = 6,
+                 tabBox(id = "dwnbx_plots", width = 12, side = "right", selected = "Forest Plots",
+                        tabPanel("Sensitivity Analysis (Estimator)",
+                                 box(width = 12,
+                                     dropdown(
+                                       h6("Preview"),
+                                       plotOutput("sens_example"),
+                                       style = "stretch", icon = icon("search"),
+                                       status = "primary", 
+                                       width = "500px",
+                                       animate = animateOptions(
+                                         enter = animations$fading_entrances$fadeInLeftBig,
+                                         exit = animations$fading_exits$fadeOutRightBig),
+                                       tooltip = tooltipOptions(title = "Click to see preview")
+                                     ),
+                                     
+                                     downloadBttn("dwn_sens",
+                                                  label = "Download Plot (.png)",
+                                                  size = "xs",
+                                                  style = "stretch",
+                                                  block = TRUE))),
+                        tabPanel("Subgroup Analysis"),
+                        tabPanel("Funnel Plots",
+                                 box(width = 6,
+                                          dropdown(
+                                            h6("Preview"),
+                                            plotOutput("funnel_example"),
+                                            style = "stretch", icon = icon("search"),
+                                            status = "primary", 
+                                            width = "500px",
+                                            animate = animateOptions(
+                                              enter = animations$fading_entrances$fadeInLeftBig,
+                                              exit = animations$fading_exits$fadeOutRightBig),
+                                            tooltip = tooltipOptions(title = "Click to see preview")
+                                          ),
+                                        
+                                        downloadBttn("dwn_funnel",
+                                                      label = "Download Funnel Plot",
+                                                     size = "xs",
+                                                     style = "stretch",
+                                                     block = TRUE)
+                                        ),
+                                 box(width = 6,
+                                        dropdown(
+                                          h6("Preview"),
+                                          plotOutput("funnelsunset_example"),
+                                          style = "stretch", icon = icon("search"),
+                                          status = "primary", 
+                                          width = "500px",
+                                          animate = animateOptions(
+                                            enter = animations$fading_entrances$fadeInLeftBig,
+                                            exit = animations$fading_exits$fadeOutRightBig),
+                                          tooltip = tooltipOptions(title = "Click to see preview")
+                                        ),
+                                        
+                                        downloadBttn("dwn_funnelsunset",
+                                                      label = "Download Sunset Funnel Plot",
+                                                     size = "xs",
+                                                     style = "stretch",
+                                                     block = TRUE)
+                                 )
+                        ),
+
+                        tabPanel("Forest Plots",
+                                 dropdown(
+                                   h6("Preview"),
+                                   plotOutput("forest_example"),
+                                   style = "stretch", icon = icon("search"),
+                                   status = "primary", 
+                                   width = "500px",
+                                   animate = animateOptions(
+                                     enter = animations$fading_entrances$fadeInLeftBig,
+                                     exit = animations$fading_exits$fadeOutRightBig),
+                                   tooltip = tooltipOptions(title = "Click to see preview")
+                                   ),
+                                 downloadBttn(outputId = "dwn_forest",
+                                              label = "Download Forest Plot (.png)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE)
+                                 ))),
+                
+                # **** Dwn: Pubbias ----
+                box(title = "Publication Bias Analyses", 
+                    collapsible = TRUE, collapsed = TRUE, width = 6,
+                 tabBox(id = "dwnbx_pubbias", width = 12, side = "right",
+                        tabPanel("Small Study Effects"),
+                        tabPanel("p-value Based Methods"),
+                        tabPanel("Other Methods")))
+              ),
+              fluidRow(
+                
+                # **** Dwn: Decline Effect
+                box(title = "Decline Effect", collapsible = TRUE, collapsed = TRUE, width = 6,
+                    tabBox(id = "dwnbx_decl", width = 12))
               )
               )
     )
