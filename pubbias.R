@@ -29,7 +29,8 @@ output$BMhelp <- renderInfoBox({
   of publication bias.", title = "Begg and Mazumdar's Rank Correlation Test")
   }) 
 
-output$BMref <- renderText("Begg, C. B., & Mazumdar, M. (1994). Operating characteristics of a rank correlation test for publication bias. Biometrics, 50, 1088–1101.")
+output$BMref <- 
+  renderText("Begg, C. B., & Mazumdar, M. (1994). Operating characteristics of a rank correlation test for publication bias. Biometrics, 50, 1088–1101.")
 
 ##Sterne and Egger----
 SEres <- reactiveValues()
@@ -60,12 +61,10 @@ output$SEmodel <- renderTable({
 }, rownames = TRUE)
 
 output$SEhelp <- renderInfoBox({
-  fluidRow(
     box("This test can be used to examine whether a relationship exists between the observed outcomes 
     and the chosen predictor (default = standard error). If such a relationship is present, then this 
     usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias.", 
-    title = "Sterne & Egger's Regression", width = NULL)
-  )
+    title = "Sterne & Egger's Regression")
 }) 
 
 output$SEref <- renderText("Egger, M., Davey Smith, G., Schneider, M., & Minder, C. (1997). Bias in meta-analysis detected by a simple, graphical test. British Medical Journal, 315, 629–634.")
@@ -83,7 +82,7 @@ output$TRFIk0 <- renderValueBox({
         TFres$res <- trimfill(meta_res_output(), side = "right")
         TFres$res$k0
       },            error = function(e){
-      tags$p("Please execute the Meta-Analysis first!", style = "font-size: 50%")
+      tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
     }), subtitle = "Number of missing studies", color = "light-blue"
   )
 }) 
@@ -98,7 +97,7 @@ output$TRFIest <- renderValueBox({
         TFres$res <- trimfill(meta_res_output(), side = "right")
         round(TFres$res$beta, 3)
       },            error = function(e){
-        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 50%")
+        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
       }), subtitle = "Adjusted Estimate", color = "light-blue"
   )
 }) 
@@ -113,8 +112,8 @@ output$TRFIside <- renderValueBox({
         TFres$res <- trimfill(meta_res_output(), side = "right")
         TFres$res$side
       },            error = function(e){
-        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 50%")
-      }), subtitle = "Side of funnel plot on which studies are imputed", color = "light-blue"
+        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+      }), subtitle = "Side on which studies are imputed", color = "light-blue"
   )
 }) 
 
@@ -124,9 +123,17 @@ output$TRFImodel <- renderTable({
   coef(summary(TFres$res, digits = 3))
 }, rownames = TRUE)
 
+output$FunnelTRFI <- renderPlot({
+  req(meta_res_output())
+  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+                  egger = FALSE,
+                  trim_and_fill = TRUE,
+                  method = estim())
+  as.ggplot(p)
+})
+
 
 output$TRFIhelp <- renderInfoBox({
-  fluidRow(
     box("This method is a nonparametric (rank-based) data augmentation technique. 
         It can be used to estimate the number of studies missing from a meta-analysis due to the suppression 
         of the most extreme results on one side of the funnel plot. The method then augments the observed data so that the 
@@ -134,10 +141,9 @@ output$TRFIhelp <- renderInfoBox({
         be regarded as a way of yielding a more 'valid' estimate of the overall effect or outcome, but as a way of examining the sensitivity of the 
         results to one particular selection mechanism (i.e., one particular form of publication bias).", 
         title = "Trim and Fill", width = NULL)
-  )
 }) 
 
-output$TRFIref <- renderText(HTML(paste("Duval, S. J., & Tweedie, R. L. (2000). Trim and fill: A simple funnel-plot-based method of testing and adjusting for publication bias in meta-analysis. Biometrics, 56, 455–463.")))
+output$TRFIref <- renderText("Duval, S. J., & Tweedie, R. L. (2000). Trim and fill: A simple funnel-plot-based method of testing and adjusting for publication bias in meta-analysis. Biometrics, 56, 455–463.")
 
 ##pcurve----
 source(here("pcurve_demo.R"), local = TRUE)
@@ -150,14 +156,19 @@ output$p_uni <- renderTable({
   tryCatch(
   if (sign(meta_res_output()$b) == 1){
     PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
-    PUNIres$res
+    DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
+    DT
   } else if (sign(meta_res_output()$b) == -1) {
     PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
-    PUNIres$res 
+    DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
+    DT
   },           error = function(e){
     "Please execute the Meta-Analysis first!"
   })
 })
+
+
+
 
 PUNISTres <- reactiveValues()
 output$p_uni_star <- renderPrint({
