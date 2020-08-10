@@ -361,12 +361,6 @@ pcurve <- reactive({
     paste(pcurve()$raw, collapse = "\n")
   })
   
-# Download Figure -----
-  
-
-
-    
-  
 
 # Display Results Table ----
   
