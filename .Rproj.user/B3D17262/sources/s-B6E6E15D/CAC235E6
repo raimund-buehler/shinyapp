@@ -1,24 +1,24 @@
 {
-    "id": "0B9DC700",
+    "id": "CAC235E6",
     "path": "~/Documents/GitHub/shinyapp/www/font_correction.css",
     "project_path": "www/font_correction.css",
     "type": "css",
-    "hash": "116252045",
+    "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1596621217658.0,
+    "created": 1596790845315.0,
     "source_on_save": false,
-    "relative_order": 2,
+    "relative_order": 4,
     "properties": {
-        "cursorPosition": "31,50",
-        "scrollLine": "0"
+        "cursorPosition": "47,9",
+        "scrollLine": "22"
     },
     "folds": "",
-    "lastKnownWriteTime": 1596623706,
+    "lastKnownWriteTime": 1596802685,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1596623706052,
+    "last_content_update": 1596802685636,
     "read_only": false,
     "read_only_alternatives": []
 }

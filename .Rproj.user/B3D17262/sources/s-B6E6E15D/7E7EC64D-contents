@@ -1,0 +1,3 @@
+file <- read.spss("/Users/luisegraichen 1/Desktop/Ray Work/mozart.sav")
+
+write.csv(file, "/Users/luisegraichen 1/Desktop/Ray Work/mozart.csv")

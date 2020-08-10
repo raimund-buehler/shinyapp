@@ -550,52 +550,16 @@ ui <- dashboardPage(
                                                 label = "Download pcurve Plot (.png)",
                                                 size = "s",
                                                 style = "stretch",
-                                                block = TRUE),
-                                   downloadBttn(outputId = "dwn_pcurve_inputstring",
-                                                label = "Download Input String for WebApp",
-                                                size = "s",
-                                                style = "stretch",
-                                                block = TRUE),
-                                   downloadBttn(outputId = "dwn_pcurve_res",
-                                                label = "Download p-curve Results",
-                                                size = "s",
-                                                style = "stretch",
                                                 block = TRUE)
                                    
                                    
                                    
                                  ),
                                  box(width = 6,
-                                     h6("puniform and puniform*"),
-                                     prettyRadioButtons(
-                                       inputId = "dwn_select_filetype_puni",
-                                       label = "Choose Output Format:", 
-                                       choices = c("Results (.txt)", "R-Object (.rds)"),
-                                       selected = "Results (.txt)",
-                                       icon = icon("check"), 
-                                       bigger = TRUE,
-                                       # status = "info",
-                                       animation = "jelly"
-                                     ),
-                                     downloadBttn(outputId = "dwn_puni_res",
-                                                  label = "Download p-uniform Results",
-                                                  size = "s",
-                                                  style = "stretch",
-                                                  block = TRUE),
-                                     downloadBttn(outputId = "dwn_punistar_res",
-                                                  label = "Download p-uniform* Results",
-                                                  size = "s",
-                                                  style = "stretch",
-                                                  block = TRUE),
-
+                                     h6("puniform and puniform*")
                                      )
                                  ),
-                        tabPanel("Other Methods",
-                                 downloadBttn(outputId = "dwn_tes_res",
-                                              label = "Download Test of Excess Significance Results (.txt)",
-                                              size = "s",
-                                              style = "stretch",
-                                              block = TRUE))))
+                        tabPanel("Other Methods")))
               ),
               fluidRow(
                 

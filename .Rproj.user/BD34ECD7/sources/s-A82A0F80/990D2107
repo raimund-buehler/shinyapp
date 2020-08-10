@@ -1,24 +1,25 @@
 {
-    "id": "FE736A1E",
-    "path": "~/Documents/GitHub/shinyapp/pcurve_demo.R",
-    "project_path": "pcurve_demo.R",
+    "id": "990D2107",
+    "path": "~/Documents/GitHub/shinyapp/ui_x.R",
+    "project_path": "ui_x.R",
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1596440343735.0,
+    "created": 1595927752576.0,
     "source_on_save": false,
-    "relative_order": 7,
+    "relative_order": 5,
     "properties": {
-        "cursorPosition": "18,0",
+        "tempName": "Untitled1",
+        "cursorPosition": "207,37",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1596529009,
+    "lastKnownWriteTime": 1596626157,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1596529009,
+    "last_content_update": 1596626157611,
     "read_only": false,
     "read_only_alternatives": []
 }
