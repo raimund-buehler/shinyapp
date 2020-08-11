@@ -1,0 +1,58 @@
+---
+title: "Dynamic report"
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
+params:
+  dat: NA
+  metric: NA
+  k: NA
+  k_pub: NA
+  n: NA
+  n_pub: NA
+  in_study: NA
+  in_study_pub: NA
+  model_type: NA
+  k_meta: NA
+  estim: NA
+  meta_es: NA
+  meta_se: NA
+  meta_ci.lb: NA
+  meta_ci.ub: NA
+  meta_pval: NA
+  meta_zval: NA
+  meta_tau2: NA
+---
+
+# Data
+
+Dataset: `r params$dat`
+
+Date of analysis: `r format(Sys.time(), '%d %B, %Y')`
+
+Metric of effect sizes: `r params$metric`
+
+Number of effect sizes: `r params$k`
+
+Number of published effect sizes: `r params$k_pub`
+
+Number of participants: `r sum(params$n, na.rm = TRUE)` (_M_ = `r mean(params$n, na.rm = TRUE)`)
+
+Number of participants from published studies: `r params$n_pub`
+
+Oldest study in dataset: `r params$in_study`
+
+Oldest published study in dataset: `r params$in_study_pub`
+
+
+
+
+# Meta-Analysis
+## Results
+`r params$model_type` Model, k = `r params$k_meta` `r params$estim`.
+
+`r params$metric` = `r round(params$meta_es, 2)`, SE = `r round(params$meta_se, 2)` [`r round(params$meta_ci.lb, 2)`; `r round(params$meta_ci.ub, 2)`], _p_-value = `r params$meta_pval`, z = `r round(params$meta_zval, 4)`.
+
+## Heterogeneity Statistics
+$\tau$^2^ = `r params$meta_tau2`

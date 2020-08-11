@@ -20,6 +20,7 @@ library(pwr)
 library(kableExtra)
 library(haven)
 library(htmltools)
+library(rmarkdown)
 options(scipen=999)
 
 # UI ----

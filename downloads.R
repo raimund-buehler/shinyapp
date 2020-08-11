@@ -1,3 +1,36 @@
+# Report ----
+# set parameters ----
+params <- reactive({
+
+  source(here("params_report.R"), local = TRUE)
+  return(params)
+})
+
+
+
+
+output$dwn_report <- downloadHandler(
+ filename = "report.pdf",
+    content = function(file) {
+
+     tempReport <- file.path(tempdir(), "report.Rmd")
+     file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+     params <- params()
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+     )
+    }
+  )
+
+
+
 # data ----
 dt_dwn <- reactive({
 dt_dwn <- data_reac$DTall
@@ -270,5 +303,46 @@ output$dwn_pcurve_inputstring <- downloadHandler(
     content = function(file){
       cat("Chisquare-test for difference between observed and expected significant studies:", "\n\n", "p = ", 
           TESres$res, file = file)
+    }
+  )
+  
+  output$dwn_selmod <- downloadHandler(
+    filename = "selection_models.txt",
+    content = function(file){
+      cat("Results of Selection Models According to Vevea & Woods (2005): ",
+          "\n",
+          "Moderate one-tailed selection: ", round(SelMods$mod1$output_adj$par[[2]], 4), "\n",
+          "Severe one-tailed selection: ", round(SelMods$sev1$output_adj$par[[2]], 4), "\n",
+          "Moderate two-tailed selection: ", round(SelMods$mod2$output_adj$par[[2]], 4), "\n",
+          "Severe two-tailed selection: ", round(SelMods$sev2$output_adj$par[[2]], 4), "\n",
+          file = file)
+    }
+  )
+  
+  output$dwn_selmod_mod1 <- downloadHandler(
+    filename = "selection_model_mod1.RDS",
+    content = function(file){
+      saveRDS(SelMods$mod1, file = file)
+    }
+  )
+  
+  output$dwn_selmod_sev1 <- downloadHandler(
+    filename = "selection_model_sev1.RDS",
+    content = function(file){
+      saveRDS(SelMods$sev1, file = file)
+    }
+  )
+  
+  output$dwn_selmod_mod2 <- downloadHandler(
+    filename = "selection_model_mod2.RDS",
+    content = function(file){
+      saveRDS(SelMods$mod2, file = file)
+    }
+  )
+  
+  output$dwn_selmod_sev2 <- downloadHandler(
+    filename = "selection_model_sev2.RDS",
+    content = function(file){
+      saveRDS(SelMods$sev2, file = file)
     }
   )

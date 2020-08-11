@@ -326,14 +326,26 @@ ui <- dashboardPage(
               br(),
               fluidRow(
               # h2("Report", align = "center"),
-              column(width = 5, offset = 4,
+              column(width = 4, offset = 4,
+                     br(),
+                     br(),
+                     
               downloadBttn("dwn_report", label = "Download Full Report", 
-                           style = "stretch", size = "lg")
+                          style = "stretch", size = "lg", block = TRUE),
+              #radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+               #            inline = TRUE)
               ),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
               br(),
               ),
               fluidRow(
-                h4("Download Single Results, Plots, and R-Objects", align = "center"),
+                h3("Download Single Results, Plots, and R-Objects", align = "center"),
                 br(),
                 
                 # **** Dwn: Data ----
@@ -595,7 +607,36 @@ ui <- dashboardPage(
                                               label = "Download Test of Excess Significance Results (.txt)",
                                               size = "s",
                                               style = "stretch",
-                                              block = TRUE))))
+                                              block = TRUE),
+                                 downloadBttn(outputId = "dwn_selmod", 
+                                              label = "Download Selection Model Results (.txt)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE),
+                                 br(),
+                                 h5("R-Objects of Selection Model Results", align = "center"),
+                                 downloadBttn(outputId = "dwn_selmod_mod1",
+                                              label = "Moderate One-Tailed Selection (.rds)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE),
+                                 downloadBttn(outputId = "dwn_selmod_sev1",
+                                              label = "Severe One-Tailed Selection (.rds)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE),
+                                 downloadBttn(outputId = "dwn_selmod_mod2",
+                                              label = "Moderate Two-Tailed Selection (.rds)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE),
+                                 downloadBttn(outputId = "dwn_selmod_sev2",
+                                              label = "Severe Two-Tailed Selection (.rds)",
+                                              size = "s",
+                                              style = "stretch",
+                                              block = TRUE)
+
+                                 )))
               ),
               fluidRow(
                 
