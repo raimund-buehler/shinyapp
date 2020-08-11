@@ -203,3 +203,72 @@ output$dwn_pcurve_plot <- downloadHandler(
     source(here("pcurve_plot.R"), local = TRUE)
     dev.off()
   })
+
+output$dwn_pcurve_inputstring <- downloadHandler(
+  filename = "pcurve_input_webapp.txt",
+  content = function(file) {
+    cat(pcurve()$raw, sep = "\n", file = file)
+  }
+)
+  
+  output$dwn_pcurve_res <- downloadHandler(
+    filename = "pcurve_results.txt",
+    content = function(file) {
+      sink(file)
+      print(pcurve_table())
+      cat("\n")
+      cat("Power of tests included in p-curve (correcting for selective reporting): ",
+             percent(pcurve()$hat), sep = "")
+      cat("\n")
+      cat(
+        "90% Confidence interval: ",
+        percent(pcurve()$power.ci.lb), 
+        " ; ",
+        percent(pcurve()$power.ci.ub), sep = "")
+        sink()
+    }
+  )
+
+  output$dwn_puni_res <- downloadHandler(
+    filename = function(){
+      fileext <-  switch(input$dwn_select_filetype_puni, 
+                         "Results (.txt)" = ".txt",
+                         "R-Object (.rds)" = ".rds")
+      paste0("results_puniform", fileext)},
+    content = function(file){
+      if(input$dwn_select_filetype_puni == "Results (.txt)"){
+        sink(file)
+        print(PUNIres$res)
+        sink()
+      } else if(input$dwn_select_filetype_puni == "R-Object (.rds)"){
+        saveRDS(PUNIres$res, file)
+      }
+    }
+  )
+  
+  output$dwn_punistar_res <- downloadHandler(
+    filename = function(){
+      fileext <-  switch(input$dwn_select_filetype_puni, 
+                         "Results (.txt)" = ".txt",
+                         "R-Object (.rds)" = ".rds")
+      paste0("results_puniform_star", fileext)},
+    content = function(file){
+      if(input$dwn_select_filetype_puni == "Results (.txt)"){
+        sink(file)
+        print(PUNISTres$res)
+        sink()
+      } else if(input$dwn_select_filetype_puni == "R-Object (.rds)"){
+        saveRDS(PUNISTres$res, file)
+      }
+    }
+  )
+  
+  
+  # Other methods ----
+  output$dwn_tes_res <- downloadHandler(
+    filename = "test_excess_significance.txt",
+    content = function(file){
+      cat("Chisquare-test for difference between observed and expected significant studies:", "\n\n", "p = ", 
+          TESres$res, file = file)
+    }
+  )
