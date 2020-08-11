@@ -29,5 +29,31 @@
                                 background-color: #EBFFE5;
                                  }
 #TRFIref{
-                                margin-top: 400px;
+                              
+                                position: absolute;
+                                bottom: 10px;
+}
+
+#SEref{
+                                position: absolute;
+                                bottom: 10px;
+  
+}
+
+#BMref{
+                                position: absolute;
+                                bottom: 10px;
+}
+
+#puniref{
+                                position: absolute;
+                                bottom: 10px;
+}
+
+#normal_funnel{
+                                margin: auto;
+}
+
+#sunset_funnel{
+                                margin: auto;
 }

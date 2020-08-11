@@ -3,23 +3,23 @@
     "path": "~/Documents/GitHub/shinyapp/Meta-Analysis.R",
     "project_path": "Meta-Analysis.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "3068746676",
     "contents": "",
     "dirty": false,
     "created": 1596025164595.0,
     "source_on_save": false,
-    "relative_order": 4,
+    "relative_order": 7,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "48,40",
-        "scrollLine": "0"
+        "cursorPosition": "85,20",
+        "scrollLine": "73"
     },
     "folds": "",
-    "lastKnownWriteTime": 1596623983,
+    "lastKnownWriteTime": 1597142407,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1596623983,
+    "last_content_update": 1597142407980,
     "read_only": false,
     "read_only_alternatives": []
 }

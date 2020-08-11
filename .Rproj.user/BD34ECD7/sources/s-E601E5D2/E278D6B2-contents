@@ -63,34 +63,48 @@ output$meta_res <- renderPrint({
   summary(meta_res_output())
 })
 
-output$meta_out_1 <- renderText(
-  sprintf("%s Model; k = %s%s", 
-          if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
-          meta_res_output()$k.all,
-          if(input$metamodel == "fe"){paste("")} else {sprintf("; tau^2 estimator: %s", meta_res_output()$method)})
-)
+output$meta_out_1 <- renderTable({
+  dt <- data.table("Model" = if(input$metamodel == "fe") {"Fixed-Effect"} else {"Random-Effects"}, 
+                   "k" = meta_res_output()$k.all, 
+                   "tau^2 estimator" = if(input$metamodel == "fe"){paste("NA")} else {meta_res_output()$method})
+  dt
+}, striped = TRUE, bordered = TRUE)
+#   sprintf("%s Model; k = %s%s", 
+#           if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
+#           meta_res_output()$k.all,
+#           if(input$metamodel == "fe"){paste("")} else {sprintf("; tau^2 estimator: %s", meta_res_output()$method)})
+# )
 
 
-output$meta_out_2 <- renderText(
-  sprintf("%s = %.2f, se = %.2f, 95%% CI [%.2f; %.2f], p %s, z = %.2f", 
-          para$es,
-          meta_res_output()$b,
-          meta_res_output()$se,
-          meta_res_output()$ci.lb,
-          meta_res_output()$ci.ub,
-          if(meta_res_output()$pval < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$pval, 4))},
-          meta_res_output()$zval)
-)
+output$meta_out_2 <- renderTable({
+  req(para$es)
+  dt <- data.table("temp" = meta_res_output()$b, "se" = meta_res_output()$se,
+                   "95% CI" = paste0("[", round(meta_res_output()$ci.lb, 3), " ; ", round(meta_res_output()$ci.ub, 3), "]"), 
+                   "zval" = meta_res_output()$zval, "pval" = format.pval(meta_res_output()$pval, eps = 0.0001, digits = 3))
+  setnames(dt, "temp.V1", para$es)
+  dt
+  }, striped = FALSE, bordered = TRUE)
+
+  #sprintf("%s", para$es) = meta_res_output()$b, 
+  # sprintf("%s = %.2f, se = %.2f, 95%% CI [%.2f; %.2f], p %s, z = %.2f", 
+  #         para$es,
+  #         meta_res_output()$b,
+  #         meta_res_output()$se,
+  #         meta_res_output()$ci.lb,
+  #         meta_res_output()$ci.ub,
+  #         if(meta_res_output()$pval < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$pval, 4))},
+  #         meta_res_output()$zval)
+
 
 output$meta_out_3 <- renderTable(
   data.frame(txt = c("tau^2 (estimated amount of total heterogeneity):",
                      "tau (square root of estimated tau^2 value):",
                      "I^2 (total heterogeneity / total variability):",
                      "H^2 (total variability / sampling variability):"),
-             val = c(paste(round(meta_res_output()$tau2, 4), " (SE = ", round(meta_res_output()$se.tau2, 4), ")", sep = ""),
-                     round(sqrt(meta_res_output()$tau2), 4),
+             val = c(paste(round(meta_res_output()$tau2, 3), " (SE = ", round(meta_res_output()$se.tau2, 3), ")", sep = ""),
+                     round(sqrt(meta_res_output()$tau2), 3),
                      paste(round(meta_res_output()$I2, 2), "%", sep = ""),
-                     round(meta_res_output()$H2, 2))), colnames = FALSE
+                     round(meta_res_output()$H2, 2))), colnames = FALSE, striped = TRUE, bordered = TRUE
 )
 
 output$meta_out_4 <- renderText(

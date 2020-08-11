@@ -376,6 +376,8 @@ pcurve <- reactive({
     
   })
   
+ # output(paste0("p ", pcurve()$binom.r)
+  
   output$pcurve_table <- function(){
     kable(pcurve_table(), col.names = rep("", 4), align = c("l", rep("c", 3))) %>%
       kable_styling("striped") %>%
@@ -385,15 +387,26 @@ pcurve <- reactive({
     
   }
   
-  output$pcurve_power <- renderText({
-    paste0("Power of tests included in p-curve (correcting for selective reporting): ",
-           percent(pcurve()$hat))
+  pcurvePower <- reactive({
+    df <- data.frame(rows = c("Power of tests included in p-curve (correcting for selective reporting): ", "90% Confidence interval: "),
+                     V = c(percent(pcurve()$hat), paste0("[", percent(pcurve()$power.ci.lb), " ; ", percent(pcurve()$power.ci.ub), "]")))
+    df
   })
   
-  output$pcurve_power_ci <- renderText({
-    paste0(
-           "90% Confidence interval: ",
-           percent(pcurve()$power.ci.lb), 
-           " ; ",
-           percent(pcurve()$power.ci.ub))
-  })
+  output$pcurve_power <- function() {
+    kable(pcurvePower(), col.names = c("", ""), align = c("l", "l")) %>%
+      kable_styling("striped")
+  }
+  
+  # output$pcurve_power <- renderText({
+  #   paste0("Power of tests included in p-curve (correcting for selective reporting): ",
+  #          percent(pcurve()$hat))
+  # })
+  # 
+  # output$pcurve_power_ci <- renderText({
+  #   paste0(
+  #          "90% Confidence interval: ",
+  #          percent(pcurve()$power.ci.lb), 
+  #          " ; ",
+  #          percent(pcurve()$power.ci.ub))
+  # })

@@ -75,7 +75,7 @@ ui <- dashboardPage(
               # plot forest plot
               fluidRow(
                 column(7,
-                       uiOutput("forest")),
+                       box(uiOutput("forest"), width = NULL)),
                 column(5,
                        # select forest plot variant
                        selectInput(inputId = "forestvariant",
@@ -126,28 +126,31 @@ ui <- dashboardPage(
       
       # ** Meta-Analysis ----
       tabItem(tabName = "MAsub", 
-              radioButtons(inputId = "metamodel",
-                           label = "Select Meta-Analytic Model",
-                           choiceNames = c("Fixed-effect Model", "Random-effects Model"),
-                           choiceValues = c("fe", "re"),
-                           selected = "re"),
-              uiOutput("select_re_type"),
-              h3("Results"),
-              p(),
-              h4("Model Type"),
-              textOutput("meta_out_1"),
-              p(),
-              h4("Summary Effect"),
-              textOutput("meta_out_2"),
-              p(),
-              h4("Heterogeneity Statistics"),
-              tableOutput("meta_out_3"),
-              p(),
-              h4("Test for Heterogeneity"),
-              textOutput("meta_out_4"),
-              p(),
-              verbatimTextOutput("meta_res"),
-              plotOutput("meta_sens")
+              fluidRow(
+                column(width = 2,
+                              h4("Input"),
+                              box(width = NULL,
+                                radioButtons(inputId = "metamodel",
+                                label = "Select Meta-Analytic Model",
+                                choiceNames = c("Fixed-effect Model", "Random-effects Model"),
+                                choiceValues = c("fe", "re"),
+                                selected = "re"),
+                                uiOutput("select_re_type"))),
+                column(width = 5, 
+                              h4("Results"),
+                                  box(title = "Model Type", width = NULL, height = "150px",
+                                    tableOutput("meta_out_1")),
+                                  box(title = "Summary Effect", width = NULL, height = "150px",
+                                    tableOutput("meta_out_2"), background = "light-blue")),
+                column(width = 5,
+                              h4("Heterogeneity Statistics"),
+                              box(width = NULL, height = "150px",
+                                tableOutput("meta_out_3")),
+                              box(title = "Test for Heterogeneity", width = NULL, height = "150px",
+                                div(textOutput("meta_out_4"), style = "position: absolute; bottom: 60px")))),
+              fluidRow(         box(title = "Sensitivity Analysis", width = 12, plotOutput("meta_sens"))),
+              fluidRow(
+                                box(title = "Full R Output", verbatimTextOutput("meta_res"), width = 12, collapsible = TRUE, collapsed = TRUE))
       ),
       
       # ** Subgroup Analysis ----
@@ -180,6 +183,7 @@ ui <- dashboardPage(
               verbatimTextOutput("meta_reg")
       ),
       ## ** Pubbias ----
+      ## **** Begg & Mazumdar ----
       tabItem(tabName = "B_M", fluidRow(
         column(width = 3,
                infoBoxOutput("BMhelp", width = NULL)), 
@@ -191,7 +195,7 @@ ui <- dashboardPage(
         ), 
         htmlOutput("BMref")
       ),
-      
+      ## **** Sterne & Egger ----
       tabItem(tabName = "S_E", fluidRow(
         column(width = 3,
                infoBoxOutput("SEhelp", width = NULL)),
@@ -204,14 +208,16 @@ ui <- dashboardPage(
         ), 
         htmlOutput("SEref")
       ),
-      
+      ## **** Trim and Fill ----
       tabItem(tabName = "trif", fluidRow( 
         column(width = 3, 
                infoBoxOutput("TRFIhelp", width = NULL)), 
         column(width = 3, 
                valueBoxOutput("TRFIk0", width = NULL), 
                valueBoxOutput("TRFIside", width = NULL), 
-               valueBoxOutput("TRFIest", width = NULL)), 
+               valueBoxOutput("TRFIest", width = NULL),
+               valueBoxOutput("TRFIunadj", width = NULL),
+               valueBoxOutput("TRFIperc", width = NULL)),
         column(width = 6, 
                box(title = "Model Results", div(tableOutput("TRFImodel"), style = "font-size: 115%"), width = NULL),
                box(title = "Funnel Plot", plotOutput("FunnelTRFI", width = "80%"), width = NULL, align = "center"))
@@ -219,28 +225,37 @@ ui <- dashboardPage(
         htmlOutput("TRFIref")
       ),
       
-      # pcurve ----
+      # **** pcurve ----
       tabItem(tabName = "pcurve", 
               fluidRow(
-              column(width = 7,
-                     box(title = "pcurve Plot", collapsible = TRUE, collapsed = TRUE, width = 12,
-              plotOutput("pcurve_plot", height = "600px"),
-             # downloadButton("dwn_pcurve_plot", label = "Download Plot")
-              )),
-              column(width = 5,
-                     box(title = "Input for pcurve Web-App", collapsible = TRUE,
-                         collapsed = TRUE, width = 12,
-                     verbatimTextOutput("pcurve_input"))
-                     )
-              ),
+                column(width = 3,
+                       infoBoxOutput("pcurveHelp", width = NULL)
+                ),
+                column(width = 9,
+                       box(
+                            h3("Results of Binomial and Continuous Tests", align = "center"),
+                            tableOutput("pcurve_table"),
+                            h3("Statistical Power", align = "center"),
+                            tableOutput("pcurve_power"),
+                            #textOutput("pcurve_power_ci"),
+                            width = NULL
+                            )
+                       )
+                ), 
               fluidRow(
-                h3("Results of Binomial and Continuous Tests", align = "center"),
-                tableOutput("pcurve_table"),
-                h3("Statistical Power", align = "center"),
-                textOutput("pcurve_power"),
-                textOutput("pcurve_power_ci"))
+                column(width = 7,
+                       box(title = "pcurve Plot", collapsible = TRUE, collapsed = TRUE, width = NULL,
+                           plotOutput("pcurve_plot", height = "600px"),
+                           # downloadButton("dwn_pcurve_plot", label = "Download Plot")
+                       )),
+                column(width = 5,
+                       box(title = "Input for pcurve Web-App", collapsible = TRUE,
+                           collapsed = TRUE, width = NULL,
+                           verbatimTextOutput("pcurve_input"))
+                )
+              )
               ),
-      
+      ## **** puniform ----
       tabItem(tabName = "puni", 
             fluidRow(
                   column(width = 4,
@@ -252,7 +267,9 @@ ui <- dashboardPage(
                                 valueBoxOutput("puni_L.pb", width = NULL),
                                 valueBoxOutput("puni_pval.pb", width = NULL), br(),
                                 h4("Adjusted effect size", align = "center"),
-                                div(tableOutput("p_uni_est"), style = "font-size: 115%")
+                                div(tableOutput("p_uni_est"), style = "font-size: 115%"),
+                                h4("Unadjusted effect size", align = "center"),
+                                div(tableOutput("puni_est_fe"), style = "font-size: 115%")
                            ), width = NULL, align = "center"
                          )
                   ),
@@ -263,22 +280,31 @@ ui <- dashboardPage(
                                     valueBoxOutput("puni_star_L.pb", width = NULL),
                                     valueBoxOutput("puni_star_pval.pb", width = NULL), br(),
                                     h4("Adjusted effect size", align = "center"),
-                                    div(tableOutput("puni_star_est"), style = "font-size: 115%")
+                                    div(tableOutput("puni_star_est"), style = "font-size: 115%"),
+                                    h4("Unadjusted effect size", align = "center"),
+                                    div(tableOutput("puni_star_est_fe"), style = "font-size: 115%")
                              ), width = NULL, align = "center"
                          )
                   )
             ), htmlOutput("puniref")
       ),
+      ## **** Selection Models ----
       tabItem(tabName = "SelMod", fluidRow(
-              column(width = 3,
+              column(width = 4,
               box(title = "Vevea and Woods Selection Model", textOutput("SelHelp"), width = NULL)
-              )
-              , verbatimTextOutput("modone"), verbatimTextOutput("sevone"), verbatimTextOutput("modtwo"), verbatimTextOutput("sevtwo"))),
+              ),
+              column(width = 8,
+                     fluidRow(
+                box(width = 6, title = "Moderate Model, One-Tailed", valueBoxOutput("modone"), valueBoxOutput("modone_unadj"), valueBoxOutput("modone_perc")),
+                box(width = 6, title = "Severe Model, One-Tailed", valueBoxOutput("sevone"), valueBoxOutput("sevone_unadj"), valueBoxOutput("sevone_perc")),
+                box(width = 6, title = "Moderate Model, Two-Tailed", valueBoxOutput("modtwo"), valueBoxOutput("modtwo_unadj"), valueBoxOutput("modtwo_perc")),
+                box(width = 6, title = "Severe Model, Two-Tailed", valueBoxOutput("sevtwo"), valueBoxOutput("sevtwo_unadj"), valueBoxOutput("sevtwo_perc"))
+              )))),
       tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
 
       tabItem(tabName = "pubsum", uiOutput("pubboxes1"), uiOutput("pubboxes2"), uiOutput("pubboxes3")),
       
-      # ** Summary Page ----
+      # **** Summary Page ----
       tabItem(tabName = "pubbias_summary",
               fluidRow(
                 box(title = "Thresholds", width = 12, collapsible = TRUE, collapsed = TRUE,
@@ -286,7 +312,8 @@ ui <- dashboardPage(
                     fluidRow(
                       box(textInput("BM_p", label = "Begg & Mazumdar", value = "0.10"), width = 4),
                       box(textInput("SE_p", label = "Sterne & Egger", value = "0.10"), width = 4),
-                      box(textInput("PETPEESE_p", label = "PET-PEESE", value = "0.10"), width = 4),
+                      box(textInput("pcurve_p", label = "P-Curve", value = "0.05"), width = 4)
+                      #box(textInput("PETPEESE_p", label = "PET-PEESE", value = "0.10"), width = 4),
                     ),
                     fluidRow(
                       box(textInput("TES_p", label = "Test of Excess Significance", value = "0.10"), width = 4),
@@ -303,16 +330,29 @@ ui <- dashboardPage(
               ),
               fluidRow(
                 h3("Small Study Effects", align = "center"),
-                box("Begg & Mazumdar", width = 3, collapsible = TRUE),
-                box("Sterne & Egger", width = 3, collapsible = TRUE),
-                box("PET-PEESE", width = 3, collapsible = TRUE),
-                box("Trim-and-Fill", width = 3, collapsible = TRUE)
+                box(column(width = 4, offset = 4, valueBoxOutput("BMsum", width = NULL)), title = "Begg & Mazumdar", width = 4, collapsible = TRUE),
+                box(valueBoxOutput("SEsum", width = 12), title = "Sterne & Egger", width = 4, collapsible = TRUE),
+                #box("PET-PEESE", width = 3, collapsible = TRUE),
+                box(valueBoxOutput("TRFIsum", width = 12), title = "Trim-and-Fill", width = 4, collapsible = TRUE)
               ),
               fluidRow(
                 h3("p-value Based Methods", align = "center"),
-                box("pcurve", width = 4, collapsible = TRUE),
-                box("puniform", width = 4, collapsible = TRUE),
-                box("puniform*", width = 4, collapsible = TRUE)
+                box(title = "P-curve", width = 4, collapsible = TRUE,
+                    fluidRow(
+                      h4("Studies contain evidential value:", align = "center"),
+                      valueBoxOutput("pcurvebinsum"),
+                      valueBoxOutput("pcurvefullsum"),
+                      valueBoxOutput("pcurvehalfsum")
+                    ),
+                    fluidRow(
+                      h4("Studies evidential value is inadequate", align = "center"),
+                      valueBoxOutput("pcurvebinsum33"),
+                      valueBoxOutput("pcurvefullsum33"),
+                      valueBoxOutput("pcurvehalfsum33")
+                    )
+                ),
+                box(title = "P-uniform", br(), br(), valueBoxOutput("punisum", width = 12), width = 4, collapsible = TRUE),
+                box(valueBoxOutput("punistar_sum", width = 12), width = 4, collapsible = TRUE)
               ),
               fluidRow(
                 h3("Other Methods", align = "center"),
