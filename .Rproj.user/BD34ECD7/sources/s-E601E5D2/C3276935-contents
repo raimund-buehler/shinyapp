@@ -140,6 +140,17 @@ output$TRFIside <- renderValueBox({
   )
 }) 
 
+output$TRFIunadj <- renderValueBox({
+  valueBox(round(meta_res_output()$b, 3), color = "light-blue", subtitle = "Unadjusted Estimate")
+})
+
+output$TRFIperc <- renderValueBox({
+    unadj <- meta_res_output()$b
+    adj <- TFres$res$beta
+    perc_change <- 1/unadj*(unadj-adj)
+    valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
+})
+
 
 output$TRFImodel <- renderTable({
   req(TFres$res)
@@ -471,11 +482,81 @@ output$TestOfExc <- renderPrint({
 })
 })
 
+##SUMMARY ----
+
+##BM
+
+output$BMsum <- renderValueBox({
+  valueBox(
+           paste("p = ", format.pval(BMres$res$pval, eps = 0.001, digits = 3)), 
+           subtitle = "Rank Correlation", width = NULL, color = if(BMres$res$pval < input$BM_p){"red"}else{"green"})
+})
+
+##SE
+
+output$SEsum <- renderValueBox({
+  valueBox(subtitle = "Regression", 
+           paste("p = ", format.pval(SEres$res$pval, eps = 0.001, digits = 3)), 
+           color = if(SEres$res$pval < input$SE_p){"red"}else{"green"})
+  
+})
+
+##TRFI
+
+output$TRFIsum <- renderValueBox({
+  unadj <- meta_res_output()$b
+  adj <- TFres$res$beta
+  perc_change <- 1/unadj*(unadj-adj)
+  valueBox(percent(perc_change), 
+  subtitle = "Percent Change", color = if(perc_change < input$tf_adj){"green"}else{"red"})
+})
+
+##pcurve
+
+##Studies contain evidential value
+output$pcurvebinsum <- renderValueBox({
+    valueBox(paste0("p ", pcurve()$binom.r), subtitle = "Binomial", color = if(as.numeric(substring(pcurve()$binom.r, 2)) < input$pcurve_p){"green"}else{"red"})
+})
+
+output$pcurvefullsum <- renderValueBox({
+  valueBox(paste0("p ", pcurve()$p.Zppr), subtitle = "Full p-curve", color = if(as.numeric(substring(pcurve()$p.Zppr, 3)) < input$pcurve_p){"green"}else{"red"})
+})
+
+output$pcurvehalfsum <- renderValueBox({
+  valueBox(paste0("p ", pcurve()$p.Zppr.half), subtitle = "Half p-curve", color = if(as.numeric(substring(pcurve()$p.Zppr.half, 3)) < input$pcurve_p){"green"}else{"red"})
+})
+
+
+##Studies value inadequate
+output$pcurvebinsum33 <- renderValueBox({
+  valueBox(paste0("p ", pcurve()$binom.33), subtitle = "Binomial", color = if(as.numeric(substring(pcurve()$binom.33, 3)) > input$pcurve_p){"green"}else{"red"})
+})
+
+output$pcurvefullsum33 <- renderValueBox({
+  valueBox(paste0("p ", pcurve()$p.Zpp33), subtitle = "Full p-curve", color = if(as.numeric(substring(pcurve()$p.Zpp33, 3)) > input$pcurve_p){"green"}else{"red"})
+})
+
+output$pcurvehalfsum33 <- renderValueBox({
+  valueBox(paste0("p ", pcurve()$p.Zpp33.half), subtitle = "Half p-curve", color = if(as.numeric(substring(pcurve()$p.Zpp33.half, 3)) > input$pcurve_p){"green"}else{"red"})
+})
+
+##puniform
+
+output$punisum <- renderValueBox({
+  valueBox(paste0("p = ", format.pval(PUNIres$res$pval.pb, eps = 0.0001, digits = 3)), 
+  subtitle = "Publication Bias Test", color = if(PUNIres$res$pval.pb > input$puni_p){"green"}else{"red"}) 
+})
+
 output$pubboxes1 <- renderUI({
   req(BMres$res$pval)
   fluidRow(
-    valueBox("Rank Correlation", paste("p = ", format.pval(BMres$res$pval, eps = 0.001, digits = 3)), width = 3, color = if(BMres$res$pval < 0.05){"red"}else{"green"}),
-    valueBox("Sterne & Egger", paste("p = ", format.pval(SEres$res$pval, eps = 0.001, digits = 3)), width = 3, color = if(SEres$res$pval < 0.05){"red"}else{"green"}),
+    valueBox(subtitle = "Rank Correlation", 
+             paste("p = ", format.pval(BMres$res$pval, eps = 0.001, digits = 3)), 
+             color = if(BMres$res$pval < 0.05){"red"}else{"green"}),
+    
+    valueBox("Sterne & Egger", 
+             paste("p = ", format.pval(SEres$res$pval, eps = 0.001, digits = 3)), 
+             color = if(SEres$res$pval < 0.05){"red"}else{"green"}),
     valueBox("Trim and Fill", paste("p = ", format.pval(TFres$res$pval, eps = 0.001, digits = 3)), width = 3, color = if(TFres$res$pval < 0.05){"red"}else{"green"}),
     valueBox("p-curve", "p = ?", width = 3),
   )
