@@ -19,7 +19,8 @@ library(weightr)
 library(pwr)
 library(kableExtra)
 library(haven)
-
+library(htmltools)
+options(scipen=999)
 
 # UI ----
 source(here("ui_x.R"), local = TRUE)
