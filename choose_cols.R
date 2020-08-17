@@ -165,18 +165,18 @@ output$SinglePub <- renderText({
 
 # pub values
 
-output$PubValuePub <- renderUI({
-  req(input$file)
-  req(para$pub)
-  pubcol <- para$pub
-  para$pubvalpub <- input$pubvalpub
-  selectInput(inputId = "pubvalpub", label = "Please specify, which value in your dataset refers to PUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalpub))
-})
-
-output$PubValueUnpub <- renderUI({
-  req(input$file)
-  req(para$pub)
-  pubcol <- para$pub
-  para$pubvalunpub <- input$pubvalunpub
-  selectInput(inputId = "pubvalunpub", label = "Please specify, which value in your dataset refers to UNPUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalunpub))
-})
+# output$PubValuePub <- renderUI({
+#   req(input$file)
+#   req(para$pub)
+#   pubcol <- para$pub
+#   para$pubvalpub <- input$pubvalpub
+#   selectInput(inputId = "pubvalpub", label = "Please specify, which value in your dataset refers to PUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalpub))
+# })
+# 
+# output$PubValueUnpub <- renderUI({
+#   req(input$file)
+#   req(para$pub)
+#   pubcol <- para$pub
+#   para$pubvalunpub <- input$pubvalunpub
+#   selectInput(inputId = "pubvalunpub", label = "Please specify, which value in your dataset refers to UNPUBLISHED studies:", choices = c("Choose one" = "", unique(data_reac$DT[, ..pubcol])), selected = tail(input$pubvalunpub))
+# })
