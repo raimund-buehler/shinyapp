@@ -1,10 +1,26 @@
 ---
 title: "Report from Shiny WebApp"
-output: 
+output:
   pdf_document:
+    latex_engine: lualatex
     toc: true
     number_sections: true
     df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
 params:
   dat: NA
   metric: NA
@@ -47,6 +63,8 @@ params:
   thres_tf_adj: NA
   pb_pcurve_restab: NA
   pb_pcurve_powertab: NA
+  pb_pcurve_pval.full: NA
+  pb_pcurve_pval.half: NA
   pb_tes_o: NA
   pb_tes_e: NA
   pb_tes_pval: NA
@@ -72,6 +90,21 @@ params:
 
 ---
 
+```{r bias_ind, include = FALSE}
+
+bias_bm <- ifelse(params$pb_bm_pval < params$thres_bm_pval, "bias", "no bias")
+bias_se <- ifelse(params$pb_se_pval < params$thres_se_pval, "bias", "no bias")
+bias_tf <- ifelse((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj, "no bias", "bias")
+bias_puni <- ifelse(params$pb_puni_pval < params$thres_puni_pval, "bias", "no bias")
+bias_punistar <- ifelse(params$pb_punistar_pval < params$thres_punistar_pval, "bias", "no bias")
+bias_pcurve <- ifelse((params$pb_pcurve_pval.half < 0.05) | ((params$pb_pcurve_pval.half < 0.1) & params$pb_pcurve_pval.full < 0.1), "no bias", "bias")
+bias_tes <- ifelse((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o), "bias", "no bias")
+bias_selmod <- ifelse(c(params$pb_sel_perc_mod1, params$pb_sel_perc_sev1, params$pb_sel_perc_mod2, params$pb_sel_perc_sev2) < params$thres_sel_adj, "no bias", "bias")
+
+```
+
+
+\newpage
 # Data
 
 Dataset: `r params$dat`
@@ -109,7 +142,7 @@ I^2^ = `r round(params$meta_I2, 2)`%
 H^2^ = `r round(params$meta_H2, 2)`
 
 ## Test of Heterogeneity 
-Q(df = `r params$qtest_df`) = `r round(params$qtest_stat, 4)`, p `r params$qtest_pval`
+Q(df = `r params$qtest_df`) = `r round(params$qtest_stat, 4)`, _p_ `r params$qtest_pval`
 
 
 # Subgroup Analysis
@@ -182,10 +215,19 @@ _P_-curve is based on the notion that, if a given set of studies has evidential 
 ```{r, pcurvetab, echo = FALSE}
 library(kableExtra)
 
-df <- params$pb_pcurve_restab
-colnames(df) <- c("Test", "Binomial Test", "Full p-curve", "Half p-curve")
+df.pcurvetab <- params$pb_pcurve_restab
+colnames(df.pcurvetab) <- c("Test", "Binomial Test", "Full p-curve", "Half p-curve")
 
-kableExtra::kable(df, format = "latex")
+kableExtra::kbl(df.pcurvetab, booktabs = TRUE, col.names = rep("", 4), align = c("l", rep("c", 3))) %>%
+      kable_styling("striped") %>%
+      column_spec(1, bold = T, width = "25em") %>%
+      add_header_above(c(" " = 2, "Full p-curve\n (p's < .05)" = 1, "Half p-curve\n (p's < .05)" = 1)) %>%
+      add_header_above(c("", "Binomial Test" = 1, "Continuous Test" = 2)) %>%
+  kable_styling(position = "center")
+
+
+# kableExtra::kbl(df.pcurvetab, booktabs = TRUE) %>%
+  # kable_styling(position = "center")
 ```
 
 
@@ -194,11 +236,15 @@ kableExtra::kable(df, format = "latex")
 ```{r, pcurvepowertab, echo = FALSE}
 library(kableExtra)
 
-df <- params$pb_pcurve_power
-colnames(df) <- c("", "Estimate")
+df.pcurvepow <- params$pb_pcurve_power
+colnames(df.pcurvepow) <- c("", "Estimate")
 
 
-kableExtra::kable(df, format = "latex")
+# kableExtra::kbl(df.pcurvepow, booktabs = TRUE) %>% 
+  #kable_styling(position = "center")
+
+kableExtra::kbl(df.pcurvepow, booktabs = T, col.names = c("", ""), align = c("l", "l")) %>%
+      kable_styling("striped")
 ```
 
 
@@ -243,10 +289,10 @@ df.selmod <- data.frame(
            paste0(round(params$pb_sel_perc_sev2 * 100, 0), "%"))
 )
 
-df.selmod$Bias <- ifelse(df.selmod$Perc < params$thres_sel_adj, "No Bias Indication", "Bias Indication")
+df.selmod$Bias <- bias_selmod
 
-kableExtra::kable(df.selmod, format = "latex")
-
+kableExtra::kbl(df.selmod, booktabs = TRUE) %>%
+  kable_styling(position = "center")
 ```
 Bias indication is based on an unadjusted estimate of `r round(params$pb_sel_unadj, 2)` and a threshold of `r round(as.numeric(params$thres_sel_adj) * 100, 0)`%.
 
@@ -263,6 +309,43 @@ Test of excess significance: $\chi$^2^ (1) = `r round(params$pb_tes_res, 3)`, _p
 Your results indicate `r if((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o)){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_tes_pval`.
 
 ## Summary of Bias Analyses
+
+```{r, summarytab, echo = FALSE}
+
+df.summary <- data.frame(
+  Method = c("Begg & Mazumdar's Rank Test",
+            "Sterne & Egger's Regression",
+            "Trim-and-Fill",
+            "p-uniform",
+            "p-uniform*",
+            "p-curve",
+            "Test of Excess Significance",
+            "Selection Models: Moderate one-tailed",
+            "Selection Models: Severe one-tailed",
+            "Selection Models: Moderate two-tailed",
+            "Selection Models: Severe two-tailed"),
+  Bias = ifelse(c(bias_bm, 
+           bias_se,
+           bias_tf,
+           bias_puni,
+           bias_punistar,
+           bias_pcurve,
+           bias_tes,
+           bias_selmod) == "bias", "Bias Indication", "No Bias Indication")
+)
+
+
+#df.summary$Bias = kableExtra::cell_spec(df.summary$Bias,
+ #                           background = factor(df.summary$Bias,c("Bias Indication", "No Bias Indication")
+  #                                              , c("#666666", "#999999")))
+
+
+kableExtra::kbl(df.summary, booktabs = TRUE) %>% 
+  kableExtra::column_spec(2, background = ifelse(df.summary$Bias == "Bias Indication", "#ec6f6f", "#7dec6f")) %>%
+  kable_styling(position = "center")
+```
+
+
 
 # Plots 
 

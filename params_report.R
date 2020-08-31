@@ -76,6 +76,8 @@ params <- list(
   # ** Pcurve ----
   pb_pcurve_restab = pcurve_table(),
   pb_pcurve_powertab = pcurvePower(),
+  pb_pcurve_pval.full = pcurve()$p.Zppr,
+  pb_pcurve_pval.half =  pcurve()$p.Zppr.half,
   
   # ** Puniform and Puniform* ----
   pb_puni_zval = PUNIres$res$L.pb,
@@ -103,4 +105,5 @@ params <- list(
   pb_sel_perc_mod2 = 1 / SelMods$mod2$output_unadj$par[2] * (SelMods$mod2$output_unadj$par[2] - SelMods$mod2$output_adj$par[2]),
   pb_sel_perc_sev2 = 1 / SelMods$sev2$output_unadj$par[2] * (SelMods$sev2$output_unadj$par[2] - SelMods$sev2$output_adj$par[2]),
   thres_sel_adj = input$sel_adj
+  
 )

@@ -158,12 +158,8 @@ output$TRFImodel <- renderTable({
 }, rownames = TRUE)
 
 output$FunnelTRFI <- renderPlot({
-  req(meta_res_output())
-  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
-                  egger = FALSE,
-                  trim_and_fill = TRUE,
-                  method = estim())
-  as.ggplot(p)
+  req(normal_funnel_input())
+  print(normal_funnel_input())
 })
 
 

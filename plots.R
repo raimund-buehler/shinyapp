@@ -53,6 +53,7 @@ forestplotInput <- reactive({
                   xlab = choice_es,
                   variant = choice_forest,
                   annotate_CI = TRUE,
+                  method = estim(),
                   type = rv$type_forest,
                   col = input$forestcol)
   
@@ -72,6 +73,7 @@ forestplotInput <- reactive({
                   xlab = choice_es,
                   variant = choice_forest,
                   annotate_CI = TRUE,
+                  method = estim(),
                   type = rv$type_forest,
                   text_size = 6,
                   col = input$forestcol)
@@ -111,9 +113,17 @@ output$forest <- renderUI({
 normal_funnel_input <- reactive({
   req(para$es)
   req(para$se)
+  
+  if (sign(meta_res_output()$b) == 1) {
+    tf_side <- "left"
+  } else if (sign(meta_res_output()$b) == -1) {
+    tf_side <- "right" 
+  }
+  
   p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
                   egger = input$choice_egger,
                   trim_and_fill = input$choice_trimfill,
+                  trim_and_fill_side = tf_side,
                   method = estim())
   as.ggplot(p) + ggtitle("Contour-Enhanced Funnel Plot") +
     theme(plot.title = element_text(hjust = 0.5))
