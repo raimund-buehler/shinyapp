@@ -37,13 +37,37 @@ params:
   sbgrp_R2: NA
   pb_bm_tau: NA
   pb_bm_pval: NA
+  thres_bm_pval: NA
   pb_se_zval: NA
   pb_se_pval: NA
+  thres_se_pval: NA
   pb_tf_k: NA
   pb_tf_side: NA
   pb_tf_es: NA
+  thres_tf_adj: NA
   pb_pcurve_restab: NA
   pb_pcurve_powertab: NA
+  pb_tes_o: NA
+  pb_tes_e: NA
+  pb_tes_pval: NA
+  pb_tes_res: NA
+  thres_tes_pval: NA
+  pb_sel_mod1: NA
+  pb_sel_sev1: NA
+  pb_sel_mod2: NA
+  pb_sel_sev2: NA
+  thres_sel_adj: NA
+  pb_sel_perc_mod1: NA
+  pb_sel_perc_sev1: NA
+  pb_sel_perc_mod2: NA
+  pb_sel_perc_sev2: NA
+  pb_sel_unadj: NA
+  pb_puni_zval: NA
+  pb_puni_pval: NA
+  pb_punistar_zval: NA
+  pb_punistar_pval: NA
+  thres_puni_pval: NA
+  thres_punistar_pval: NA
 
 
 ---
@@ -60,7 +84,7 @@ Number of effect sizes: `r params$k`
 
 Number of published effect sizes: `r params$k_pub`
 
-Number of participants: `r sum(params$n, na.rm = TRUE)` (_M_ = `r mean(params$n, na.rm = TRUE)`)
+Number of participants: `r sum(params$n, na.rm = TRUE)` (_M_ = `r round(mean(params$n, na.rm = TRUE), 2)`)
 
 Number of participants from published studies: `r params$n_pub`
 
@@ -124,18 +148,20 @@ Model without Intercept
 
 Rank Correlation Test for Funnel Plot Asymmetry:
 
-Kendall's tau = `r round(params$pb_bm_tau, 3)`, _p_ `r if(params$pb_bm_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_bm_pval, 4), scientific = FALSE))}`.
+Kendall's $\tau$ = `r round(params$pb_bm_tau, 3)`, _p_ `r if(params$pb_bm_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_bm_pval, 4), scientific = FALSE))}`.
 
-This result indicates `r if(params$pb_bm_pval < 0.10){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < .10.
+This test can be used to examine whether the observed outcomes and the corresponding sampling variances are correlated. A high correlation would indicate that the funnel plot is asymmetric, which may be a result of publication bias. Your results indicate `r if(params$pb_bm_pval < params$thres_bm_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_bm_pval`.
 
 ### Sterne & Egger's Regression Test
 
 Test for Funnel Plot Asymmetry: 
 z = `r round(params$pb_se_zval, 4)`, _p_ `r if(params$pb_se_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_se_pval, 4), scientific = FALSE))}`.
 
-This result indicates `r if(params$pb_se_pval < 0.10){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < .10.
+This test can be used to examine whether a relationship exists between the observed outcomes and the chosen predictor (default = standard error). If such a relationship is present, then this usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias. Your results indicate `r if(params$pb_se_pval < params$thres_se_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_se_pval`.
 
 ### Trim-and-Fill
+
+This method is a nonparametric (rank-based) data augmentation technique. It can be used to estimate the number of studies missing from a meta-analysis due to the suppression of the most extreme results on one side of the funnel plot. The method then augments the observed data so that the funnel plot is more symmetric and recomputes the summary estimate based on the complete data. This should not be regarded as a way of yielding a more 'valid' estimate of the overall effect or outcome, but as a way of examining the sensitivity of the results to one particular selection mechanism (i.e., one particular form of publication bias).
 
 Imputed studies by trim-and-fill procedure: `r params$pb_tf_k` (Side: `r params$pb_tf_side`)
 
@@ -143,11 +169,13 @@ Adjusted estimate according to trim-and-fill procedure: `r params$metric` = `r r
 
 Adjusted estimate (`r round(params$pb_tf_es, 2)`) is adjusted by `r round(abs(100 * ((params$meta_es - params$pb_tf_es)/params$meta_es)), 2)`% (`r round(params$meta_es - params$pb_tf_es, 2)`) of unadjusted estimate (`r round(params$meta_es, 2)`). 
 
-This result indicates `r if ((params$meta_es - params$pb_tf_es)/params$meta_es < .20) {paste("no bias")} else {paste("bias")}` according to your defined threshold of 20%.
+This result indicates `r if ((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj) {paste("no bias")} else {paste("bias")}` according to your defined threshold of `r round(as.numeric(params$thres_tf_adj) * 100, 0)`%.
 
 ## Methods Based on _p_-Values
 
 ### _p_-Curve
+
+_P_-curve is based on the notion that, if a given set of studies has evidential value, the distribution of those one-tailed p-values will be right skewed. This means that very small _p_-values (such as _p_ < .025) will be more numerous than larger _p_-values. If the distribution of significant _p_-values is left skewed and large _p_-values are more numerous than expected, it could be interpreted as evidence of _p_-hacking—researchers may be striving to obtain p-values that fall just below .05. _P_-curve uses two tests to assess whether the distribution is right skewed. The first is a binomial test comparing the proportion of observed _p_-values above and below .025; the second is a continuous test that calculates the probability of observing each individual _p_-value under the null hypothesis. The probabilities produced by this second test are then dubbed the studies’ “pp” values. These tests for right skew assess what is called the full _p_-curve. To test for “ambitious _p_-hacking,” or _p_-hacking to reach below .025 rather than .05, _p_-curve conducts the same tests for right skew on only the observed _p_-values that are below .025, or the “half _p_-curve.” If these tests for right skew are not significant, indicating that the studies lack evidential value and no true effect may be present, _p_-curve conducts another pair of binomial and continuous tests to assess whether the studies were underpowered (defined as having power below 33 percent).
 
 **Results of Binomial and Continuous Tests**
 
@@ -176,13 +204,63 @@ kableExtra::kable(df, format = "latex")
 
 ### _p_-Uniform
 
+P-uniform is based on the idea that _p_-values, conditional on a true effect size, are uniformly distributed. The method performs two tests. The first assesses the null hypothesis that the population effect size is zero by examining whether the conditional distribution of observed _p_-values is uniform. The second test is a one-tailed test of whether the population effect size equals the effect- size estimate produced by a traditional fixed-effect meta-analysis. If they differ significantly publication bias may be a threat. Finally, _p_-uniform provides an adjusted effect-size estimate and confidence interval by searching for the population effect size that does meet its qualification—the value where the distribution of conditional _p_-values is uniform.
+
+Publication Bias Test: _p_ `r if(params$pb_puni_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_puni_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if(params$pb_puni_pval < params$thres_puni_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_puni_pval`.
+
+
 ### _p_-Uniform*
+
+Publication Bias Test: _p_ `r if(params$pb_punistar_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_punistar_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if(params$pb_punistar_pval < params$thres_punistar_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_punistar_pval`.
+
 
 ## Other Methods
 
 ### Selection Models According to Vevea & Woods (2005)
 
+Selection models adjust meta-analytic data sets by specifying a model that describes the mechanism by which studies may be suppressed. This model is combined with an effect-size model that describes the distribution of effect sizes in the absence of publication bias. The Vevea and Woods (2005) approach, which is implemented here, attempts to model the suppression of studies as a function of _p_-values by specifying selection models of varying severity and estimating the meta-analytic parameters contingent on each hypothetical selection pattern. This can serve as a sensitivity analysis to investigate how a specified pattern of publication bias could affect the summary estimate
+
+
+```{r, selmodtab, echo = FALSE}
+library(kableExtra)
+
+df.selmod <- data.frame(
+  Model = c("Moderate one-tailed",
+            "Severe one-tailed",
+            "Moderate two-tailed",
+            "Severe two-tailed"),
+  Value = c(round(params$pb_sel_mod1, 4),
+            round(params$pb_sel_sev1, 4),
+            round(params$pb_sel_mod2, 4),
+            round(params$pb_sel_sev2, 4)),
+  Perc = c(paste0(round(params$pb_sel_perc_mod1 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_sev1 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_mod2 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_sev2 * 100, 0), "%"))
+)
+
+df.selmod$Bias <- ifelse(df.selmod$Perc < params$thres_sel_adj, "No Bias Indication", "Bias Indication")
+
+kableExtra::kable(df.selmod, format = "latex")
+
+```
+Bias indication is based on an unadjusted estimate of `r round(params$pb_sel_unadj, 2)` and a threshold of `r round(as.numeric(params$thres_sel_adj) * 100, 0)`%.
+
 ### Test of Excess Significance
+
+The test of excess significance is a null hypothesis significance test that takes a given set of studies and asks whether too many are statistically significant or “positive.” The expected number of positive studies is calculated based on the studies’ power, and that expected number is compared with the observed number of positive studies using the chi-square statistic. Guidelines for the TES indicate that a _p_-value less than .10 should be considered significant. Note: this test should not be interpreted if there are fewer observed than expected significant studies.
+
+Expected number of significant studies: `r round(params$pb_tes_e, 0)`
+
+Observed number of significant studies: `r round(params$pb_tes_o, 0)`
+
+Test of excess significance: $\chi$^2^ (1) = `r round(params$pb_tes_res, 3)`, _p_ `r if(params$pb_tes_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_tes_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o)){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_tes_pval`.
 
 ## Summary of Bias Analyses
 
