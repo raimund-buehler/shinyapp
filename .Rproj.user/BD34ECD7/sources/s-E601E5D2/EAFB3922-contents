@@ -1,0 +1,69 @@
+library(esc)
+
+# simulate input for cohen d from 0 to 1 (n = 100) -----
+# sample sizes and sds stay the same, only difference between groups changes
+
+df <- data.frame (diff = seq(from = 0, to = 0.5, length = 100),
+                  m1 = rep(5, 100),
+                  grp1sd = rep(0.5, 100),
+                  grp2sd = rep(0.5, 100),
+                  grp1n = rep(50, 100),
+                  grp2n = rep(50, 100))
+df$m2 <- df$m1 - df$diff
+
+# convert to cohen d
+# formula for variance used by esc_mean_sd (same as in Cooper et al 2019):
+# # Compute variance of d-type effect size
+esc.vd <- function(d, grp1n, grp2n) {
+ (grp1n + grp2n) / (grp1n * grp2n) + (d * d) / (2 * (grp1n + grp2n))
+}
+# https://github.com/strengejacke/esc/blob/master/R/esc_helper.R
+
+
+sqrt(esc.vd(d = 0.5, grp1n = 50, grp2n = 50))
+
+res.d <- esc_mean_sd(grp1m = df$m1, 
+                     grp2m = df$m2,
+                     grp1sd = df$grp1sd,
+                     grp2sd = df$grp2sd,
+                     grp1n = df$grp1n,
+                     grp2n = df$grp2n)
+
+df$d <- res.d$es
+df$d.SE <- res.d$se
+
+# plot effect size and standard error -----
+plot(df$d, df$d.SE)
+
+# convert to r and r.SE ----
+df$r <- df$d / sqrt(df$d^2 + 4)
+df$r.var <- (16 * df$d.SE^2 ) / ((df$d^2 + 4)^3) 
+df$r.SE <- sqrt(df$r.var)
+
+plot(df$r, df$r.SE)
+
+plot(df$d.SE, df$r.SE)
+
+# convert with esc package ----
+res_d2r <- convert_d2r(d = df$d, se = df$d.SE, grp1n = df$grp1n, grp2n = df$grp2n)
+df$r_esc <- res_d2r$es
+df$r.SE_esc <- res_d2r$se
+
+# this is the code from the esc package (github):
+# https://github.com/strengejacke/esc/blob/master/R/convert_d2r.R
+# p <- grp1n / (grp1n + grp2n)
+# es <- d / sqrt(d^2 + 1 / (p * (1 - p)))
+# v <- v / (v + 1 / (p * (1 - p)))
+
+plot(df$r_esc, df$r.SE_esc)
+
+# test strength and direction of association formally ----
+# (ofc we already saw that)
+
+cor.test(df$r, df$r.SE) # -.97
+
+cor.test(df$r_esc, df$r.SE_esc) # .96  (sign reversal! but consistent w d)
+
+cor.test(df$d, df$d.SE) # .97 
+
+

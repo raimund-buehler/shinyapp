@@ -41,7 +41,9 @@ server <- function(input, output, session) {
   #Calculate all effectsizes and store them in separate Data table data_reac$DTall
   observe({
   req(para$es)
+  req(para$n)
   type_ES <- para$es
+  n <- para$n
   data <- as.data.table(data_reac$DT)
   source(here("calc_effectsize.R"), local = TRUE)
   data_reac$DTall <- data

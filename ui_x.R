@@ -26,7 +26,7 @@ ui <- dashboardPage(
                menuSubItem("p-uniform and p-uniform*", tabName = "puni"),
                menuSubItem("Selection Models", tabName = "SelMod"),
                menuSubItem("Test of Excess Significance", tabName = "TES"),
-               menuSubItem("Summary", tabName = "pubsum"),
+
                menuSubItem("Summary Bias Analyses", tabName = "pubbias_summary")
                ),
       menuItem("Report & Downloads", tabName = "dwn", icon = icon("download"))
@@ -295,14 +295,27 @@ ui <- dashboardPage(
               ),
               column(width = 8,
                      fluidRow(
-                box(width = 6, title = "Moderate Model, One-Tailed", valueBoxOutput("modone"), valueBoxOutput("modone_unadj"), valueBoxOutput("modone_perc")),
-                box(width = 6, title = "Severe Model, One-Tailed", valueBoxOutput("sevone"), valueBoxOutput("sevone_unadj"), valueBoxOutput("sevone_perc")),
-                box(width = 6, title = "Moderate Model, Two-Tailed", valueBoxOutput("modtwo"), valueBoxOutput("modtwo_unadj"), valueBoxOutput("modtwo_perc")),
-                box(width = 6, title = "Severe Model, Two-Tailed", valueBoxOutput("sevtwo"), valueBoxOutput("sevtwo_unadj"), valueBoxOutput("sevtwo_perc"))
+                          box(width = 6, title = "Moderate Model, One-Tailed", valueBoxOutput("modone"), valueBoxOutput("modone_unadj"), valueBoxOutput("modone_perc")),
+                          box(width = 6, title = "Severe Model, One-Tailed", valueBoxOutput("sevone"), valueBoxOutput("sevone_unadj"), valueBoxOutput("sevone_perc")),
+                          box(width = 6, title = "Moderate Model, Two-Tailed", valueBoxOutput("modtwo"), valueBoxOutput("modtwo_unadj"), valueBoxOutput("modtwo_perc")),
+                          box(width = 6, title = "Severe Model, Two-Tailed", valueBoxOutput("sevtwo"), valueBoxOutput("sevtwo_unadj"), valueBoxOutput("sevtwo_perc"))
               )))),
-      tabItem(tabName = "TES", verbatimTextOutput("TestOfExc")),
-
-      tabItem(tabName = "pubsum", uiOutput("pubboxes1"), uiOutput("pubboxes2"), uiOutput("pubboxes3")),
+      
+      ## **** TES ----
+      tabItem(tabName = "TES", fluidRow(
+                column(width = 4,
+                       box(title = "Test of Excess Significance", textOutput("TEShelp"), width = NULL)
+                ),
+                column(width = 8,
+                       valueBoxOutput("TESexp", width = 6),
+                       valueBoxOutput("TESobs", width = 6),
+                       valueBoxOutput("TESchi", width = 6),
+                       valueBoxOutput("TESpval", width = 6)
+                  
+                )
+                
+      )
+      ),
       
       # **** Summary Page ----
       tabItem(tabName = "pubbias_summary",
@@ -330,7 +343,7 @@ ui <- dashboardPage(
               ),
               fluidRow(
                 h3("Small Study Effects", align = "center"),
-                box(column(width = 4, offset = 4, valueBoxOutput("BMsum", width = NULL)), title = "Begg & Mazumdar", width = 4, collapsible = TRUE),
+                box(valueBoxOutput("BMsum", width = 12), title = "Begg & Mazumdar", width = 4, collapsible = TRUE),
                 box(valueBoxOutput("SEsum", width = 12), title = "Sterne & Egger", width = 4, collapsible = TRUE),
                 #box("PET-PEESE", width = 3, collapsible = TRUE),
                 box(valueBoxOutput("TRFIsum", width = 12), title = "Trim-and-Fill", width = 4, collapsible = TRUE)
@@ -340,24 +353,28 @@ ui <- dashboardPage(
                 box(title = "P-curve", width = 4, collapsible = TRUE,
                     fluidRow(
                       h4("Studies contain evidential value:", align = "center"),
-                      valueBoxOutput("pcurvebinsum"),
-                      valueBoxOutput("pcurvefullsum"),
-                      valueBoxOutput("pcurvehalfsum")
+                        valueBoxOutput("pcurvebinsum", width = 12),
+                        valueBoxOutput("pcurvefullsum", width = 12),
+                        valueBoxOutput("pcurvehalfsum", width = 12)
                     ),
                     fluidRow(
                       h4("Studies evidential value is inadequate", align = "center"),
-                      valueBoxOutput("pcurvebinsum33"),
-                      valueBoxOutput("pcurvefullsum33"),
-                      valueBoxOutput("pcurvehalfsum33")
+                      valueBoxOutput("pcurvebinsum33", width = 12),
+                      valueBoxOutput("pcurvefullsum33", width = 12),
+                      valueBoxOutput("pcurvehalfsum33", width = 12)
                     )
                 ),
                 box(title = "P-uniform", br(), br(), valueBoxOutput("punisum", width = 12), width = 4, collapsible = TRUE),
-                box(valueBoxOutput("punistar_sum", width = 12), width = 4, collapsible = TRUE)
+                box(title = "P-uniform*", br(), br(), valueBoxOutput("punistar_sum", width = 12), width = 4, collapsible = TRUE)
               ),
               fluidRow(
                 h3("Other Methods", align = "center"),
-                box("Test of Excess Significance", width = 6, collapsible = TRUE),
-                box("Selection Models (Vevea & Woods)", width = 6, collapsible = TRUE)
+                box(valueBoxOutput("TESsum", width = 12), title = "Test of Excess Significance", width = 6, collapsible = TRUE),
+                box(fluidRow(
+                  valueBoxOutput("mod1sum", width = 6), 
+                  valueBoxOutput("sev1sum", width = 6), 
+                  valueBoxOutput("mod2sum", width = 6), 
+                  valueBoxOutput("sev2sum", width = 6)), title = "Selection Models", width = 6, collapsible = TRUE),
               )
               ),
       

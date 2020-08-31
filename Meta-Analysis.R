@@ -40,7 +40,8 @@ estim <- reactive({
 
 # **** Run the meta-analysis ----
 meta_res_output <- reactive({
-  # req(input$metamodel)
+  req(para$es)
+  req(para$se)
   validate(
     need(isTruthy(data_reac$DT[[para$es]]) & isTruthy(data_reac$DT[[para$se]]), 
          "Please select columns for effect size and standard error"))

@@ -385,6 +385,7 @@ output$modone <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please s
 output$modone_unadj <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
   valueBox(round(SelMods$mod1$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
 })
+
 output$modone_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
   unadj <- SelMods$mod1$output_unadj$par[2]
   adj <- SelMods$mod1$output_adj$par[2]
@@ -437,8 +438,9 @@ output$sevtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Ple
 # **** number of significant studies (stored in ksign of for.power object), contingent on sign of summary effect (O)
 
 TESres <- reactiveValues()
-output$TestOfExc <- renderPrint({
-  tryCatch({
+
+observe({
+  req(meta_res_output())
   data <- as.data.table(data_reac$DTall)
   
   res.rma <- meta_res_output()
@@ -448,6 +450,8 @@ output$TestOfExc <- renderPrint({
   } else if (sign(res.rma$b)==-1) {
   O <- data[, puniform(ri = r,ni = n, side="left", method="P")]$ksig
   }
+  
+  TESres$O <- O
   
   ## number of studies (overall)
   kall<-length(data$r)
@@ -464,11 +468,14 @@ output$TestOfExc <- renderPrint({
   # estimated number of significant studies = power * k = E
   E <- MeanPowerInd.all.e * kall
   
+  TESres$E <- E
   
   ### chisquare for difference between observed and expected significant studies (A)
   
   A<-((O - E)^2 / E) + ((O - E)^2 / (kall - E)) ## for.power$ksig are observed sign. studies
   A
+  TESres$A <- A
+  
   res.it<-pchisq(A, df = 1, lower.tail = F)
   
   TESres$res <- res.it
@@ -476,11 +483,37 @@ output$TestOfExc <- renderPrint({
   # then the sign of for.res.it would be negative
   for.res.it <- O - E
   
-  cat("Chisquare-test for difference between observed and expected significant studies:", "\n\n", "p = ", res.it)}
-, error = function(e){
-  "Please execute the Meta-Analysis first!"
+  TESres$for.res.it <- for.res.it
+  })
+
+output$TEShelp <- renderText(
+  "The test of excess significance is a null hypothesis significance 
+  test that takes a given set of studies and asks whether too many are 
+  statistically significant or “positive.” The expected number of 
+  positive studies is calculated based on the studies’ power, and 
+  that expected number is compared with the observed number of positive 
+  studies using the chi-square statistic. Guidelines for the TES indicate 
+  that a p-value less than .10 should be considered significant.
+  Note: this test should not be interpreted if there are fewer observed 
+  than expected significant studies"
+)
+
+output$TESexp <- renderValueBox({
+  valueBox(round(TESres$E, 3), subtitle = "Expected number of significant studies", color = "light-blue")
 })
+
+output$TESobs <- renderValueBox({
+  valueBox(round(TESres$O, 3), subtitle = "Observed number of significant studies", color = "light-blue")
 })
+
+output$TESchi <- renderValueBox({
+  valueBox(round(TESres$A, 3), subtitle = "Chi-square statistic (df = 1)", color = "light-blue")
+})
+
+output$TESpval <- renderValueBox({
+  valueBox(round(TESres$res, 3), subtitle = "P-value", color = "light-blue")
+})
+
 
 ##SUMMARY ----
 
@@ -547,30 +580,43 @@ output$punisum <- renderValueBox({
   subtitle = "Publication Bias Test", color = if(PUNIres$res$pval.pb > input$puni_p){"green"}else{"red"}) 
 })
 
-output$pubboxes1 <- renderUI({
-  req(BMres$res$pval)
-  fluidRow(
-    valueBox(subtitle = "Rank Correlation", 
-             paste("p = ", format.pval(BMres$res$pval, eps = 0.001, digits = 3)), 
-             color = if(BMres$res$pval < 0.05){"red"}else{"green"}),
-    
-    valueBox("Sterne & Egger", 
-             paste("p = ", format.pval(SEres$res$pval, eps = 0.001, digits = 3)), 
-             color = if(SEres$res$pval < 0.05){"red"}else{"green"}),
-    valueBox("Trim and Fill", paste("p = ", format.pval(TFres$res$pval, eps = 0.001, digits = 3)), width = 3, color = if(TFres$res$pval < 0.05){"red"}else{"green"}),
-    valueBox("p-curve", "p = ?", width = 3),
-  )
+output$punistar_sum <- renderValueBox({
+  valueBox(paste0("p = ", format.pval(PUNISTres$res$pval.pb, eps = 0.0001, digits = 3)), 
+           subtitle = "Publication Bias Test", color = if(PUNISTres$res$pval.pb > input$punistar_p){"green"}else{"red"}) 
 })
-output$pubboxes2 <-  renderUI({
-  fluidRow(
-    valueBox("p-uniform", paste("p = ", format.pval(PUNIres$res$pval.pb, eps = 0.001, digits = 3)), width = 3, color = if(PUNIres$res$pval.pb < 0.05){"red"}else{"green"}),
-    valueBox("p-uniform*", paste("p = ", format.pval(PUNISTres$res$pval.pb, eps = 0.001, digits = 3)), width = 3, color = if(PUNISTres$res$pval.pb < 0.05){"red"}else{"green"}),
-    valueBox("Selection Models", paste("p = ?"), width = 3),
-    valueBox("TES", format.pval(TESres$res, eps = 0.001, digits = 3), width = 3, color = if(TESres$res < 0.05){"red"}else{"green"})
-  )
+
+##TES
+
+output$TESsum <- renderValueBox({
+  valueBox(format.pval(TESres$res, eps = 0.001, digits = 3), subtitle = "P-value: Observed - Expected", color = if(TESres$res < input$TES_p){"red"}else{"green"})
 })
-output$pubboxes3 <- renderUI({
-  fluidRow(
-    
-  )
+
+##SelMods
+
+output$mod1sum <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods$mod1$output_unadj$par[2]
+  adj <- SelMods$mod1$output_adj$par[2]
+  perc_change <- 1/unadj*(unadj-adj)
+  valueBox(percent(perc_change), subtitle = "Moderate One-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
+})
+
+output$sev1sum <- renderValueBox({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods$sev1$output_unadj$par[2]
+  adj <- SelMods$sev1$output_adj$par[2]
+  perc_change <- 1/unadj*(unadj-adj)
+  valueBox(percent(perc_change), subtitle = "Severe One-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
+})
+
+output$mod2sum <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods$mod2$output_unadj$par[2]
+  adj <- SelMods$mod2$output_adj$par[2]
+  perc_change <- 1/unadj*(unadj-adj)
+  valueBox(percent(perc_change), subtitle = "Moderate Two-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
+})
+
+output$sev2sum <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods$sev2$output_unadj$par[2]
+  adj <- SelMods$sev2$output_adj$par[2]
+  perc_change <- 1/unadj*(unadj-adj)
+  valueBox(percent(perc_change), subtitle = "Severe Two-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
 })
