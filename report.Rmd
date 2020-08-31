@@ -1,9 +1,10 @@
 ---
-title: "Dynamic report"
+title: "Report from Shiny WebApp"
 output: 
   pdf_document:
     toc: true
     number_sections: true
+    df_print: kable
 params:
   dat: NA
   metric: NA
@@ -23,6 +24,28 @@ params:
   meta_pval: NA
   meta_zval: NA
   meta_tau2: NA
+  meta_I2: NA
+  meta_H2: NA
+  qtest_df: NA
+  qtest_stat: NA
+  qtest_pval: NA
+  sbgrp_k: NA
+  sbgrp_tau2: NA
+  sbgrp_se.tau2: NA
+  sbgrp_I2: NA
+  sbgrp_H2: NA
+  sbgrp_R2: NA
+  pb_bm_tau: NA
+  pb_bm_pval: NA
+  pb_se_zval: NA
+  pb_se_pval: NA
+  pb_tf_k: NA
+  pb_tf_side: NA
+  pb_tf_es: NA
+  pb_pcurve_restab: NA
+  pb_pcurve_powertab: NA
+
+
 ---
 
 # Data
@@ -50,9 +73,119 @@ Oldest published study in dataset: `r params$in_study_pub`
 
 # Meta-Analysis
 ## Results
-`r params$model_type` Model, k = `r params$k_meta` `r params$estim`.
+`r params$model_type` Model, k = `r params$k_meta`, $\tau$^2^-estimator = `r params$estim`.
 
 `r params$metric` = `r round(params$meta_es, 2)`, SE = `r round(params$meta_se, 2)` [`r round(params$meta_ci.lb, 2)`; `r round(params$meta_ci.ub, 2)`], _p_-value = `r params$meta_pval`, z = `r round(params$meta_zval, 4)`.
 
 ## Heterogeneity Statistics
-$\tau$^2^ = `r params$meta_tau2`
+$\tau$^2^ = `r round(params$meta_tau2, 3)`
+
+I^2^ = `r round(params$meta_I2, 2)`%
+
+H^2^ = `r round(params$meta_H2, 2)`
+
+## Test of Heterogeneity 
+Q(df = `r params$qtest_df`) = `r round(params$qtest_stat, 4)`, p `r params$qtest_pval`
+
+
+# Subgroup Analysis
+
+Mixed-Effects Model (k = `r params$sbgrp_k`; $\tau$^2^ estimator: `r params$estim`)
+
+## Heterogeneity Statistics
+
+$\tau$^2^ (estimated amount of residual heterogeneity): `r round(params$sbgrp_tau2, 4)` (SE = `r round(params$sbgrp_se.tau2, 4)`)
+
+I^2^ (residual heterogeneity/unaccounted variability): `r round(params$sbgrp_I2, 2)`%
+
+H^2^ (unaccounted variability/sampling variability): `r round(params$sbgrp_H2, 2)`
+
+R^2^ (amount of heterogeneity accounted for): `r round(params$sbgrp_R2, 2)`%
+
+## Test for Residual Heterogeneity
+
+
+
+Test of Moderators [NEED TO TAKE THAT FROM THE INTERCEPT MODEL]
+Knapp-Hartung-Adjustment: 
+
+Model Results: 
+Intercept Model
+Model without Intercept
+
+
+# Meta-Regression
+
+# Publication Bias Methods
+
+## Small Study Effects
+
+### Begg & Mazumdar's Rank Test
+
+Rank Correlation Test for Funnel Plot Asymmetry:
+
+Kendall's tau = `r round(params$pb_bm_tau, 3)`, _p_ `r if(params$pb_bm_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_bm_pval, 4), scientific = FALSE))}`.
+
+This result indicates `r if(params$pb_bm_pval < 0.10){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < .10.
+
+### Sterne & Egger's Regression Test
+
+Test for Funnel Plot Asymmetry: 
+z = `r round(params$pb_se_zval, 4)`, _p_ `r if(params$pb_se_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_se_pval, 4), scientific = FALSE))}`.
+
+This result indicates `r if(params$pb_se_pval < 0.10){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < .10.
+
+### Trim-and-Fill
+
+Imputed studies by trim-and-fill procedure: `r params$pb_tf_k` (Side: `r params$pb_tf_side`)
+
+Adjusted estimate according to trim-and-fill procedure: `r params$metric` = `r round(params$pb_tf_es, 2)`.
+
+Adjusted estimate (`r round(params$pb_tf_es, 2)`) is adjusted by `r round(abs(100 * ((params$meta_es - params$pb_tf_es)/params$meta_es)), 2)`% (`r round(params$meta_es - params$pb_tf_es, 2)`) of unadjusted estimate (`r round(params$meta_es, 2)`). 
+
+This result indicates `r if ((params$meta_es - params$pb_tf_es)/params$meta_es < .20) {paste("no bias")} else {paste("bias")}` according to your defined threshold of 20%.
+
+## Methods Based on _p_-Values
+
+### _p_-Curve
+
+**Results of Binomial and Continuous Tests**
+
+```{r, pcurvetab, echo = FALSE}
+library(kableExtra)
+
+df <- params$pb_pcurve_restab
+colnames(df) <- c("Test", "Binomial Test", "Full p-curve", "Half p-curve")
+
+kableExtra::kable(df, format = "latex")
+```
+
+
+**Statistical Power**
+
+```{r, pcurvepowertab, echo = FALSE}
+library(kableExtra)
+
+df <- params$pb_pcurve_power
+colnames(df) <- c("", "Estimate")
+
+
+kableExtra::kable(df, format = "latex")
+```
+
+
+### _p_-Uniform
+
+### _p_-Uniform*
+
+## Other Methods
+
+### Selection Models According to Vevea & Woods (2005)
+
+### Test of Excess Significance
+
+## Summary of Bias Analyses
+
+# Plots 
+
+# References

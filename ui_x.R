@@ -589,7 +589,7 @@ ui <- dashboardPage(
                                    h6("p-curve"),
                                    dropdown(
                                      h6("Preview"),
-                                     plotOutput("pcurve_example"),
+                                     plotOutput("pcurve_example", height = "600px"),
                                      style = "stretch", icon = icon("search"),
                                      status = "primary", 
                                      width = "500px",

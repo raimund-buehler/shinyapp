@@ -237,6 +237,11 @@ output$dwn_pcurve_plot <- downloadHandler(
     dev.off()
   })
 
+
+output$pcurve_example <- renderPlot({
+  print(pcurve_plot())
+})
+
 output$dwn_pcurve_inputstring <- downloadHandler(
   filename = "pcurve_input_webapp.txt",
   content = function(file) {
