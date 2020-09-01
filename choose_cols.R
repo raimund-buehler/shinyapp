@@ -4,6 +4,8 @@
 ##If no match is found, the user is asked to provide the appropriate column from all column names.
 ##parameters are stored as reactive values inside "para" and can be used when later sourcing calculation files (e.g. via para$es, para$se etc)
 
+#this is just a comment
+
 ## CHOOSE EFFECT SIZE TYPE
 
 para <- reactiveValues()
