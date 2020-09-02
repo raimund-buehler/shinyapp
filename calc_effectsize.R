@@ -15,10 +15,8 @@
 # 
 # #### EFFECT SIZE TRANSFORMATION -----
 # #### **** original effect size: d or g -----
-browser()
-if (type_ES=="g" | type_ES == "d") {
+if (type_ES =="g" | type_ES == "d") {
   if (type_ES=="g") {
-
   # compute d and d.se
   data[, `:=` (J = 1 - (3 / (4 * (n - 2) - 1)))][,
          `:=` (d = g / J,
@@ -32,7 +30,7 @@ if (type_ES=="g" | type_ES == "d") {
                   g.SE = d.SE * J)][, J := NULL]
 
     }
-}
+
 
   # compute logOR and OR
    data[, `:=` (logOR = pi * d / sqrt(3),
@@ -54,7 +52,7 @@ if (type_ES=="g" | type_ES == "d") {
   # compute z and z.se
   data[, `:=` (z = 0.5 * log((1 + r)/(1 - r)),
                z.SE = r.SE / (1 - r^2))]
-
+}
 #### **** original effect size: OR or logOR ----
 if (type_ES == "OR" | type_ES == "logOR") {
   if (type_ES == "OR") {
@@ -98,7 +96,6 @@ if (type_ES == "OR" | type_ES == "logOR") {
 #### **** original effect size: r or z  -----
 if (type_ES == "r" | type_ES == "z") {
   if(type_ES == "r") {
-
   # compute z and z.se
   data[, `:=` (z = 0.5 * log((1 + r)/(1 - r)),
                z.SE = 1 / (sqrt(n-3)))][,

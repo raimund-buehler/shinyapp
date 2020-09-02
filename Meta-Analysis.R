@@ -176,7 +176,7 @@ meta_sens <- reactive({
                 unhighlighted_params = list(color = "#525252")) +
     
     # set x-axis limits
-    xlim(c(-1, 1)) +
+    xlim(c(min(res.estim()$es) - 2, max(res.estim()$es) + 2)) +
     
     # set labels and title
     xlab("Effect size") + 
@@ -191,6 +191,7 @@ meta_sens <- reactive({
 
 # Plot for Output
 output$meta_sens <- renderPlot({
+  browser()
   meta_sens()
 })
 

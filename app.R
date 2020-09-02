@@ -39,7 +39,8 @@ server <- function(input, output, session) {
   
   
   #Calculate all effectsizes and store them in separate Data table data_reac$DTall
-  observe({
+  observeEvent(input$SubmitButton, {
+  browser()
   req(para$es)
   req(para$se)
   req(para$n)

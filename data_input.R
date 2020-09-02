@@ -1,7 +1,7 @@
 ## READ DATA FILE and coerce to data.table
 
 data_reac <- reactiveValues()
-observe({
+observeEvent(input$file, {
   req(input$file)
   data_reac$DT <- as.data.table(read.spss(input$file$datapath))
 })
@@ -34,6 +34,7 @@ output$DTable <- DT::renderDataTable(data_reac$DT,
 
 ##RENDER USER MENU FOR DATAFILE
 output$choices <- renderUI({
+  req(input$file)
   box(title = "Input",
       width = NULL,
       uiOutput("EStype"),
@@ -50,7 +51,9 @@ output$choices <- renderUI({
       uiOutput("candidateSelect"),
       uiOutput("primaryPublSelect"),
       uiOutput("candidatePublSelect"),
-      #textInput(inputId = "primary_name", label = "Please specify the primary study")
+      fluidRow(
+        column(width = 12, offset = 5,
+               actionButton("SubmitButton", "Submit")))
   )
   
 })
