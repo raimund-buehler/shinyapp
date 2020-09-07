@@ -30,8 +30,13 @@ params:
   sbgrp_H2: NA
   sbgrp_R2: NA
   sbgrp_Qdf: NA
+  sbgrp_QE: NA
+  sbgrp_QEp: NA
   sbgrp_QM: NA
+  sbgrp_QM_knha: NA
   sbgrp_QMp: NA
+  sbgrp_QMp_knha: NA
+  sbgrp_df_coeff: NA
 ---
 
 # Subgroup Analysis
@@ -50,13 +55,71 @@ R^2^ (amount of heterogeneity accounted for): `r round(params$sbgrp_R2, 2)`%
 
 ## Test for Residual Heterogeneity
 
-QM (df = `r params$sbgrp_Qdf`) = `r round(params$sbgrp_QM, 4)`, _p_ `r if(params$sbgrp_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp, 4), scientific = FALSE))}`
+Q(df = `r params$sbgrp_k - params$sbgrp_Qdf`) = `r round(params$sbgrp_QE, 4)`, _p_ `r if(params$sbgrp_QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QEp, 4), scientific = FALSE))}`
        
+## Model Results 
+### Intercept Model
+
+
+```{r table_intrcpt, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$sbgrp_df_coeff$intrcpt)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients without Knapp-Hartung-adjustment",
+                position = "h") %>%
+      kable_styling("striped")
+```
+
+
+
+Intercept Model with Knapp-Hartung-adjusted standard errors: 
+```{r table_intrcpt_knha, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$sbgrp_df_coeff$intrcpt_knha)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients with Knapp-Hartung-adjustment",
+                position = "h") %>%
+      kable_styling("striped")
+```
+
+### Model without Intercept
+
+
+```{r table_nointrcpt, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$sbgrp_df_coeff$no_intrcpt)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients without Knapp-Hartung-adjustment",
+                position = "h") %>%
+      kable_styling("striped")
+```
+
+Intercept Model with Knapp-Hartung-adjusted standard errors: 
+```{r table_nointrcpt_knha, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$sbgrp_df_coeff$no_intrcpt_knha)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients with Knapp-Hartung-adjustment") %>%
+      kable_styling("striped", latex_options = "HOLD_position")
+```
+
+
 
 ## Test of Moderators: 
 
+**Note**: This refers to the intercept model (i.e., is the moderator different from zero, not the subgroup estimates)
+
+QM(df = `r params$sbgrp_Qdf - 1`) = `r round(params$sbgrp_QM, 4)`, _p_ `r if(params$sbgrp_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp, 4), scientific = FALSE))}`.
+
 ### With Knapp-Hartung-Adjustment: 
 
-## Model Results 
-### Intercept Model
-### Model without Intercept
+F (df1 = `r params$sbgrp_Qdf`, df2 = `r params$sbgrp_k - params$sbgrp_Qdf`) = `r round(params$sbgrp_QM_knha, 4)`, _p_`r if(params$sbgrp_QMp_knha < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp_knha, 4), scientific = FALSE))}`.
+

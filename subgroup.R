@@ -41,20 +41,31 @@ mod_res_output <- eventReactive(input$go_moa, {
 
   
   # do the moderator analysis
-  # moderator analysis is run twice (with/without intercept in model spec)
+  # moderator analysis is run four times (with/without intercept and with/without knha in model spec)
   l <- list()
   l$no_intrcpt <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                             mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                                              ref = input$select_ref_mod) - 1,
-                             method = estim(),
-                             knha = input$knha_mod)
+                      mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                       ref = input$select_ref_mod) - 1,
+                      method = estim(),
+                      knha = FALSE)
+  
+  l$no_intrcpt_knha <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                           mods = ~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                            ref = input$select_ref_mod) - 1,
+                           method = estim(),
+                           knha = TRUE)
   
   l$intrcpt <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
-                          mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
-                                          ref = input$select_ref_mod),
-                          method = estim(),
-                          knha = input$knha_mod)
-              
+                   mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                   ref = input$select_ref_mod),
+                   method = estim(),
+                   knha = FALSE)
+  
+  l$intrcpt_knha <- rma(yi = data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                        mods =~ relevel(factor(data_reac$DT[[input$select_catmod]]), 
+                                        ref = input$select_ref_mod),
+                        method = estim(),
+                        knha = TRUE)
   
   # **** Shorten names of coefficients in object ----
   l.out <- lapply(l, function(x){
@@ -68,49 +79,31 @@ mod_res_output <- eventReactive(input$go_moa, {
                    "tau^2 estimator" = if(input$metamodel == "fe"){paste("NA")} else {meta_res_output()$method})
   
   # **** table with coefficients ----
-  if((input$mod_intrcpt == TRUE) & (input$knha_mod == FALSE)){
-    df.coeff <- data.frame(
-      coefficient = attr(l.out$intrcpt$beta, "dimnames")[[1]],
-      estimate = round(l.out$intrcpt$beta, 4),
-      se = round(l.out$intrcpt$se, 4),
-      zval = round(l.out$intrcpt$zval, 4),
-      pval = round(l.out$intrcpt$pval, 4),
-      ci.lb = round(l.out$intrcpt$ci.lb, 4),
-      ci.ub = round(l.out$intrcpt$ci.ub, 4)
-    )
-  } else if((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
-    df.coeff <- data.frame(
-      coefficient = attr(l.out$intrcpt$beta, "dimnames")[[1]],
-      estimate = round(l.out$intrcpt$beta, 4),
-      se = round(l.out$intrcpt$se, 4),
-      tval = round(l.out$intrcpt$zval, 4),
-      pval = round(l.out$intrcpt$pval, 4),
-      ci.lb = round(l.out$intrcpt$ci.lb, 4),
-      ci.ub = round(l.out$intrcpt$ci.ub, 4)
-    )
-  } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == FALSE)){
-    df.coeff <- data.frame(
-      coefficient = attr(l.out$no_intrcpt$beta, "dimnames")[[1]],
-      estimate = round(l.out$no_intrcpt$beta, 4),
-      se = round(l.out$no_intrcpt$se, 4),
-      zval = round(l.out$no_intrcpt$zval, 4),
-      pval = round(l.out$no_intrcpt$pval, 4),
-      ci.lb = round(l.out$no_intrcpt$ci.lb, 4),
-      ci.ub = round(l.out$no_intrcpt$ci.ub, 4)
-    )
-  } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
-    df.coeff <- data.frame(
-      coefficient = attr(l.out$no_intrcpt$beta, "dimnames")[[1]],
-      estimate = round(l.out$no_intrcpt$beta, 4),
-      se = round(l.out$no_intrcpt$se, 4),
-      tval = round(l.out$no_intrcpt$zval, 4),
-      pval = round(l.out$no_intrcpt$pval, 4),
-      ci.lb = round(l.out$no_intrcpt$ci.lb, 4),
-      ci.ub = round(l.out$no_intrcpt$ci.ub, 4))
-  }
-  df.coeff$sign <- ifelse(df.coeff$pval < 0.001, "***",
-                          ifelse(df.coeff$pval < 0.01, "**", 
-                                 ifelse(df.coeff$pval < 0.05, "*", "")))
+  l.df.coeff <- lapply(l.out, function(x){
+    df <- data.frame(
+      coefficient = attr(x$beta, "dimnames")[[1]],
+      estimate = round(x$beta, 4),
+      se = round(x$se, 4),
+      testval = round(x$zval, 4),
+      pval = round(x$pval, 4),
+      ci.lb = round(x$ci.lb, 4),
+      ci.ub = round(x$ci.ub, 4))
+    
+    df$sign <- ifelse(df$pval < 0.001, "***",
+                      ifelse(df$pval < 0.01, "**", 
+                             ifelse(df$pval < 0.05, "*", "")))
+    
+    if(x$test == 'knha'){
+      names(df)[4] <- "tval"
+    } else if (x$test == 'z'){
+      names(df)[4] <- "zval"
+    }
+    return(df)
+    
+  })
+  
+  names(l.df.coeff) <- c("no_intrcpt", "no_intrcpt_knha", "intrcpt", "intrcpt_knha")
+
                           
   # **** table with heterogeneity stats ----
   if (input$mod_intrcpt == TRUE){ 
@@ -134,7 +127,7 @@ mod_res_output <- eventReactive(input$go_moa, {
                              round(l.out$no_intrcpt$se.tau2, 3), ")", sep = ""),
                        round(sqrt(l.out$no_intrcpt$tau2), 3),
                        paste(round(l.out$no_intrcpt$I2, 2), "%", sep = ""),
-                       round(l.out$intrcpt$H2, 2)
+                       round(l.out$no_intrcpt$H2, 2)
                ))
     
   }
@@ -171,19 +164,19 @@ mod_res_output <- eventReactive(input$go_moa, {
       )
     } else if((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
       sprintf("F (df1 = %.0f, df2 = %.0f) = %.4f, p-val %s",
-              length(l.out$intrcpt$b) - 1,
-              l.out$intrcpt$k.all - length(l.out$intrcpt$b),
-              l.out$intrcpt$QM,
-              if(l.out$intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$intrcpt$QMp, 4), 
+              length(l.out$intrcpt_knha$b) - 1,
+              l.out$intrcpt_knha$k.all - length(l.out$intrcpt_knha$b),
+              l.out$intrcpt_knha$QM,
+              if(l.out$intrcpt_knha$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$intrcpt_knha$QMp, 4), 
                                                                                                    scientific = FALSE))}
               
       )
     } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
       sprintf("F (df1 = %.0f, df2 = %.0f) = %.4f, p-val %s",
-              length(l.out$no_intrcpt$b),
-              l.out$no_intrcpt$k.all - length(l.out$no_intrcpt$b),
-              l.out$no_intrcpt$QM,
-              if(l.out$no_intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$no_intrcpt$QMp, 4), 
+              length(l.out$no_intrcpt_knha$b),
+              l.out$no_intrcpt_knha$k.all - length(l.out$no_intrcpt_knha$b),
+              l.out$no_intrcpt_knha$QM,
+              if(l.out$no_intrcpt_knha$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$no_intrcpt_knha$QMp, 4), 
                                                                                                       scientific = FALSE))}
               
       )
@@ -193,7 +186,7 @@ mod_res_output <- eventReactive(input$go_moa, {
   
   out <- list(results = l.out, 
               model = dt.model,
-              coeff = df.coeff,
+              coeff = l.df.coeff,
               het = df.het,
               resid.het = str.residhet,
               mod.test = str.mod)
@@ -202,12 +195,34 @@ mod_res_output <- eventReactive(input$go_moa, {
 })
 
 mod_res_console <- eventReactive(input$go_moa, {
-  if (input$mod_intrcpt == FALSE){
+  if((input$mod_intrcpt == FALSE) & (input$knha_mod == FALSE)){
     print(mod_res_output()$results$no_intrcpt)
-  } else if (input$mod_intrcpt == TRUE) {
+    
+  } else if ((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
+    print(mod_res_output()$results$no_intrcpt_knha)
+    
+  } else if ((input$mod_intrcpt == TRUE) & (input$knha_mod == FALSE)){
     print(mod_res_output()$results$intrcpt)
+    
+  } else if ((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
+    print(mod_res_output()$results$intrcpt_knha)
   }
+  
 })
+
+mod_res_coeff <- eventReactive(input$go_moa, {
+  
+  if((input$mod_intrcpt == FALSE) & (input$knha_mod == FALSE)){
+   mod_res_output()$coeff$no_intrcpt
+  } else if ((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
+  mod_res_output()$coeff$no_intrcpt_knha
+  } else if ((input$mod_intrcpt == TRUE) & (input$knha_mod == FALSE)){
+  mod_res_output()$coeff$intrcpt
+  } else if ((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
+  mod_res_output()$coeff$intrcpt_knha
+  }
+  
+}) 
 
 output$mod_res <- renderPrint({
   mod_res_console()
@@ -216,8 +231,8 @@ output$mod_res <- renderPrint({
 # ** Output ----
 output$mod_out_1 <- renderTable(mod_res_output()$model, striped = TRUE, bordered = TRUE)
 
-output$mod_out_2 <- renderTable(mod_res_output()$coeff, digits = 4)
-
+output$mod_out_2 <- renderTable(mod_res_coeff(), digits = 4)
+  
 output$mod_out_3 <- renderTable(mod_res_output()$het, colnames = FALSE, striped = TRUE, bordered = TRUE)
 
 output$mod_out_4 <- renderText(mod_res_output()$resid.het)

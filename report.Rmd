@@ -54,8 +54,13 @@ params:
   sbgrp_H2: NA
   sbgrp_R2: NA
   sbgrp_Qdf: NA
+  sbgrp_QE: NA
+  sbgrp_QEp: NA
   sbgrp_QM: NA
+  sbgrp_QM_knha: NA
   sbgrp_QMp: NA
+  sbgrp_QMp_knha: NA
+  sbgrp_df_coeff: NA
   pb_bm_tau: NA
   pb_bm_pval: NA
   thres_bm_pval: NA

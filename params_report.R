@@ -54,14 +54,14 @@ params <- list(
   sbgrp_H2 = mod_res_output()$results$intrcpt$H2,
   sbgrp_R2 = mod_res_output()$results$intrcpt$R2,
   sbgrp_Qdf = length(mod_res_output()$results$no_intrcpt$b),
-  sbgrp_QM = mod_res_output()$results$no_intrcpt$QM,
-  sbgrp_QMp = mod_res_output()$results$no_intrcpt$QMp,
-  # sbgrp_QEpval = if(mod_res_output()$intrcpt$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(mod_res_output()$intrcpt$QEp, 4), 
-                                                                                           # scientific = FALSE))},
-  # sbgrp_QE = mod_res_output()$intrcpt$QE,
-  # sbgrp_df.resid = mod_res_output()$intrcpt$k.all - mod_res_output()$intrcpt$p,
-  # sbgrp_QM = mod_res_output()$QE, 
-  # sbgrp_df.mod = mod_res_output()$intrcpt$p - 1,
+  sbgrp_QE = mod_res_output()$results$intrcpt$QE,
+  sbgrp_QEp = mod_res_output()$results$intrcpt$QEp,
+  sbgrp_QM = mod_res_output()$results$intrcpt$QM,
+  sbgrp_QMp = mod_res_output()$results$intrcpt_knha$QMp,
+  sbgrp_QM_knha = mod_res_output()$results$intrcpt_knha$QM,
+  sbgrp_QMp_knha = mod_res_output()$results$intrcpt_knha$QMp,
+  sbgrp_df_coeff = mod_res_output()$coeff,
+
   
   # Publication Bias Analyses ----
   # ** Begg & Mazumdar ----

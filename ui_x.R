@@ -205,12 +205,12 @@ ui <- dashboardPage(
                     plotOutput("plot_subgroup")
                     )
                 
-              )
+              ),
 
-              # fluidRow(
-              # box(verbatimTextOutput("mod_res"), title = "R Output", width = 10,
-                #   collapsible = TRUE, collapsed = TRUE)
-              # )
+              fluidRow(
+              box(verbatimTextOutput("mod_res"), title = "R Output", width = 10,
+                   collapsible = TRUE, collapsed = TRUE)
+              )
       ),
       
       
