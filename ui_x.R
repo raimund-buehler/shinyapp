@@ -167,8 +167,50 @@ ui <- dashboardPage(
                             label = "Knapp and Hartung Adjustment",
                             value = FALSE,
                             status = "success"),
-              verbatimTextOutput("mod_res"),
-              plotOutput("plot_subgroup")
+              fluidRow(
+              column(width = 4, offset = 4,
+                     br(),
+                     br(),
+                     
+                     actionBttn(inputId = "go_moa", label = "Run the analysis!",
+                                style = "material-flat",
+                                color = "default",
+                                size = "md",
+                                block = TRUE)
+              )),
+              br(),
+              br(),
+              h4("Results"),
+              fluidRow(
+                # column(width = 4, 
+                       box(width = 4, height = "320px",
+                           h4("Model Type"),
+                           tableOutput("mod_out_1")),
+                       box(width = 4, height = "320px",
+                           h4("Test for Residual Heterogeneity"),
+                           textOutput("mod_out_4"),
+                           br(),
+                           br(),
+                           h4("Test of Moderators"),
+                           textOutput("mod_out_5")),
+                       box(width = 4, height = "320px",
+                           h4("Heterogeneity Statistics"),
+                           tableOutput("mod_out_3"))
+                       ),
+              
+              fluidRow(
+                box(title = "Model coefficients", width = 6,
+                          tableOutput("mod_out_2"), background = "light-blue"),
+                box("Subgroup Analysis", width = 6,
+                    plotOutput("plot_subgroup")
+                    )
+                
+              )
+
+              # fluidRow(
+              # box(verbatimTextOutput("mod_res"), title = "R Output", width = 10,
+                #   collapsible = TRUE, collapsed = TRUE)
+              # )
       ),
       
       
@@ -176,11 +218,47 @@ ui <- dashboardPage(
       tabItem(tabName = "metareg",
               h3("Meta-Regression"),
               uiOutput("select_reg_mod"),
+              uiOutput("select_reg_catmod"),
               materialSwitch("knha_reg", 
                             label = "Knapp and Hartung Adjustment",
                             value = FALSE,
                             status = "success"),
-              verbatimTextOutput("meta_reg")
+              fluidRow(
+                column(width = 4, offset = 4,
+                       br(),
+                       br(),
+                       
+                       actionBttn(inputId = "go_metareg", label = "Run the analysis!",
+                                  style = "material-flat",
+                                  color = "default",
+                                  size = "md",
+                                  block = TRUE)
+                )),
+              br(),
+              br(),
+              fluidRow(
+                # column(width = 4, 
+                box(width = 4, height = "320px",
+                    h4("Model Type"),
+                    tableOutput("metareg_out_1")),
+                box(width = 4, height = "320px",
+                    h4("Test for Residual Heterogeneity"),
+                    textOutput("metareg_out_4"),
+                    br(),
+                    br(),
+                    h4("Test of Moderators"),
+                    textOutput("metareg_out_5")),
+                box(width = 4, height = "320px",
+                    h4("Heterogeneity Statistics"),
+                    tableOutput("metareg_out_3"))
+              ),
+              fluidRow(
+                column(width = 10, offset = 1,
+                box(title = "Model coefficients", width = 12,
+                    tableOutput("metareg_out_2"), background = "light-blue")),
+                column(width = 1))
+              
+              # verbatimTextOutput("meta_reg")
       ),
       ## ** Pubbias ----
       ## **** Begg & Mazumdar ----
@@ -382,25 +460,54 @@ ui <- dashboardPage(
       tabItem("dwn",
               br(),
               fluidRow(
+                column(width = 4, offset = 4,
+                # Download button
+                  downloadBttn("dwn_report", label = "Download Report",
+                               style = "material-flat", size = "lg", block = TRUE))),
+              fluidRow(
+                column(width = 4, offset = 4,
+                       br(),
+                       br(),
+                # Optional selection of elements
+                box(title = "Select Elements to be Included in Report", width = 12,
+                    br(),
+                prettyCheckbox(
+                  inputId = "dwn_report_dat",
+                  label = "Dataset Information and Date of Analysis", 
+                  value = TRUE,
+                  status = "warning"
+                ),
+                prettyCheckbox(
+                  inputId = "dwn_report_meta",
+                  label = "Results of Meta-Analysis", 
+                  value = TRUE,
+                  status = "warning"
+                ),
+                uiOutput("dwn_report_sbgrp"),
+                uiOutput("dwn_report_metareg"),
+                prettyCheckbox(
+                  inputId = "dwn_report_pb",
+                  label = "Results of Publication Bias Analyses", 
+                  value = TRUE,
+                  status = "warning"
+                )
+                )
+                )
+
+              ),
+        #      fluidRow(
               # h2("Report", align = "center"),
-              column(width = 4, offset = 4,
-                     br(),
-                     br(),
+             # column(width = 4, offset = 4,
+              #       br(),
+               #      br(),
                      
-              downloadBttn("dwn_report", label = "Download Full Report", 
-                          style = "stretch", size = "lg", block = TRUE),
+            #  downloadBttn("dwn_report", label = "Download Report", 
+                       #   style = "stretch", size = "lg", block = TRUE),
               #radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
                #            inline = TRUE)
-              ),
-              br(),
-              br(),
-              br(),
-              br(),
-              br(),
-              br(),
-              br(),
-              br(),
-              ),
+          #    ),
+
+              
               fluidRow(
                 h3("Download Single Results, Plots, and R-Objects", align = "center"),
                 br(),

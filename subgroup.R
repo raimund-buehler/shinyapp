@@ -32,12 +32,14 @@ output$select_ref_mod <- renderUI({
 # **** Do the moderator analysis ----
 
 # use estimator chosen in the default meta 
-mod_res_output <- reactive({
+mod_res_output <- eventReactive(input$go_moa, {
   req(input$select_catmod)
   req(input$select_ref_mod)
   validate(
     need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
   )
+
+  
   # do the moderator analysis
   # moderator analysis is run twice (with/without intercept in model spec)
   l <- list()
@@ -60,18 +62,168 @@ mod_res_output <- reactive({
     x
   })
   
-  l.out
+  # **** table for model output ----
+  dt.model <- data.table("Model" = if(input$metamodel == "fe") {"Fixed-Effect"} else {"Random-Effects"}, 
+                   "k" = l.out$intrcpt$k.all, 
+                   "tau^2 estimator" = if(input$metamodel == "fe"){paste("NA")} else {meta_res_output()$method})
+  
+  # **** table with coefficients ----
+  if((input$mod_intrcpt == TRUE) & (input$knha_mod == FALSE)){
+    df.coeff <- data.frame(
+      coefficient = attr(l.out$intrcpt$beta, "dimnames")[[1]],
+      estimate = round(l.out$intrcpt$beta, 4),
+      se = round(l.out$intrcpt$se, 4),
+      zval = round(l.out$intrcpt$zval, 4),
+      pval = round(l.out$intrcpt$pval, 4),
+      ci.lb = round(l.out$intrcpt$ci.lb, 4),
+      ci.ub = round(l.out$intrcpt$ci.ub, 4)
+    )
+  } else if((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
+    df.coeff <- data.frame(
+      coefficient = attr(l.out$intrcpt$beta, "dimnames")[[1]],
+      estimate = round(l.out$intrcpt$beta, 4),
+      se = round(l.out$intrcpt$se, 4),
+      tval = round(l.out$intrcpt$zval, 4),
+      pval = round(l.out$intrcpt$pval, 4),
+      ci.lb = round(l.out$intrcpt$ci.lb, 4),
+      ci.ub = round(l.out$intrcpt$ci.ub, 4)
+    )
+  } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == FALSE)){
+    df.coeff <- data.frame(
+      coefficient = attr(l.out$no_intrcpt$beta, "dimnames")[[1]],
+      estimate = round(l.out$no_intrcpt$beta, 4),
+      se = round(l.out$no_intrcpt$se, 4),
+      zval = round(l.out$no_intrcpt$zval, 4),
+      pval = round(l.out$no_intrcpt$pval, 4),
+      ci.lb = round(l.out$no_intrcpt$ci.lb, 4),
+      ci.ub = round(l.out$no_intrcpt$ci.ub, 4)
+    )
+  } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
+    df.coeff <- data.frame(
+      coefficient = attr(l.out$no_intrcpt$beta, "dimnames")[[1]],
+      estimate = round(l.out$no_intrcpt$beta, 4),
+      se = round(l.out$no_intrcpt$se, 4),
+      tval = round(l.out$no_intrcpt$zval, 4),
+      pval = round(l.out$no_intrcpt$pval, 4),
+      ci.lb = round(l.out$no_intrcpt$ci.lb, 4),
+      ci.ub = round(l.out$no_intrcpt$ci.ub, 4))
+  }
+  df.coeff$sign <- ifelse(df.coeff$pval < 0.001, "***",
+                          ifelse(df.coeff$pval < 0.01, "**", 
+                                 ifelse(df.coeff$pval < 0.05, "*", "")))
+                          
+  # **** table with heterogeneity stats ----
+  if (input$mod_intrcpt == TRUE){ 
+    df.het <- data.frame(txt = c("tau^2 (estimated amount of total heterogeneity):",
+                       "tau (square root of estimated tau^2 value):",
+                       "I^2 (total heterogeneity / total variability):",
+                       "H^2 (total variability / sampling variability):",
+                       "R^2 (amount of heterogeneity accounted for):"),
+               val = c(paste(round(l.out$intrcpt$tau2, 3), " (SE = ", 
+                             round(l.out$intrcpt$se.tau2, 3), ")", sep = ""),
+                       round(sqrt(l.out$intrcpt$tau2), 3),
+                       paste(round(l.out$intrcpt$I2, 2), "%", sep = ""),
+                       round(l.out$intrcpt$H2, 2),
+                       paste(round(l.out$intrcpt$R2, 2), "%", sep = "")))
+  } else if (input$mod_intrcpt == FALSE){
+    df.het <- data.frame(txt = c("tau^2 (estimated amount of total heterogeneity):",
+                       "tau (square root of estimated tau^2 value):",
+                       "I^2 (total heterogeneity / total variability):",
+                       "H^2 (total variability / sampling variability):"),
+               val = c(paste(round(l.out$no_intrcpt$tau2, 3), " (SE = ", 
+                             round(l.out$no_intrcpt$se.tau2, 3), ")", sep = ""),
+                       round(sqrt(l.out$no_intrcpt$tau2), 3),
+                       paste(round(l.out$no_intrcpt$I2, 2), "%", sep = ""),
+                       round(l.out$intrcpt$H2, 2)
+               ))
+    
+  }
+  
+  # **** test for residual heterogeneity ----
+  str.residhet <- sprintf("Q(df = %.0f) = %.4f, p %s", l.out$no_intrcpt$k.all - length(l.out$no_intrcpt$b), l.out$no_intrcpt$QE, 
+          if(l.out$no_intrcpt$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$no_intrcpt$QEp, 4), 
+                                                                                                  scientific = FALSE))})
+  
+  
+  # **** test of moderators ----
+  str.mod <- paste(
+    if((input$mod_intrcpt == TRUE) & (length(l.out$intrcpt$b) > 2)){
+      sprintf("Coefficients 2:%.0f:", length(l.out$intrcpt$b))  
+    } else if ((input$mod_intrcpt == TRUE) & (length(l.out$intrcpt$b) == 2)){
+      paste("Coefficient 2:") 
+    } else if (input$mod_intrcpt == FALSE){
+      sprintf("Coefficients 1:%.0f:", length(l.out$no_intrcpt$b))  
+    }
+    ,
+    if((input$mod_intrcpt == TRUE) & (input$knha_mod == FALSE)){
+      sprintf("QM (df = %.0f) = %.4f, p-val %s", 
+              length(l.out$intrcpt$b) - 1,
+              l.out$intrcpt$QM,
+              if(l.out$intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$intrcpt$QMp, 4), 
+                                                                                                   scientific = FALSE))}
+      )
+    } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == FALSE)){
+      sprintf("QM (df = %.0f) = %.4f, p-val %s", 
+              length(l.out$no_intrcpt$b),
+              l.out$no_intrcpt$QM,
+              if(l.out$no_intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$no_intrcpt$QMp, 4), 
+                                                                                                      scientific = FALSE))}
+      )
+    } else if((input$mod_intrcpt == TRUE) & (input$knha_mod == TRUE)){
+      sprintf("F (df1 = %.0f, df2 = %.0f) = %.4f, p-val %s",
+              length(l.out$intrcpt$b) - 1,
+              l.out$intrcpt$k.all - length(l.out$intrcpt$b),
+              l.out$intrcpt$QM,
+              if(l.out$intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$intrcpt$QMp, 4), 
+                                                                                                   scientific = FALSE))}
+              
+      )
+    } else if((input$mod_intrcpt == FALSE) & (input$knha_mod == TRUE)){
+      sprintf("F (df1 = %.0f, df2 = %.0f) = %.4f, p-val %s",
+              length(l.out$no_intrcpt$b),
+              l.out$no_intrcpt$k.all - length(l.out$no_intrcpt$b),
+              l.out$no_intrcpt$QM,
+              if(l.out$no_intrcpt$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$no_intrcpt$QMp, 4), 
+                                                                                                      scientific = FALSE))}
+              
+      )
+    }
+  )
+  
+  
+  out <- list(results = l.out, 
+              model = dt.model,
+              coeff = df.coeff,
+              het = df.het,
+              resid.het = str.residhet,
+              mod.test = str.mod)
+  return(out)
 
+})
+
+mod_res_console <- eventReactive(input$go_moa, {
+  if (input$mod_intrcpt == FALSE){
+    print(mod_res_output()$results$no_intrcpt)
+  } else if (input$mod_intrcpt == TRUE) {
+    print(mod_res_output()$results$intrcpt)
+  }
 })
 
 output$mod_res <- renderPrint({
-  req(mod_res_output())
-  if (input$mod_intrcpt == FALSE){
-  print(mod_res_output()$no_intrcpt)
-  } else if (input$mod_intrcpt == TRUE) {
-    print(mod_res_output()$intrcpt)
-  }
+  mod_res_console()
 })
+
+# ** Output ----
+output$mod_out_1 <- renderTable(mod_res_output()$model, striped = TRUE, bordered = TRUE)
+
+output$mod_out_2 <- renderTable(mod_res_output()$coeff, digits = 4)
+
+output$mod_out_3 <- renderTable(mod_res_output()$het, colnames = FALSE, striped = TRUE, bordered = TRUE)
+
+output$mod_out_4 <- renderText(mod_res_output()$resid.het)
+
+output$mod_out_5 <- renderText(mod_res_output()$mod.test)
+
 
 # ** Subgroup plot ----
 mod_plot_output <- reactive({
@@ -79,10 +231,13 @@ mod_plot_output <- reactive({
   validate(
     need(isTruthy(meta_res_output()), "Please run the meta-analysis first")
   )
+  validate(
+    need(isTruthy(mod_res_output()), "Please run the subgroup analysis first")
+  )
   
-  df <- data.table(mod_res_output()$no_intrcpt$beta, keep.rownames = TRUE)
-  df[, `:=` (ci_ub =  mod_res_output()$no_intrcpt$ci.ub,
-             ci_lb = mod_res_output()$no_intrcpt$ci.lb,
+  df <- data.table(mod_res_output()$results$no_intrcpt$beta, keep.rownames = TRUE)
+  df[, `:=` (ci_ub =  mod_res_output()$results$no_intrcpt$ci.ub,
+             ci_lb = mod_res_output()$results$no_intrcpt$ci.lb,
              rn = str_to_title(rn))]
   colnames(df) <- c("mod", "es", "ci.ub", "ci.lb")
   df[, label := paste0(round(es, 2), " (", round(ci.lb, 2), "; ", round(ci.ub, 2), ")")]

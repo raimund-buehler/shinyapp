@@ -1,5 +1,12 @@
 params <- list(
   
+  # Elements ----
+  dwn_dat = input$dwn_report_dat,
+  dwn_meta = input$dwn_report_meta,
+  dwn_sbgrp = input$dwn_report_sbgrp,
+  dwn_metareg = input$dwn_report_metareg,
+  dwn_pb = input$dwn_report_pb,
+  
   # Data ----
   dat = input$file$name,
   metric = switch(para$es, 
@@ -10,11 +17,8 @@ params <- list(
                   "OR" = "Odds Ratio",
                   "logOR" = "Odds Ratio (Log-Scale)"),
   k = length(data_reac$DT[[para$es]]),
-  k_pub = NA,
   n = data_reac$DT[[para$n]],
-  n_pub = NA,
   in_study = para$prim,
-  in_study_pub = "Author et al (2001)",
   
   # Meta-Analysis ----
   model_type = if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
@@ -43,12 +47,15 @@ params <- list(
                                                                                              scientific = FALSE))},
   
   # Subgroup Analysis ----
-  sbgrp_k = mod_res_output()$intrcpt$k.all,
-  sbgrp_tau2 = mod_res_output()$intrcpt$tau2,
-  sbgrp_se.tau2 = mod_res_output()$intrcpt$se.tau2,
-  sbgrp_I2 = mod_res_output()$intrcpt$I2,
-  sbgrp_H2 = mod_res_output()$intrcpt$H2,
-  sbgrp_R2 = mod_res_output()$intrcpt$R2,
+  sbgrp_k = mod_res_output()$results$intrcpt$k.all,
+  sbgrp_tau2 = mod_res_output()$results$intrcpt$tau2,
+  sbgrp_se.tau2 = mod_res_output()$results$intrcpt$se.tau2,
+  sbgrp_I2 = mod_res_output()$results$intrcpt$I2,
+  sbgrp_H2 = mod_res_output()$results$intrcpt$H2,
+  sbgrp_R2 = mod_res_output()$results$intrcpt$R2,
+  sbgrp_Qdf = length(mod_res_output()$results$no_intrcpt$b),
+  sbgrp_QM = mod_res_output()$results$no_intrcpt$QM,
+  sbgrp_QMp = mod_res_output()$results$no_intrcpt$QMp,
   # sbgrp_QEpval = if(mod_res_output()$intrcpt$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(mod_res_output()$intrcpt$QEp, 4), 
                                                                                            # scientific = FALSE))},
   # sbgrp_QE = mod_res_output()$intrcpt$QE,

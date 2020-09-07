@@ -6,7 +6,26 @@ params <- reactive({
   return(params)
 })
 
+# render UI for optional checkboxes ----
+output$dwn_report_sbgrp <- renderUI({
+  req(input$go_moa > 0)
+  prettyCheckbox(
+  inputId = "dwn_report_sbgrp",
+  label = "Results of Subgroup Analysis", 
+  value = TRUE,
+  status = "warning"
+  )
+})
 
+output$dwn_report_metareg <- renderUI({
+  req(input$go_metareg > 0)
+prettyCheckbox(
+  inputId = "dwn_report_metareg",
+  label = "Results of Metaregression", 
+  value = TRUE,
+  status = "warning"
+)
+})
 
 
 output$dwn_report <- downloadHandler(

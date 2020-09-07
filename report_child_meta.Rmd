@@ -1,0 +1,57 @@
+---
+title: "report_child_meta"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  model_type: NA
+  k_meta: NA
+  estim: NA
+  metric: NA
+  meta_es: NA
+  meta_se: NA
+  meta_ci.lb: NA
+  meta_ci.ub: NA
+  meta_pval: NA
+  meta_zval: NA
+  meta_tau2: NA
+  meta_I2: NA
+  meta_H2: NA
+  qtest_df: NA
+  qtest_stat: NA
+  qtest_pval: NA
+---
+
+# Meta-Analysis
+## Results
+`r params$model_type` Model, k = `r params$k_meta`, $\tau$^2^-estimator = `r params$estim`.
+
+`r params$metric` = `r round(params$meta_es, 2)`, SE = `r round(params$meta_se, 2)` [`r round(params$meta_ci.lb, 2)`; `r round(params$meta_ci.ub, 2)`], _p_-value = `r params$meta_pval`, z = `r round(params$meta_zval, 4)`.
+
+## Heterogeneity Statistics
+$\tau$^2^ = `r round(params$meta_tau2, 3)`
+
+I^2^ = `r round(params$meta_I2, 2)`%
+
+H^2^ = `r round(params$meta_H2, 2)`
+
+## Test of Heterogeneity 
+Q(df = `r params$qtest_df`) = `r round(params$qtest_stat, 4)`, _p_ `r params$qtest_pval`

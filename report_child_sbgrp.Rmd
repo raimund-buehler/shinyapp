@@ -1,0 +1,62 @@
+---
+title: "report_child_sbgrp"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  estim: NA
+  sbgrp_k: NA
+  sbgrp_tau2: NA
+  sbgrp_se.tau2: NA
+  sbgrp_I2: NA
+  sbgrp_H2: NA
+  sbgrp_R2: NA
+  sbgrp_Qdf: NA
+  sbgrp_QM: NA
+  sbgrp_QMp: NA
+---
+
+# Subgroup Analysis
+
+Mixed-Effects Model (k = `r params$sbgrp_k`; $\tau$^2^ estimator: `r params$estim`)
+
+## Heterogeneity Statistics
+
+$\tau$^2^ (estimated amount of residual heterogeneity): `r round(params$sbgrp_tau2, 4)` (SE = `r round(params$sbgrp_se.tau2, 4)`)
+
+I^2^ (residual heterogeneity/unaccounted variability): `r round(params$sbgrp_I2, 2)`%
+
+H^2^ (unaccounted variability/sampling variability): `r round(params$sbgrp_H2, 2)`
+
+R^2^ (amount of heterogeneity accounted for): `r round(params$sbgrp_R2, 2)`%
+
+## Test for Residual Heterogeneity
+
+QM (df = `r params$sbgrp_Qdf`) = `r round(params$sbgrp_QM, 4)`, _p_ `r if(params$sbgrp_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp, 4), scientific = FALSE))}`
+       
+
+## Test of Moderators: 
+
+### With Knapp-Hartung-Adjustment: 
+
+## Model Results 
+### Intercept Model
+### Model without Intercept
