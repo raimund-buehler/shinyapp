@@ -135,7 +135,12 @@ ui <- dashboardPage(
                                 choiceNames = c("Fixed-effect Model", "Random-effects Model"),
                                 choiceValues = c("fe", "re"),
                                 selected = "re"),
-                                uiOutput("select_re_type"))),
+                                uiOutput("select_re_type"),
+                                actionBttn(inputId = "go_meta", label = "Run the analysis!",
+                                           style = "material-flat",
+                                           color = "default",
+                                           size = "s",
+                                           block = TRUE))),
                 column(width = 5, 
                               h4("Results"),
                                   box(title = "Model Type", width = NULL, height = "150px",
@@ -339,7 +344,16 @@ ui <- dashboardPage(
       tabItem(tabName = "puni", 
             fluidRow(
                   column(width = 4,
-                         box(title = "P-uniform and P-uniform*", textOutput("puniHelp"), width = NULL)),
+                         box(title = "P-uniform and P-uniform*", 
+                             textOutput("puniHelp"), 
+                             br(),
+                             br(),
+                             actionBttn(inputId = "go_puni", label = "Run the analysis!",
+                                        style = "material-flat",
+                                        color = "default",
+                                        size = "s",
+                                        block = TRUE),
+                             width = NULL)),
                   column(width = 4,
                          box(title = "P-uniform",
                               column(width = 8, offset = 2,
@@ -371,7 +385,16 @@ ui <- dashboardPage(
       ## **** Selection Models ----
       tabItem(tabName = "SelMod", fluidRow(
               column(width = 4,
-              box(title = "Vevea and Woods Selection Model", textOutput("SelHelp"), width = NULL)
+              box(title = "Vevea and Woods Selection Model", 
+                  textOutput("SelHelp"),
+                  br(),
+                  br(),
+                  actionBttn(inputId = "go_selmod", label = "Run the analysis!",
+                             style = "material-flat",
+                             color = "default",
+                             size = "s",
+                             block = TRUE),
+                  width = NULL)
               ),
               column(width = 8,
                      fluidRow(
@@ -384,7 +407,16 @@ ui <- dashboardPage(
       ## **** TES ----
       tabItem(tabName = "TES", fluidRow(
                 column(width = 4,
-                       box(title = "Test of Excess Significance", textOutput("TEShelp"), width = NULL)
+                       box(title = "Test of Excess Significance", 
+                           textOutput("TEShelp"),
+                           br(),
+                           br(),
+                           actionBttn(inputId = "go_tes", label = "Run the analysis!",
+                                      style = "material-flat",
+                                      color = "default",
+                                      size = "s",
+                                      block = TRUE),
+                           width = NULL)
                 ),
                 column(width = 8,
                        valueBoxOutput("TESexp", width = 6),

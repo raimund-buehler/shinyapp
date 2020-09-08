@@ -16,7 +16,7 @@ output$select_re_type <- renderUI({
 })
 
 # store estimator
-estim <- reactive({
+estim <- eventReactive(input$go_meta, {
   
   validate(
     need(isTruthy(input$select_re_type), "")
@@ -39,7 +39,7 @@ estim <- reactive({
 })
 
 # **** Run the meta-analysis ----
-meta_res_output <- reactive({
+meta_res_output <- eventReactive(input$go_meta, {
   req(para$es)
   req(para$se)
   validate(
@@ -64,12 +64,14 @@ output$meta_res <- renderPrint({
   summary(meta_res_output())
 })
 
-output$meta_out_1 <- renderTable({
+meta_out_1 <- eventReactive(input$go_meta, {
   dt <- data.table("Model" = if(input$metamodel == "fe") {"Fixed-Effect"} else {"Random-Effects"}, 
                    "k" = meta_res_output()$k.all, 
                    "tau^2 estimator" = if(input$metamodel == "fe"){paste("NA")} else {meta_res_output()$method})
   dt
-}, striped = TRUE, bordered = TRUE)
+})
+
+output$meta_out_1 <- renderTable({meta_out_1()}, striped = TRUE, bordered = TRUE)
 #   sprintf("%s Model; k = %s%s", 
 #           if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
 #           meta_res_output()$k.all,
@@ -147,7 +149,7 @@ res.estim <- reactive({
 })
 
 # create forest plot
-meta_sens <- reactive({
+meta_sens <- eventReactive(input$go_meta, {
   req(res.estim())
   req(estim())
   

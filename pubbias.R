@@ -236,23 +236,26 @@ output$puniHelp <- renderText("P-uniform is based on the idea that p-values, con
 
 PUNIres <- reactiveValues()
 
-output$p_uni_est <- renderTable({
+p_uni_est <- eventReactive(input$go_puni, {
   n <- para$n
   tryCatch(
-  if (sign(meta_res_output()$b) == 1){
-    PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
-    DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
-    DT
-  } else if (sign(meta_res_output()$b) == -1) {
-    PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
-    DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
-    DT
-  },           error = function(e){
-    "Please execute the Meta-Analysis first!"
-  })
+    if (sign(meta_res_output()$b) == 1){
+      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
+      DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
+      DT
+    } else if (sign(meta_res_output()$b) == -1) {
+      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
+      DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
+      DT
+    },           error = function(e){
+      "Please execute the Meta-Analysis first!"
+    })
+  
 })
 
-output$puni_est_fe <- renderTable({
+output$p_uni_est <- renderTable({p_uni_est()})
+
+puni_est_fe <- eventReactive(input$go_puni, {
   n <- para$n
   tryCatch(
     if (sign(meta_res_output()$b) == 1){
@@ -267,6 +270,8 @@ output$puni_est_fe <- renderTable({
       "Please execute the Meta-Analysis first!"
     })
 })
+
+output$puni_est_fe <- renderTable({puni_est_fe()})
 
 output$puni_L.pb <- renderValueBox({
   valueBox(tryCatch(
@@ -283,23 +288,25 @@ output$puni_pval.pb <- renderValueBox({
 
 
 PUNISTres <- reactiveValues()
-output$puni_star_est <- renderTable({
+puni_star_est <- eventReactive(input$go_puni, {
   n <- para$n
   tryCatch(
-  if (sign(meta_res_output()$b) == 1){
-    PUNISTres$res <- puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right")
-    DT <- data.table("est" = PUNISTres$res$est, "ci.lb" = PUNISTres$res$ci.lb, "ci.ub" = PUNISTres$res$ci.ub, "zval" = PUNISTres$res$L.0, "pval" = PUNISTres$res$pval.0)
-    DT
-  } else if (sign(meta_res_output()$b) == -1) {
-    PUNISTres$res <- puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left")
-    DT <- data.table("est" = PUNISTres$res$est, "ci.lb" = PUNISTres$res$ci.lb, "ci.ub" = PUNISTres$res$ci.ub, "zval" = PUNISTres$res$L.0, "pval" = PUNISTres$res$pval.0)
-    DT
-  },            error = function(e){
-    "Please execute the Meta-Analysis first!"
-  })
+    if (sign(meta_res_output()$b) == 1){
+      PUNISTres$res <- puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right")
+      DT <- data.table("est" = PUNISTres$res$est, "ci.lb" = PUNISTres$res$ci.lb, "ci.ub" = PUNISTres$res$ci.ub, "zval" = PUNISTres$res$L.0, "pval" = PUNISTres$res$pval.0)
+      DT
+    } else if (sign(meta_res_output()$b) == -1) {
+      PUNISTres$res <- puni_star(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left")
+      DT <- data.table("est" = PUNISTres$res$est, "ci.lb" = PUNISTres$res$ci.lb, "ci.ub" = PUNISTres$res$ci.ub, "zval" = PUNISTres$res$L.0, "pval" = PUNISTres$res$pval.0)
+      DT
+    },            error = function(e){
+      "Please execute the Meta-Analysis first!"
+    })
 })
 
-output$puni_star_est_fe <- renderTable({
+output$puni_star_est <- renderTable({puni_star_est()})
+
+puni_star_est_fe <- eventReactive(input$go_puni, {
   n <- para$n
   tryCatch(
     if (sign(meta_res_output()$b) == 1){
@@ -314,6 +321,8 @@ output$puni_star_est_fe <- renderTable({
       "Please execute the Meta-Analysis first!"
     })
 })
+
+output$puni_star_est_fe <- renderTable({puni_star_est_fe()})
 
 output$puni_star_L.pb <- renderValueBox({
   valueBox(tryCatch(
@@ -337,8 +346,7 @@ output$puniref <- renderUI({HTML(paste(strong("References:"), br(), "Van Aert, R
   })
 
 ##Vevea and woods selection models----
-SelMods <- reactiveValues()
-observeEvent(input$SubmitButton, {
+SelMods <- eventReactive(input$go_selmod, {
   req(input$file)
   req(para$prim)
   req(para$es)
@@ -381,10 +389,13 @@ observeEvent(input$SubmitButton, {
                          weights = x)]
     })
   }
-  SelMods$mod1 <- vevwoo.res$moderate_one
-  SelMods$sev1 <- vevwoo.res$severe_one
-  SelMods$mod2 <- vevwoo.res$moderate_two
-  SelMods$sev2 <- vevwoo.res$severe_two
+  out <- list(mod1 = vevwoo.res$moderate_one,
+              sev1 = vevwoo.res$severe_one,
+              mod2 = vevwoo.res$moderate_two,
+              sev2 = vevwoo.res$severe_two)
+  
+  return(out)
+
 })
 
 output$SelHelp <- renderText("Selection models adjust meta-analytic data sets by specifying a model that describes the 
@@ -397,56 +408,56 @@ output$SelHelp <- renderText("Selection models adjust meta-analytic data sets by
                              bias could affect the summary estimate")
 
 
-output$modone <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$mod1$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
+output$modone <- renderValueBox({validate(need(isTruthy(SelMods()$mod1), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$mod1$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
   })
-output$modone_unadj <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$mod1$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
+output$modone_unadj <- renderValueBox({validate(need(isTruthy(SelMods()$mod1), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$mod1$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
 })
 
-output$modone_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$mod1$output_unadj$par[2]
-  adj <- SelMods$mod1$output_adj$par[2]
+output$modone_perc <- renderValueBox({validate(need(isTruthy(SelMods()$mod1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$mod1$output_unadj$par[2]
+  adj <- SelMods()$mod1$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
 })
 
-output$sevone <- renderValueBox({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$sev1$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
+output$sevone <- renderValueBox({validate(need(isTruthy(SelMods()$sev1), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$sev1$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
   })
-output$sevone_unadj <- renderValueBox({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$sev1$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
+output$sevone_unadj <- renderValueBox({validate(need(isTruthy(SelMods()$sev1), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$sev1$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
 })
-output$sevone_perc <- renderValueBox({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$sev1$output_unadj$par[2]
-  adj <- SelMods$sev1$output_adj$par[2]
+output$sevone_perc <- renderValueBox({validate(need(isTruthy(SelMods()$sev1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$sev1$output_unadj$par[2]
+  adj <- SelMods()$sev1$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
 })
 
 
-output$modtwo <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$mod2$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
+output$modtwo <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$mod2$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
   })
-output$modtwo_unadj <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$mod2$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
+output$modtwo_unadj <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$mod2$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
 })
-output$modtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$mod2$output_unadj$par[2]
-  adj <- SelMods$mod2$output_adj$par[2]
+output$modtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$mod2$output_unadj$par[2]
+  adj <- SelMods()$mod2$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
 })
 
-output$sevtwo <- renderValueBox({validate(need(isTruthy(SelMods$sev2), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$sev2$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
+output$sevtwo <- renderValueBox({validate(need(isTruthy(SelMods()$sev2), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$sev2$output_adj$par[2], 3), subtitle = "Adjusted Estimate", color = "light-blue")
 })
-output$sevtwo_unadj <- renderValueBox({validate(need(isTruthy(SelMods$sev2), "Please select the earliest study in your dataset!"))
-  valueBox(round(SelMods$sev2$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
+output$sevtwo_unadj <- renderValueBox({validate(need(isTruthy(SelMods()$sev2), "Please select the earliest study in your dataset!"))
+  valueBox(round(SelMods()$sev2$output_unadj$par[2], 3), subtitle = "Unadjusted Estimate", color = "light-blue")
 })
-output$sevtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$sev2$output_unadj$par[2]
-  adj <- SelMods$sev2$output_adj$par[2]
+output$sevtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$sev2$output_unadj$par[2]
+  adj <- SelMods()$sev2$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
 })
@@ -455,9 +466,8 @@ output$sevtwo_perc <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Ple
 
 # **** number of significant studies (stored in ksign of for.power object), contingent on sign of summary effect (O)
 
-TESres <- reactiveValues()
-
-observe({
+TESres <- eventReactive(input$go_tes, {
+  
   req(meta_res_output())
   data <- as.data.table(data_reac$DTall)
   
@@ -469,7 +479,6 @@ observe({
   O <- data[, puniform(ri = r,ni = n, side="left", method="P")]$ksig
   }
   
-  TESres$O <- O
   
   ## number of studies (overall)
   kall<-length(data$r)
@@ -486,22 +495,29 @@ observe({
   # estimated number of significant studies = power * k = E
   E <- MeanPowerInd.all.e * kall
   
-  TESres$E <- E
   
   ### chisquare for difference between observed and expected significant studies (A)
   
   A<-((O - E)^2 / E) + ((O - E)^2 / (kall - E)) ## for.power$ksig are observed sign. studies
   A
-  TESres$A <- A
   
   res.it<-pchisq(A, df = 1, lower.tail = F)
   
-  TESres$res <- res.it
+  
   # caution: there may be fewer observed than expected significant studies, 
   # then the sign of for.res.it would be negative
   for.res.it <- O - E
   
-  TESres$for.res.it <- for.res.it
+  
+  
+  out <- list(
+    O = O,
+    E = E,
+    A = A,
+    res = res.it,
+    for.res.it = for.res.it
+  )
+  return(out)
   })
 
 output$TEShelp <- renderText(
@@ -517,19 +533,19 @@ output$TEShelp <- renderText(
 )
 
 output$TESexp <- renderValueBox({
-  valueBox(round(TESres$E, 3), subtitle = "Expected number of significant studies", color = "light-blue")
+  valueBox(round(TESres()$E, 0), subtitle = "Expected number of significant studies", color = "light-blue")
 })
 
 output$TESobs <- renderValueBox({
-  valueBox(round(TESres$O, 3), subtitle = "Observed number of significant studies", color = "light-blue")
+  valueBox(round(TESres()$O, 0), subtitle = "Observed number of significant studies", color = "light-blue")
 })
 
 output$TESchi <- renderValueBox({
-  valueBox(round(TESres$A, 3), subtitle = "Chi-square statistic (df = 1)", color = "light-blue")
+  valueBox(round(TESres()$A, 3), subtitle = "Chi-square statistic (df = 1)", color = "light-blue")
 })
 
 output$TESpval <- renderValueBox({
-  valueBox(round(TESres$res, 3), subtitle = "P-value", color = "light-blue")
+  valueBox(round(TESres()$res, 3), subtitle = "P-value", color = "light-blue")
 })
 
 
@@ -606,35 +622,35 @@ output$punistar_sum <- renderValueBox({
 ##TES
 
 output$TESsum <- renderValueBox({
-  valueBox(format.pval(TESres$res, eps = 0.001, digits = 3), subtitle = "P-value: Observed - Expected", color = if(TESres$res < input$TES_p){"red"}else{"green"})
+  valueBox(format.pval(TESres()$res, eps = 0.001, digits = 3), subtitle = "P-value: Observed - Expected", color = if(TESres()$res < input$TES_p){"red"}else{"green"})
 })
 
 ##SelMods
 
-output$mod1sum <- renderValueBox({validate(need(isTruthy(SelMods$mod1), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$mod1$output_unadj$par[2]
-  adj <- SelMods$mod1$output_adj$par[2]
+output$mod1sum <- renderValueBox({validate(need(isTruthy(SelMods()$mod1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$mod1$output_unadj$par[2]
+  adj <- SelMods()$mod1$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Moderate One-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
 })
 
-output$sev1sum <- renderValueBox({validate(need(isTruthy(SelMods$sev1), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$sev1$output_unadj$par[2]
-  adj <- SelMods$sev1$output_adj$par[2]
+output$sev1sum <- renderValueBox({validate(need(isTruthy(SelMods()$sev1), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$sev1$output_unadj$par[2]
+  adj <- SelMods()$sev1$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Severe One-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
 })
 
-output$mod2sum <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$mod2$output_unadj$par[2]
-  adj <- SelMods$mod2$output_adj$par[2]
+output$mod2sum <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$mod2$output_unadj$par[2]
+  adj <- SelMods()$mod2$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Moderate Two-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
 })
 
-output$sev2sum <- renderValueBox({validate(need(isTruthy(SelMods$mod2), "Please select the earliest study in your dataset!"))
-  unadj <- SelMods$sev2$output_unadj$par[2]
-  adj <- SelMods$sev2$output_adj$par[2]
+output$sev2sum <- renderValueBox({validate(need(isTruthy(SelMods()$mod2), "Please select the earliest study in your dataset!"))
+  unadj <- SelMods()$sev2$output_unadj$par[2]
+  adj <- SelMods()$sev2$output_adj$par[2]
   perc_change <- 1/unadj*(unadj-adj)
   valueBox(percent(perc_change), subtitle = "Severe Two-tailed", color = if(perc_change < input$sel_adj){"green"}else{"red"})
 })

@@ -21,6 +21,77 @@ header-includes:
   - \usepackage{threeparttablex}
   - \usepackage[normalem]{ulem}
   - \usepackage{makecell}
+params:
+  metareg_k: NA
+  metareg_df_coeff: NA
+  metareg_mods: NA
+  metareg_QE: NA
+  metareg_QEp: NA
+  metareg_QM: NA
+  metareg_QMp: NA
+  metareg_QM_knha: NA
+  metareg_QMp_knha: NA
+  metareg_tau2: NA
+  metareg_se.tau2: NA
+  metareg_I2: NA
+  metareg_H2: NA
+  metareg_R2: NA
+
 ---
 
 # Meta-Regression
+
+## Model Type
+
+Mixed-Effects Model (k = `r params$metareg_k`; $\tau$^2^ estimator: `r params$estim`)
+
+## Model Coefficients
+
+```{r table_metareg, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$metareg_df_coeff$res)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients without Knapp-Hartung-adjustment",
+                position = "h") %>%
+      kable_styling("striped")
+
+
+```
+
+Intercept Model with Knapp-Hartung-adjusted standard errors: 
+```{r table_metareg_knha, echo = FALSE}
+library(kableExtra)
+library(data.table)
+
+df <- as.data.table(params$metareg_df_coeff$res_knha)
+
+kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients with Knapp-Hartung-adjustment",
+                position = "h") %>%
+      kable_styling("striped")
+```
+
+
+
+## Test for Residual Heterogeneity
+
+Q(df = `r params$metareg_k - params$metareg_mods`) = `r round(params$metareg_QE, 4)`, _p_ `r if(params$metareg_QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$metareg_QEp, 4), scientific = FALSE))}`
+
+## Test of Moderators
+
+QM(df = `r params$metareg_mods - 1`) = `r round(params$metareg_QM, 4)`, _p_ `r if(params$metareg_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$metareg_QMp, 4), scientific = FALSE))}`.
+
+### With Knapp-Hartung-Adjustment: 
+
+F (df1 = `r params$metareg_mods`, df2 = `r params$metareg_k - params$metareg_mods`) = `r round(params$metareg_QM_knha, 4)`, _p_`r if(params$metareg_QMp_knha < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$metareg_QMp_knha, 4), scientific = FALSE))}`.
+
+## Heterogeneity Statistics
+
+$\tau$^2^ (estimated amount of residual heterogeneity): `r round(params$metareg_tau2, 4)` (SE = `r round(params$metareg_se.tau2, 4)`)
+
+I^2^ (residual heterogeneity/unaccounted variability): `r round(params$metareg_I2, 2)`%
+
+H^2^ (unaccounted variability/sampling variability): `r round(params$metareg_H2, 2)`
+
+R^2^ (amount of heterogeneity accounted for): `r round(params$metareg_R2, 2)`%
