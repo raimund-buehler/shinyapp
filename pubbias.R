@@ -40,6 +40,7 @@ output$BMhelp <- renderInfoBox({
   of publication bias.", title = "Begg and Mazumdar's Rank Correlation Test")
   }) 
 
+
 output$BMref <- 
   renderUI(HTML(paste(strong("References:"), br(), "Begg, C. B., & Mazumdar, M. (1994). 
                       Operating characteristics of a rank correlation test for publication bias. 
@@ -341,7 +342,6 @@ observeEvent(input$SubmitButton, {
 
   #sign_primary
   sign_primary <- sign(data[[es]][prim])
-  browser()
   # Run all four models
   # Use coined effect sizes in case of negative initial effect
   if (sign_primary == -1){

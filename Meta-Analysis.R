@@ -191,7 +191,6 @@ meta_sens <- reactive({
 
 # Plot for Output
 output$meta_sens <- renderPlot({
-  browser()
   meta_sens()
 })
 

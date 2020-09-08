@@ -138,7 +138,6 @@ output$PubStatus<- renderUI({
 
 observeEvent(input$SubmitButton, {
   ##ES
-  browser()
   
   para$es <- input$ES
   
