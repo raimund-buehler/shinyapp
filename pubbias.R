@@ -1,7 +1,7 @@
 ##Begg and Mazumdar----
 
 BMres <- reactiveValues()
-
+ 
 output$BMtau <- renderValueBox({
   valueBox(
     tryCatch({
@@ -315,7 +315,7 @@ output$puniref <- renderUI({HTML(paste(strong("References:"), br(), "Van Aert, R
 
 ##Vevea and woods selection models----
 SelMods <- reactiveValues()
-observe({
+observeEvent(input$SubmitButton, {
   req(input$file)
   req(para$prim)
   req(para$es)
@@ -341,7 +341,7 @@ observe({
 
   #sign_primary
   sign_primary <- sign(data[[es]][prim])
-
+  browser()
   # Run all four models
   # Use coined effect sizes in case of negative initial effect
   if (sign_primary == -1){

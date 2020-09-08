@@ -1,11 +1,12 @@
 
 #preselect earliest overall studies in dataset (column "studyname" required)
 primary_temp <- reactive({
-  req(para$id)
-  req(para$year)
+  req(input$file)
+  req(input$year)
+  req(input$id)
   data <- data_reac$DT
-  min <- which(na.omit(data[[para$year]]) == min(na.omit(data[[para$year]])))
-  data[[para$id]][min]
+  min <- which(na.omit(data[[input$year]]) == min(na.omit(data[[input$year]])))
+  data[[input$id]][min]
 })
 
 #preselect earliest published studies
@@ -18,17 +19,17 @@ primary_temp <- reactive({
 #if less than one: just confirm the study that was found 
 output$primarySelect <- renderUI({
   req(input$file)
-  req(para$id)
-  req(primary_temp())
   if(length(primary_temp())>1){
     # if(input$SE == ""){
-      radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"))
+    box(background = "yellow", width = NULL, height = "140px",      
+      radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure")))
     # } else {
     #   radioButtons("primaryChoice", label = "Please select the earliest study in your dataset", choices = c("None selected" = "", primary_temp(), "unsure"), selected = tail(input$primaryChoice))
     # }
   } else {
     # if(input$SE == ""){
-      radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no"))
+    box(background = "yellow", width = NULL, height = "140px",  
+      radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no")))
     # } else {
     #   radioButtons(inputId = "primaryChoice", label = paste("Is this the earliest study in your dataset:", primary_temp(), "?"), choices = c("None selected" = "", "yes", "no"), selected = tail(input$primaryChoice))
     # }
@@ -59,7 +60,8 @@ observeEvent(input$id, {
 output$candidateSelect <- renderUI({
   req(input$primaryChoice)
   if(input$primaryChoice == "unsure"){
-    checkboxGroupInput("candidateChoice", label = "Please select the TWO candidate studies that are most likely the earliest studies!", choices = primary_temp())
+    box(background = "yellow", width = NULL, height = "140px",  
+    checkboxGroupInput("candidateChoice", label = "Please select the TWO candidate studies that are most likely the earliest studies!", choices = primary_temp()))
   } else if(input$primaryChoice == "no"){
     "We need the earliest study in your dataset. Please evaluate (e.g. by checking web of science) which study is the earliest study in your dataset!\n\n"
   }

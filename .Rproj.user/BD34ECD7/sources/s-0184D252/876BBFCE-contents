@@ -15,12 +15,14 @@ output$EStype <- renderUI({
     para$es <- vec[1]
     verbatimTextOutput("SingleES")
   } else if (length(unique(vec)) > 1) {
-    para$es <- input$ES
     selectInput(inputId = "ES", label = "Please choose the effect size in your data set", choices = c("Choose one" = "", unique(vec)), selected = tail(input$ES))
   } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
-    para$es <- input$ES
     selectInput(inputId = "ES", label = "Please choose the effect size in your data set", c("Choose one" = "", "r", "z", "g", "d", "OR", "logOR"), selected = tail(input$ES))
   }
+})
+
+observeEvent(input$ES, {
+  para$es <- input$ES
 })
 
 output$SingleES <- renderText({
@@ -31,7 +33,7 @@ output$SingleES <- renderText({
 output$EScolumn <- renderUI({
   req(input$file)
   if (length(unique(repcols$DT$es)) == 1 & is.na(repcols$DT$es[1]) == TRUE) {
-    selectInput(inputId = "EScol", label = "Please choose the colum in your dataset that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$EScol))
+    selectInput(inputId = "EScol", label = "Please choose the column in your dataset that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$EScol))
   }
 })
 
@@ -41,14 +43,15 @@ output$EScolumn <- renderUI({
 #this is not displayed to the user, (as the rendering of the datafile is not reacting on it), but can be seen in e.g. in forest plots
 #datafile can be made reactive on input$ES and thus will update and display the newly created column.
 
-v <- reactiveValues(choices = c())
+v_es <- reactiveValues(choices = c())
 
 observeEvent(input$ES, {
-  req(input$EScol)
-  v$choices <- append(v$choices, para$es)
-  if(length(v$choices > 1)){
-    data_reac$DT[, tail(v$choices, 1)] <- NULL
+  req(input$ES)
+  v_es$choices <- append(v_es$choices, para$es)
+  if(length(v_es$choices) > 1){
+    data_reac$DT[, v_es$choices[length(v_es$choices) - 1]] <- NULL
   }
+  browser()
 })
 
 
@@ -56,6 +59,7 @@ observe({
   req(input$EScol)
   req(para$es)
   data_reac$DT[, para$es := .SD[[input$EScol]]]
+  browser()
 })
 
 
@@ -68,16 +72,47 @@ output$SEcolumn <- renderUI({
     para$se <- vec[1]
     verbatimTextOutput("SingleSE")
   } else if (length(unique(vec)) > 1) {
-    para$se <- input$SE
     selectInput(inputId = "SE", label = "Standard Error:", choices = unique(vec), selected = tail(input$SE))
   } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
-    para$se <- input$SE
     selectInput(inputId = "SE", label = "Standard Error:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$SE))
   }
 })
 
+observeEvent(input$SE, {
+  para$se <- input$SE
+})
+
 output$SingleSE <- renderText({
   paste("Standard Error:   ", "'", unique(repcols$DT$se), "'", sep = "")
+})
+
+##Create new column for standard error (so that calc_effectsize works correctly)
+
+v_se <- reactiveValues(choices = c())
+
+observeEvent(input$ES, {
+  req(input$SE)
+  v_se$choices <- append(v_se$choices, para$se)
+  if(length(v_se$choices) > 1){
+    data_reac$DT[, paste0(v_es$choices[length(v_es$choices) - 1], ".SE")] <- NULL
+  }
+  browser()
+})
+
+observeEvent(input$SE, {
+  req(input$SE)
+  v_se$choices <- append(v_se$choices, para$se)
+  if(length(v_se$choices) > 1){
+    data_reac$DT[, paste0(para$es, ".SE")] <- NULL
+  }
+  browser()
+})
+
+observe({
+  req(input$SE)
+  req(para$se)
+  data_reac$DT[, paste0(para$es, ".SE") := .SD[[input$SE]]]
+  browser()
 })
 
 # 
@@ -111,16 +146,27 @@ output$SampleSize<- renderUI({
     para$n <- vec[1]
     verbatimTextOutput("SingleN")
   } else if (length(unique(vec)) > 1) {
-    para$n <- input$n
     selectInput(inputId = "n", label = "Sample size:", choices = unique(vec), selected = tail(input$n))
   } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
-    para$n <- input$n
     selectInput(inputId = "n", label = "Sample size:", choices = c("Choose one" = "", colnames(data_reac$DT)), selected = tail(input$n))
   }
 })
 
+observeEvent(input$n, {
+  para$n <- input$n
+})
+
 output$SingleN <- renderText({
   paste("Sample size:   ", "'", unique(repcols$DT$n), "'", sep = "")
+})
+
+##create column for sample size
+
+v_n <- reactiveValues(choices = c())
+
+observeEvent(input$n, {
+  req(input$n)
+  data_reac$DT[, n := .SD[[input$n]]]
 })
 
 ##CHOOSE STUDY ID
