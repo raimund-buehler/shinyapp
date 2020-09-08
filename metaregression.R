@@ -27,49 +27,59 @@ meta_reg_output <- eventReactive(input$go_metareg, {
            paste0("data_reac$DT[[", "'", input$select_reg_mod, "'", "]]")), collapse = " + ")
   
   # do the analysis
-  res.reg <- rma(data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+  # metaregression is run two times, with and without knapp-hartung-adjustment
+  l <- list()
+  l$res <- rma(data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
                  mods = as.formula(paste("~", mods_formula)),
                  method = estim(),
-                 knha = input$knha_reg)
+                 knha = FALSE)
+  
+  l$res_knha <- rma(data_reac$DT[[para$es]], sei = data_reac$DT[[para$se]],
+                    mods = as.formula(paste("~", mods_formula)),
+                    method = estim(),
+                    knha = TRUE)
   
   # shorten names in object
-  attr(res.reg$beta, "dimnames")[[1]][-1] <- paste0(
-    unlist(stringi::stri_extract_all_regex(attr(res.reg$beta, "dimnames")[[1]][-1], '(?<=").*?(?=")')),
-  str_replace(gsub(".*]]","", attr(res.reg$beta, "dimnames")[[1]][-1]), "\\)", ":")
+  l.out <- lapply(l, function(x){
+  attr(x$beta, "dimnames")[[1]][-1] <- paste0(
+    unlist(stringi::stri_extract_all_regex(attr(x$beta, "dimnames")[[1]][-1], '(?<=").*?(?=")')),
+  str_replace(gsub(".*]]","", attr(x$beta, "dimnames")[[1]][-1]), "\\)", ":")
   )
+  x
+  })
   
+  names(l.out) <- c("res", "res_knha")
   
   # **** table for model output ----
   dt.model <- data.table("Model" = if(input$metamodel == "fe") {"Fixed-Effect"} else {"Random-Effects"}, 
-                         "k" = res.reg$k.all, 
+                         "k" = l.out$res$k.all, 
                          "tau^2 estimator" = if(input$metamodel == "fe"){paste("NA")} else {meta_res_output()$method})
   
   
   # **** table with coefficients ----
-  if(input$knha_reg == FALSE){
-    df.coeff <- data.frame(
-      coefficient = attr(res.reg$beta, "dimnames")[[1]],
-      estimate = round(res.reg$beta, 4),
-      se = round(res.reg$se, 4),
-      zval = round(res.reg$zval, 4),
-      pval = round(res.reg$pval, 4),
-      ci.lb = round(res.reg$ci.lb, 4),
-      ci.ub = round(res.reg$ci.ub, 4)
-    )
-  } else if(input$knha_reg == TRUE){
-    df.coeff <- data.frame(
-      coefficient = attr(res.reg$beta, "dimnames")[[1]],
-      estimate = round(res.reg$beta, 4),
-      se = round(res.reg$se, 4),
-      tval = round(res.reg$zval, 4),
-      pval = round(res.reg$pval, 4),
-      ci.lb = round(res.reg$ci.lb, 4),
-      ci.ub = round(res.reg$ci.ub, 4)
-    )
-  } 
-  df.coeff$sign <- ifelse(df.coeff$pval < 0.001, "***",
-                          ifelse(df.coeff$pval < 0.01, "**", 
-                                 ifelse(df.coeff$pval < 0.05, "*", "")))
+  l.df.coeff <- lapply(l.out, function(x){
+    df <- data.frame(
+      coefficient = attr(x$beta, "dimnames")[[1]],
+      estimate = round(x$beta, 4),
+      se = round(x$se, 4),
+      testval = round(x$zval, 4),
+      pval = round(x$pval, 4),
+      ci.lb = round(x$ci.lb, 4),
+      ci.ub = round(x$ci.ub, 4))
+    
+    df$sign <- ifelse(df$pval < 0.001, "***",
+                      ifelse(df$pval < 0.01, "**", 
+                             ifelse(df$pval < 0.05, "*", "")))
+    
+    if(x$test == 'knha'){
+      names(df)[4] <- "tval"
+    } else if (x$test == 'z'){
+      names(df)[4] <- "zval"
+    }
+    return(df)
+    
+  })
+
   
   
   # table with heterogeneity stats ----
@@ -78,40 +88,40 @@ meta_reg_output <- eventReactive(input$go_metareg, {
                                "I^2 (total heterogeneity / total variability):",
                                "H^2 (total variability / sampling variability):",
                                "R^2 (amount of heterogeneity accounted for):"),
-                       val = c(paste(round(res.reg$tau2, 3), " (SE = ", 
-                                     round(res.reg$se.tau2, 3), ")", sep = ""),
-                               round(sqrt(res.reg$tau2), 3),
-                               paste(round(res.reg$I2, 2), "%", sep = ""),
-                               round(res.reg$H2, 2),
-                               paste(round(res.reg$R2, 2), "%", sep = "")))
+                       val = c(paste(round(l.out$res$tau2, 3), " (SE = ", 
+                                     round(l.out$res$se.tau2, 3), ")", sep = ""),
+                               round(sqrt(l.out$res$tau2), 3),
+                               paste(round(l.out$res$I2, 2), "%", sep = ""),
+                               round(l.out$res$H2, 2),
+                               paste(round(l.out$res$R2, 2), "%", sep = "")))
   
   # test for residual heterogeneity ----
-  str.residhet <- sprintf("Q(df = %.0f) = %.4f, p %s", res.reg$k.all - length(res.reg$b), res.reg$QE, 
-                          if(res.reg$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(res.reg$QEp, 4), 
+  str.residhet <- sprintf("Q(df = %.0f) = %.4f, p %s", l.out$res$k.all - length(l.out$res$b), l.out$res$QE, 
+                          if(l.out$res$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$res$QEp, 4), 
                                                                                                        scientific = FALSE))})
   
   str.mod <- paste(
-    if(length(res.reg$b) > 2){
-      sprintf("Coefficients 2:%.0f:", length(res.reg$b))  
-    } else if (length(res.reg$b) == 2){
+    if(length(l.out$res$b) > 2){
+      sprintf("Coefficients 2:%.0f:", length(l.out$res$b))  
+    } else if (length(l.out$res$b) == 2){
       paste("Coefficient 2:") 
     } else if (input$mod_intrcpt == FALSE){
-      sprintf("Coefficients 1:%.0f:", length(res.reg$b))  
+      sprintf("Coefficients 1:%.0f:", length(l.out$res$b))  
     }
     ,
     if(input$knha_reg == FALSE){
       sprintf("QM (df = %.0f) = %.4f, p-val %s", 
-              length(res.reg$b) - 1,
-              res.reg$QM,
-              if(res.reg$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(res.reg$QMp, 4), 
+              length(l.out$res$b) - 1,
+              l.out$res$QM,
+              if(l.out$res$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$res$QMp, 4), 
                                                                                         scientific = FALSE))}
       )
     }  else if(input$knha_reg == TRUE){
       sprintf("F (df1 = %.0f, df2 = %.0f) = %.4f, p-val %s",
-              length(res.reg$b) - 1,
-              res.reg$k.all - length(res.reg$b),
-              res.reg$QM,
-              if(res.reg$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(res.reg$QMp, 4), 
+              length(l.out$res$b) - 1,
+              l.out$res$k.all - length(l.out$res$b),
+              l.out$res$QM,
+              if(l.out$res$QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(l.out$res$QMp, 4), 
                                                                                         scientific = FALSE))}
               
       )
@@ -120,9 +130,9 @@ meta_reg_output <- eventReactive(input$go_metareg, {
   
   
   
-  out <- list(results = res.reg,
+  out <- list(results = l.out,
               model = dt.model,
-              coeff = df.coeff,
+              coeff = l.df.coeff,
               het = df.het,
               resid.het = str.residhet,
               mod.test = str.mod)
@@ -131,10 +141,21 @@ meta_reg_output <- eventReactive(input$go_metareg, {
   
 })
 
+
+metareg_res_coeff <- eventReactive(input$go_metareg, {
+  
+  if(input$knha_reg == FALSE){
+    meta_reg_output()$coeff$res
+  } else if (input$knha_reg == TRUE){
+    meta_reg_output()$coeff$res_knha
+  }
+  
+}) 
+
 # Output 
 output$metareg_out_1 <- renderTable(meta_reg_output()$model, striped = TRUE, bordered = TRUE)
 
-output$metareg_out_2 <- renderTable(meta_reg_output()$coeff, digits = 4)
+output$metareg_out_2 <- renderTable(metareg_res_coeff(), digits = 4)
 
 output$metareg_out_3 <- renderTable(meta_reg_output()$het, colnames = FALSE, striped = TRUE, bordered = TRUE)
 
@@ -147,4 +168,3 @@ output$metareg_out_5 <- renderText(meta_reg_output()$mod.test)
   # print(meta_reg_output()$results)
 # })
 
-# renderUI for d

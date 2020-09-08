@@ -64,7 +64,6 @@ server <- function(input, output, session) {
   source(here("subgroup.R"), local = TRUE)
   
   # ** Meta-Regression ----
-  
   source(here("metaregression.R"), local = TRUE)
   
   

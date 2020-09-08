@@ -53,7 +53,7 @@ params <- list(
   sbgrp_I2 = mod_res_output()$results$intrcpt$I2,
   sbgrp_H2 = mod_res_output()$results$intrcpt$H2,
   sbgrp_R2 = mod_res_output()$results$intrcpt$R2,
-  sbgrp_Qdf = length(mod_res_output()$results$no_intrcpt$b),
+  sbgrp_mods = length(mod_res_output()$results$no_intrcpt$b),
   sbgrp_QE = mod_res_output()$results$intrcpt$QE,
   sbgrp_QEp = mod_res_output()$results$intrcpt$QEp,
   sbgrp_QM = mod_res_output()$results$intrcpt$QM,
@@ -61,7 +61,23 @@ params <- list(
   sbgrp_QM_knha = mod_res_output()$results$intrcpt_knha$QM,
   sbgrp_QMp_knha = mod_res_output()$results$intrcpt_knha$QMp,
   sbgrp_df_coeff = mod_res_output()$coeff,
-
+  
+  # Meta-Regression ----
+  metareg_k = meta_reg_output()$results$res$k.all,
+  metareg_df_coeff = meta_reg_output()$coeff,
+  metareg_mods = length(meta_reg_output()$results$res$b),
+  metareg_QE = meta_reg_output()$results$res$QE,
+  metareg_QEp = meta_reg_output()$results$res$QEp,
+  metareg_QM = meta_reg_output()$results$res$QM,
+  metareg_QMp = meta_reg_output()$results$res$QMp,
+  metareg_QM_knha = meta_reg_output()$results$res_knha$QM,
+  metareg_QMp_knha = meta_reg_output()$results$res_knha$QMp,
+  metareg_tau2 = meta_reg_output()$results$res$tau2,
+  metareg_se.tau2 = meta_reg_output()$results$res$se.tau2,
+  metareg_I2 = meta_reg_output()$results$res$I2,
+  metareg_H2 = meta_reg_output()$results$res$H2,
+  metareg_R2 = meta_reg_output()$results$res$R2,
+  
   
   # Publication Bias Analyses ----
   # ** Begg & Mazumdar ----

@@ -29,7 +29,7 @@ params:
   sbgrp_I2: NA
   sbgrp_H2: NA
   sbgrp_R2: NA
-  sbgrp_Qdf: NA
+  sbgrp_mods: NA
   sbgrp_QE: NA
   sbgrp_QEp: NA
   sbgrp_QM: NA
@@ -55,7 +55,7 @@ R^2^ (amount of heterogeneity accounted for): `r round(params$sbgrp_R2, 2)`%
 
 ## Test for Residual Heterogeneity
 
-Q(df = `r params$sbgrp_k - params$sbgrp_Qdf`) = `r round(params$sbgrp_QE, 4)`, _p_ `r if(params$sbgrp_QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QEp, 4), scientific = FALSE))}`
+Q(df = `r params$sbgrp_k - params$sbgrp_mods`) = `r round(params$sbgrp_QE, 4)`, _p_ `r if(params$sbgrp_QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QEp, 4), scientific = FALSE))}`
        
 ## Model Results 
 ### Intercept Model
@@ -117,9 +117,9 @@ kableExtra::kbl(df, booktabs = TRUE, digits = 2, caption = "Model coefficients w
 
 **Note**: This refers to the intercept model (i.e., is the moderator different from zero, not the subgroup estimates)
 
-QM(df = `r params$sbgrp_Qdf - 1`) = `r round(params$sbgrp_QM, 4)`, _p_ `r if(params$sbgrp_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp, 4), scientific = FALSE))}`.
+QM(df = `r params$sbgrp_mods - 1`) = `r round(params$sbgrp_QM, 4)`, _p_ `r if(params$sbgrp_QMp < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp, 4), scientific = FALSE))}`.
 
 ### With Knapp-Hartung-Adjustment: 
 
-F (df1 = `r params$sbgrp_Qdf`, df2 = `r params$sbgrp_k - params$sbgrp_Qdf`) = `r round(params$sbgrp_QM_knha, 4)`, _p_`r if(params$sbgrp_QMp_knha < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp_knha, 4), scientific = FALSE))}`.
+F (df1 = `r params$sbgrp_mods`, df2 = `r params$sbgrp_k - params$sbgrp_mods`) = `r round(params$sbgrp_QM_knha, 4)`, _p_`r if(params$sbgrp_QMp_knha < 0.0001){paste("< .0001")} else {paste("= ", format(round(params$sbgrp_QMp_knha, 4), scientific = FALSE))}`.
 

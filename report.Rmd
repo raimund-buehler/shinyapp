@@ -53,7 +53,7 @@ params:
   sbgrp_I2: NA
   sbgrp_H2: NA
   sbgrp_R2: NA
-  sbgrp_Qdf: NA
+  sbgrp_mods: NA
   sbgrp_QE: NA
   sbgrp_QEp: NA
   sbgrp_QM: NA
@@ -61,6 +61,20 @@ params:
   sbgrp_QMp: NA
   sbgrp_QMp_knha: NA
   sbgrp_df_coeff: NA
+  metareg_k: NA
+  metareg_df_coeff: NA
+  metareg_mods: NA
+  metareg_QE: NA
+  metareg_QEp: NA
+  metareg_QM: NA
+  metareg_QMp: NA
+  metareg_QM_knha: NA
+  metareg_QMp_knha: NA
+  metareg_tau2: NA
+  metareg_se.tau2: NA
+  metareg_I2: NA
+  metareg_H2: NA
+  metareg_R2: NA
   pb_bm_tau: NA
   pb_bm_pval: NA
   thres_bm_pval: NA
