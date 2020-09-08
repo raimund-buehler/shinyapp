@@ -264,7 +264,8 @@ ui <- dashboardPage(
       ## **** Begg & Mazumdar ----
       tabItem(tabName = "B_M", fluidRow(
         column(width = 3,
-               infoBoxOutput("BMhelp", width = NULL)), 
+               infoBoxOutput("BMhelp", width = NULL), 
+               column(width = 12, align = "center", actionButton("go_BM", "Run this test"))), 
         column(width = 3,
                valueBoxOutput("BMtau", width = NULL), 
                valueBoxOutput("BMp", width = NULL)),
@@ -276,7 +277,8 @@ ui <- dashboardPage(
       ## **** Sterne & Egger ----
       tabItem(tabName = "S_E", fluidRow(
         column(width = 3,
-               infoBoxOutput("SEhelp", width = NULL)),
+               infoBoxOutput("SEhelp", width = NULL),
+               column(width = 12, align = 'center', actionButton("go_SE", "Run this test"))),
         column(width = 3,
                valueBoxOutput("SEz", width = NULL), 
                valueBoxOutput("SEp", width = NULL)),

@@ -60,3 +60,9 @@
 #sunset_funnel{
                                 margin: auto;
 }
+
+#BMbtn{
+  display: flex;
+ align-items: center;
+ justify-content: center;
+}

@@ -52,7 +52,7 @@ output$choices <- renderUI({
       uiOutput("primaryPublSelect"),
       uiOutput("candidatePublSelect"),
       fluidRow(
-        column(width = 12, offset = 5,
+        column(width = 12, align = 'center',
                actionButton("SubmitButton", "Submit")))
   )
   

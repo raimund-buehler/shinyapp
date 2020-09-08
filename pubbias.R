@@ -1,34 +1,45 @@
 ##Begg and Mazumdar----
 
 BMres <- reactiveValues()
- 
-output$BMtau <- renderValueBox({
-  valueBox(
-    tryCatch({
+
+observeEvent(input$go_BM, {
+  BMres$BMtau <- tryCatch({
     BMres$res <- ranktest(meta_res_output())
     round(BMres$res$tau, 3)},
-      error = function(e){
+    error = function(e){
       tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-    }), subtitle = "Kendall's tau", color = "light-blue")
+    })
+  BMres$BMp <- tryCatch({
+    BMres$res <- ranktest(meta_res_output())
+    format.pval(BMres$res$pval, eps = 0.0001, digits = 3)},
+    error = function(e){
+      tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+    })
+})
+ 
+output$BMtau <- renderValueBox({
+  req(BMres$BMtau)
+  valueBox(
+    BMres$BMtau, subtitle = "Kendall's tau", color = "light-blue")
 })
 
 output$BMp <- renderValueBox({
-  valueBox(
-    tryCatch({
-      BMres$res <- ranktest(meta_res_output())
-      format.pval(BMres$res$pval, eps = 0.0001, digits = 3)},
-      error = function(e){
-        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-      }), subtitle = "P-value", color = "light-blue")
+  req(BMres$BMp)
+  valueBox(BMres$BMp,
+    subtitle = "P-value", color = "light-blue")
 })
 
-output$FunnelBM <- renderPlot({
+observeEvent(input$go_BM, {
   req(meta_res_output())
-  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
-                  egger = FALSE,
-                  trim_and_fill = FALSE,
-                  method = estim())
-  as.ggplot(p)
+  output$FunnelBM <- renderPlot({
+  #   p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+  #                   egger = FALSE,
+  #                   trim_and_fill = FALSE,
+  #                   method = estim())
+  #   as.ggplot(p)
+  req(normal_funnel_input())
+  print(normal_funnel_input())
+  })
 })
 
 
@@ -49,23 +60,30 @@ output$BMref <-
 ##Sterne and Egger----
 SEres <- reactiveValues()
 
+observeEvent(input$go_SE, {
+  SEres$SEz <- tryCatch({SEres$res <- regtest(meta_res_output())
+  round(SEres$res$zval, 3)},
+  error = function(e){
+    tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+  })
+  SEres$SEp <- tryCatch({SEres$res <- regtest(meta_res_output())
+  format.pval(SEres$res$pval, eps = 0.0001, digits = 3)},
+  error = function(e){
+    tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+  })
+})
+
 output$SEz <- renderValueBox({
+  req(SEres$SEz)
   valueBox(
-  tryCatch({SEres$res <- regtest(meta_res_output())
-            round(SEres$res$zval, 3)},
-           error = function(e){
-             tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-           }), subtitle = "Test Statistic: z", color = "light-blue"
+  SEres$SEz, subtitle = "Test Statistic: z", color = "light-blue"
   )
 }) 
 
 output$SEp <- renderValueBox({
+  req(SEres$SEp)
   valueBox(
-    tryCatch({SEres$res <- regtest(meta_res_output())
-    format.pval(SEres$res$pval, eps = 0.0001, digits = 3)},
-    error = function(e){
-      tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-    }), subtitle = "P-Value", color = "light-blue"  
+    SEres$SEp, subtitle = "P-Value", color = "light-blue"  
   )
 }) 
 
@@ -74,13 +92,17 @@ output$SEmodel <- renderTable({
   coef(summary(SEres$res$fit))
 }, rownames = TRUE)
 
-output$FunnelSE <- renderPlot({
+observeEvent(input$go_SE, {
   req(meta_res_output())
-  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
-                  egger = TRUE,
-                  trim_and_fill = FALSE,
-                  method = estim())
-  as.ggplot(p)
+output$FunnelSE <- renderPlot({
+  # p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+  #                 egger = TRUE,
+  #                 trim_and_fill = FALSE,
+  #                 method = estim())
+  # as.ggplot(p)
+  req(normal_funnel_input())
+  print(normal_funnel_input())
+})
 })
 
 output$SEhelp <- renderInfoBox({
