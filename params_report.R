@@ -1,3 +1,5 @@
+
+
 params <- list(
   
   # Elements ----
@@ -5,8 +7,12 @@ params <- list(
   dwn_meta = input$dwn_report_meta,
   dwn_sbgrp = input$dwn_report_sbgrp,
   dwn_metareg = input$dwn_report_metareg,
-  dwn_pb = input$dwn_report_pb,
+  dwn_pb = input$dwn_report_pb
   
+)
+
+
+params <- c(params, list( 
   # Data ----
   dat = input$file$name,
   metric = switch(para$es, 
@@ -18,8 +24,13 @@ params <- list(
                   "logOR" = "Odds Ratio (Log-Scale)"),
   k = length(data_reac$DT[[para$es]]),
   n = data_reac$DT[[para$n]],
-  in_study = para$prim,
-  
+  in_study = para$prim
+)
+)
+
+if(input$go_meta > 0){
+  params <- c(params, 
+list( 
   # Meta-Analysis ----
   model_type = if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
   k_meta = meta_res_output()$k.all,
@@ -44,9 +55,16 @@ params <- list(
   qtest_df = meta_res_output()$k.all - 1,
   qtest_stat = meta_res_output()$QE,
   qtest_pval = if(meta_res_output()$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(meta_res_output()$QEp, 4), 
-                                                                                             scientific = FALSE))},
+                                                                                             scientific = FALSE))}
   
-  # Subgroup Analysis ----
+)
+)
+}
+
+if(input$go_moa > 0){
+  params <- c(params, 
+list(
+# Subgroup Analysis ----
   sbgrp_k = mod_res_output()$results$intrcpt$k.all,
   sbgrp_tau2 = mod_res_output()$results$intrcpt$tau2,
   sbgrp_se.tau2 = mod_res_output()$results$intrcpt$se.tau2,
@@ -60,9 +78,15 @@ params <- list(
   sbgrp_QMp = mod_res_output()$results$intrcpt_knha$QMp,
   sbgrp_QM_knha = mod_res_output()$results$intrcpt_knha$QM,
   sbgrp_QMp_knha = mod_res_output()$results$intrcpt_knha$QMp,
-  sbgrp_df_coeff = mod_res_output()$coeff,
-  
-  # Meta-Regression ----
+  sbgrp_df_coeff = mod_res_output()$coeff
+)
+)
+}
+
+if(input$go_metareg > 0){
+  params <- c(params, 
+list( 
+ # Meta-Regression ----
   metareg_k = meta_reg_output()$results$res$k.all,
   metareg_df_coeff = meta_reg_output()$coeff,
   metareg_mods = length(meta_reg_output()$results$res$b),
@@ -76,9 +100,13 @@ params <- list(
   metareg_se.tau2 = meta_reg_output()$results$res$se.tau2,
   metareg_I2 = meta_reg_output()$results$res$I2,
   metareg_H2 = meta_reg_output()$results$res$H2,
-  metareg_R2 = meta_reg_output()$results$res$R2,
-  
-  
+  metareg_R2 = meta_reg_output()$results$res$R2
+)
+)
+}
+
+
+ params <- c(params, list( 
   # Publication Bias Analyses ----
   # ** Begg & Mazumdar ----
   pb_bm_tau = BMres$res$tau,
@@ -128,5 +156,9 @@ params <- list(
   pb_sel_perc_mod2 = 1 / SelMods()$mod2$output_unadj$par[2] * (SelMods()$mod2$output_unadj$par[2] - SelMods()$mod2$output_adj$par[2]),
   pb_sel_perc_sev2 = 1 / SelMods()$sev2$output_unadj$par[2] * (SelMods()$sev2$output_unadj$par[2] - SelMods()$sev2$output_adj$par[2]),
   thres_sel_adj = input$sel_adj
-  
+ )
 )
+
+
+
+
