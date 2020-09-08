@@ -1,7 +1,7 @@
 ##Begg and Mazumdar----
 
 BMres <- reactiveValues()
-
+ 
 output$BMtau <- renderValueBox({
   valueBox(
     tryCatch({
