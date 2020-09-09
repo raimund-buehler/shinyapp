@@ -44,11 +44,11 @@ observeEvent(input$go_BM, {
 
 
 
-output$BMhelp <- renderInfoBox({
-  box("This test can be used to examine whether the observed outcomes and 
+output$BMhelp <- renderText({
+  "This test can be used to examine whether the observed outcomes and 
   the corresponding sampling variances are correlated. A high correlation 
   would indicate that the funnel plot is asymmetric, which may be a result 
-  of publication bias.", title = "Begg and Mazumdar's Rank Correlation Test")
+  of publication bias."
   }) 
 
 
@@ -105,11 +105,10 @@ output$FunnelSE <- renderPlot({
 })
 })
 
-output$SEhelp <- renderInfoBox({
-    box("This test can be used to examine whether a relationship exists between the observed outcomes 
+output$SEhelp <- renderText({
+    "This test can be used to examine whether a relationship exists between the observed outcomes 
     and the chosen predictor (default = standard error). If such a relationship is present, then this 
-    usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias.", 
-    title = "Sterne & Egger's Regression")
+    usually implies asymmetry in the funnel plot, which in turn may be an indication of publication bias."
 }) 
 
 output$SEref <- renderUI(HTML(paste(strong("References:"), br(), "Egger, M., Davey Smith, G., Schneider, M., & Minder, C. (1997). 
@@ -118,8 +117,8 @@ output$SEref <- renderUI(HTML(paste(strong("References:"), br(), "Egger, M., Dav
 ##Trim and Fill----
 TFres <- reactiveValues()
 
-output$TRFIk0 <- renderValueBox({
-  valueBox(
+observeEvent(input$go_TRFI, {
+  TFres$TRFIk0 <- 
     tryCatch(
       if (sign(meta_res_output()$b) == 1) {
         TFres$res <- trimfill(meta_res_output(), side = "left")
@@ -128,56 +127,70 @@ output$TRFIk0 <- renderValueBox({
         TFres$res <- trimfill(meta_res_output(), side = "right")
         TFres$res$k0
       },            error = function(e){
-      tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-    }), subtitle = "Number of missing studies", color = "light-blue"
-  )
+        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+      })
+  
+  TFres$TRFIest <-
+    tryCatch(
+      if (sign(meta_res_output()$b) == 1) {
+        TFres$res <- trimfill(meta_res_output(), side = "left")
+        round(TFres$res$beta, 3)
+      } else if (sign(meta_res_output()$b) == -1) {
+        TFres$res <- trimfill(meta_res_output(), side = "right")
+        round(TFres$res$beta, 3)
+      },            error = function(e){
+        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+      })
+  TFres$TRFIside <-
+    tryCatch(
+      if (sign(meta_res_output()$b) == 1) {
+        TFres$res <- trimfill(meta_res_output(), side = "left")
+        TFres$res$side
+      } else if (sign(meta_res_output()$b) == -1) {
+        TFres$res <- trimfill(meta_res_output(), side = "right")
+        TFres$res$side
+      },            error = function(e){
+        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
+      })
+  
+  TFres$TRFIunadj <- round(meta_res_output()$b, 3)
+  TFres$TRFIperc <- {
+    unadj <- meta_res_output()$b
+    adj <- TFres$res$beta
+    1/unadj*(unadj-adj)
+  }
+  TFres$TRFImodel <- coef(summary(TFres$res, digits = 3))
+})
+
+output$TRFIk0 <- renderValueBox({
+  req(TFres$TRFIk0)
+  valueBox(TFres$TRFIk0, subtitle = "Number of missing studies", color = "light-blue")
 }) 
 
 output$TRFIest <- renderValueBox({
-  valueBox(
-    tryCatch(
-      if (sign(meta_res_output()$b) == 1) {
-        TFres$res <- trimfill(meta_res_output(), side = "left")
-        round(TFres$res$beta, 3)
-      } else if (sign(meta_res_output()$b) == -1) {
-        TFres$res <- trimfill(meta_res_output(), side = "right")
-        round(TFres$res$beta, 3)
-      },            error = function(e){
-        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-      }), subtitle = "Adjusted Estimate", color = "light-blue"
-  )
+  req(TFres$TRFIest)
+  valueBox(TFres$TRFIest, subtitle = "Adjusted Estimate", color = "light-blue")
 }) 
 
 output$TRFIside <- renderValueBox({
-  valueBox(
-    tryCatch(
-      if (sign(meta_res_output()$b) == 1) {
-        TFres$res <- trimfill(meta_res_output(), side = "left")
-        TFres$res$side
-      } else if (sign(meta_res_output()$b) == -1) {
-        TFres$res <- trimfill(meta_res_output(), side = "right")
-        TFres$res$side
-      },            error = function(e){
-        tags$p("Please execute the Meta-Analysis first!", style = "font-size: 40%")
-      }), subtitle = "Side on which studies are imputed", color = "light-blue"
-  )
+  req(TFres$TRFIside)
+  valueBox(TFres$TRFIside, subtitle = "Side on which studies are imputed", color = "light-blue")
 }) 
 
 output$TRFIunadj <- renderValueBox({
-  valueBox(round(meta_res_output()$b, 3), color = "light-blue", subtitle = "Unadjusted Estimate")
+  req(TFres$TRFIunadj)
+  valueBox(TFres$TRFIunadj, color = "light-blue", subtitle = "Unadjusted Estimate")
 })
 
 output$TRFIperc <- renderValueBox({
-    unadj <- meta_res_output()$b
-    adj <- TFres$res$beta
-    perc_change <- 1/unadj*(unadj-adj)
-    valueBox(percent(perc_change), subtitle = "Percent Change", color = if(perc_change < 0.2){"green"}else{"red"})
+  req(TFres$TRFIperc)
+  valueBox(percent(TFres$TRFIperc), subtitle = "Percent Change", color = if(TFres$TRFIperc < 0.2){"green"}else{"red"})
 })
 
 
 output$TRFImodel <- renderTable({
   req(TFres$res)
-  coef(summary(TFres$res, digits = 3))
+  TFres$TRFImodel
 }, rownames = TRUE)
 
 output$FunnelTRFI <- renderPlot({
@@ -186,22 +199,20 @@ output$FunnelTRFI <- renderPlot({
 })
 
 
-output$TRFIhelp <- renderInfoBox({
-    box("This method is a nonparametric (rank-based) data augmentation technique. 
+output$TRFIhelp <- renderText({
+   "This method is a nonparametric (rank-based) data augmentation technique. 
         It can be used to estimate the number of studies missing from a meta-analysis due to the suppression 
         of the most extreme results on one side of the funnel plot. The method then augments the observed data so that the 
         funnel plot is more symmetric and recomputes the summary estimate based on the complete data. This should not 
         be regarded as a way of yielding a more 'valid' estimate of the overall effect or outcome, but as a way of examining the sensitivity of the 
-        results to one particular selection mechanism (i.e., one particular form of publication bias).", 
-        title = "Trim and Fill", width = NULL)
-}) 
+        results to one particular selection mechanism (i.e., one particular form of publication bias)."}) 
 
 output$TRFIref <- renderUI(HTML(paste(strong("References:"), br(), "Duval, S. J., & Tweedie, R. L. (2000). 
                                       Trim and fill: A simple funnel-plot-based method of testing and adjusting 
                                       for publication bias in meta-analysis. Biometrics, 56, 455–463.")))
 
 ##pcurve----
-output$pcurveHelp <- renderInfoBox(box("P-curve is based on the notion that, if a given set of studies has evidential value, 
+output$pcurveHelp <- renderText({"P-curve is based on the notion that, if a given set of studies has evidential value, 
                                 the distribution of those one-tailed p-values will be right skewed. This means that 
                                 very small p-values (such as p < .025) will be more numerous than larger p-values. 
                                 If the distribution of significant p-values is left skewed and large p-values are more 
@@ -216,9 +227,11 @@ output$pcurveHelp <- renderInfoBox(box("P-curve is based on the notion that, if 
                                 only the observed p-values that are below .025, or the “half p-curve.” 
                                 If these tests for right skew are not significant, indicating that the studies lack evidential value 
                                 and no true effect may be present, p-curve conducts another pair of binomial and continuous tests to 
-                                assess whether the studies were underpowered (defined as having power below 33 percent).", title = "P-curve", width = NULL))
+                                assess whether the studies were underpowered (defined as having power below 33 percent)."})
 
-source(here("pcurve_demo.R"), local = TRUE)
+observeEvent(input$go_pcurve, {
+source(here("pcurve_demo.R"), local = TRUE)}
+)
 
 ##puniform----
 ##needs r, --> calc-effectsize
