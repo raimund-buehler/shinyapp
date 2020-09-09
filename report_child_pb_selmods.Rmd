@@ -1,0 +1,70 @@
+---
+title: "report_child_pb_selmods"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_sel_mod1: NA
+  pb_sel_sev1: NA
+  pb_sel_mod2: NA
+  pb_sel_sev2: NA
+  thres_sel_adj: NA
+  pb_sel_perc_mod1: NA
+  pb_sel_perc_sev1: NA
+  pb_sel_perc_mod2: NA
+  pb_sel_perc_sev2: NA
+  pb_sel_unadj: NA
+---
+
+```{r bias_ind_selmods, include = FALSE}
+bias_selmod <- ifelse(c(params$pb_sel_perc_mod1, params$pb_sel_perc_sev1, params$pb_sel_perc_mod2, params$pb_sel_perc_sev2) < params$thres_sel_adj, "no bias", "bias")
+```
+
+
+### Selection Models According to Vevea & Woods (2005)
+
+Selection models adjust meta-analytic data sets by specifying a model that describes the mechanism by which studies may be suppressed. This model is combined with an effect-size model that describes the distribution of effect sizes in the absence of publication bias. The Vevea and Woods (2005) approach, which is implemented here, attempts to model the suppression of studies as a function of _p_-values by specifying selection models of varying severity and estimating the meta-analytic parameters contingent on each hypothetical selection pattern. This can serve as a sensitivity analysis to investigate how a specified pattern of publication bias could affect the summary estimate
+
+
+```{r, selmodtab, echo = FALSE}
+library(kableExtra)
+
+df.selmod <- data.frame(
+  Model = c("Moderate one-tailed",
+            "Severe one-tailed",
+            "Moderate two-tailed",
+            "Severe two-tailed"),
+  Value = c(round(params$pb_sel_mod1, 4),
+            round(params$pb_sel_sev1, 4),
+            round(params$pb_sel_mod2, 4),
+            round(params$pb_sel_sev2, 4)),
+  Perc = c(paste0(round(params$pb_sel_perc_mod1 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_sev1 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_mod2 * 100, 0), "%"),
+           paste0(round(params$pb_sel_perc_sev2 * 100, 0), "%"))
+)
+
+df.selmod$Bias <- bias_selmod
+
+kableExtra::kbl(df.selmod, booktabs = TRUE) %>%
+  kable_styling(position = "center")
+```
+Bias indication is based on an unadjusted estimate of `r round(params$pb_sel_unadj, 2)` and a threshold of `r round(as.numeric(params$thres_sel_adj) * 100, 0)`%.

@@ -1,0 +1,42 @@
+---
+title: "report_child_pb"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_bm_tau: NA
+  pb_bm_pval: NA
+  thres_bm_pval: NA
+---
+
+```{r bias_ind_bm, include = FALSE}
+
+bias_bm <- ifelse(params$pb_bm_pval < params$thres_bm_pval, "bias", "no bias")
+```
+
+
+### Begg & Mazumdar's Rank Test
+
+Rank Correlation Test for Funnel Plot Asymmetry:
+
+Kendall's $\tau$ = `r round(params$pb_bm_tau, 3)`, _p_ `r if(params$pb_bm_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_bm_pval, 4), scientific = FALSE))}`.
+
+This test can be used to examine whether the observed outcomes and the corresponding sampling variances are correlated. A high correlation would indicate that the funnel plot is asymmetric, which may be a result of publication bias. Your results indicate `r if(params$pb_bm_pval < params$thres_bm_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_bm_pval`.

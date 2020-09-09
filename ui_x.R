@@ -519,12 +519,14 @@ ui <- dashboardPage(
                 ),
                 uiOutput("dwn_report_sbgrp"),
                 uiOutput("dwn_report_metareg"),
-                prettyCheckbox(
-                  inputId = "dwn_report_pb",
-                  label = "Results of Publication Bias Analyses", 
-                  value = TRUE,
-                  status = "warning"
-                )
+                uiOutput("dwn_report_pb"),
+                uiOutput("dwn_report_pb_bm"),
+                uiOutput("dwn_report_pb_se"),
+                uiOutput("dwn_report_pb_tf"),
+                uiOutput("dwn_report_pb_pcurve"),
+                uiOutput("dwn_report_pb_puni"),
+                uiOutput("dwn_report_pb_selmods"),
+                uiOutput("dwn_report_pb_tes"),
                 )
                 )
 

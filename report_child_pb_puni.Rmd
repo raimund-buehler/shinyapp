@@ -1,0 +1,52 @@
+---
+title: "report_child_pb_puni"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_puni_zval: NA
+  pb_puni_pval: NA
+  pb_punistar_zval: NA
+  pb_punistar_pval: NA
+  thres_puni_pval: NA
+  thres_punistar_pval: NA
+---
+
+```{r bias_ind_puni, include = FALSE}
+bias_puni <- ifelse(params$pb_puni_pval < params$thres_puni_pval, "bias", "no bias")
+bias_punistar <- ifelse(params$pb_punistar_pval < params$thres_punistar_pval, "bias", "no bias")
+```
+
+
+### _p_-Uniform
+
+P-uniform is based on the idea that _p_-values, conditional on a true effect size, are uniformly distributed. The method performs two tests. The first assesses the null hypothesis that the population effect size is zero by examining whether the conditional distribution of observed _p_-values is uniform. The second test is a one-tailed test of whether the population effect size equals the effect- size estimate produced by a traditional fixed-effect meta-analysis. If they differ significantly publication bias may be a threat. Finally, _p_-uniform provides an adjusted effect-size estimate and confidence interval by searching for the population effect size that does meet its qualification—the value where the distribution of conditional _p_-values is uniform.
+
+Publication Bias Test: _p_ `r if(params$pb_puni_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_puni_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if(params$pb_puni_pval < params$thres_puni_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_puni_pval`.
+
+
+### _p_-Uniform*
+
+Publication Bias Test: _p_ `r if(params$pb_punistar_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_punistar_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if(params$pb_punistar_pval < params$thres_punistar_pval){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_punistar_pval`.
