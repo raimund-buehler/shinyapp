@@ -269,8 +269,12 @@ ui <- dashboardPage(
       ## **** Begg & Mazumdar ----
       tabItem(tabName = "B_M", fluidRow(
         column(width = 3,
-               infoBoxOutput("BMhelp", width = NULL), 
-               column(width = 12, align = "center", actionButton("go_BM", "Run this test"))), 
+               box(textOutput("BMhelp"), title = "Begg and Mazumdar's Rank Correlation Test", width = NULL, 
+               br(), br(), actionBttn(inputId = "go_BM", label = "Run the analysis!",
+                                                               style = "material-flat",
+                                                               color = "default",
+                                                               size = "s",
+                                                               block = TRUE))), 
         column(width = 3,
                valueBoxOutput("BMtau", width = NULL), 
                valueBoxOutput("BMp", width = NULL)),
@@ -282,8 +286,12 @@ ui <- dashboardPage(
       ## **** Sterne & Egger ----
       tabItem(tabName = "S_E", fluidRow(
         column(width = 3,
-               infoBoxOutput("SEhelp", width = NULL),
-               column(width = 12, align = 'center', actionButton("go_SE", "Run this test"))),
+               box(textOutput("SEhelp"), title = "Sterne & Egger's Regression", width = NULL, 
+                   br(), br(), actionBttn(inputId = "go_SE", label = "Run the analysis!",
+                                          style = "material-flat",
+                                          color = "default",
+                                          size = "s",
+                                          block = TRUE))),
         column(width = 3,
                valueBoxOutput("SEz", width = NULL), 
                valueBoxOutput("SEp", width = NULL)),
@@ -296,7 +304,12 @@ ui <- dashboardPage(
       ## **** Trim and Fill ----
       tabItem(tabName = "trif", fluidRow( 
         column(width = 3, 
-               infoBoxOutput("TRFIhelp", width = NULL)), 
+               box(textOutput("TRFIhelp"), title = "Trim and Fill", width = NULL, 
+                   br(), br(), actionBttn(inputId = "go_TRFI", label = "Run the analysis!",
+                                          style = "material-flat",
+                                          color = "default",
+                                          size = "s",
+                                          block = TRUE))),
         column(width = 3, 
                valueBoxOutput("TRFIk0", width = NULL), 
                valueBoxOutput("TRFIside", width = NULL), 
@@ -313,9 +326,13 @@ ui <- dashboardPage(
       # **** pcurve ----
       tabItem(tabName = "pcurve", 
               fluidRow(
-                column(width = 3,
-                       infoBoxOutput("pcurveHelp", width = NULL)
-                ),
+                column(width = 3, 
+                       box(textOutput("pcurveHelp"), title = "P-curve", width = NULL, 
+                           br(), br(), actionBttn(inputId = "go_pcurve", label = "Run the analysis!",
+                                                  style = "material-flat",
+                                                  color = "default",
+                                                  size = "s",
+                                                  block = TRUE))),
                 column(width = 9,
                        box(
                             h3("Results of Binomial and Continuous Tests", align = "center"),

@@ -53,7 +53,14 @@ output$choices <- renderUI({
       uiOutput("candidatePublSelect"),
       fluidRow(
         column(width = 12, align = 'center',
-               actionButton("SubmitButton", "Submit")))
+               actionBttn(inputId = "SubmitButton", label = "Submit",
+                          style = "material-flat",
+                          color = "default",
+                          size = "s",
+                          block = TRUE),
+               br(), br(),
+               valueBox(subtitle = "", value = if(isTruthy(data_reac$DTall)){tags$p("Submit Successful", style = "font-size: 40%")}else{tags$p("Please submit the data!", style = "font-size: 40%")}, 
+                       color = if(isTruthy(data_reac$DTall)){"green"}else{"red"}, width = NULL)))
   )
   
 })
