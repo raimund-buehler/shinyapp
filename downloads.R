@@ -1,10 +1,33 @@
 # Report ----
 # set parameters ----
-params <- reactive({
-
+params_report <- reactive({
   source(here("params_report.R"), local = TRUE)
   return(params)
 })
+
+
+params_meta <- reactive({
+  source(here("params_meta.R"), local = TRUE)
+  return(params_meta)
+})
+
+params_sbgrp <- reactive({
+  source(here("params_sbgrp.R"), local = TRUE)
+  return(params_sbgrp)
+})
+
+params <- reactive({
+  params <- c(params_report(), params_meta(), params_sbgrp())
+})
+
+#params <- reactive({
+
+ # source(here("params_report.R"), local = TRUE)
+  #if(){source(here("params_meta.R"), local = TRUE)}
+  #if(){source(here("params_sbgrp.R"), local = TRUE)}
+  #return(params)
+#})
+
 
 # render UI for optional checkboxes ----
 output$dwn_report_sbgrp <- renderUI({

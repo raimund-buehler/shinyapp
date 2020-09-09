@@ -59,6 +59,19 @@ params:
   thres_punistar_pval: NA
 ---
 
+```{r bias_ind, include = FALSE}
+
+bias_bm <- ifelse(params$pb_bm_pval < params$thres_bm_pval, "bias", "no bias")
+bias_se <- ifelse(params$pb_se_pval < params$thres_se_pval, "bias", "no bias")
+bias_tf <- ifelse((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj, "no bias", "bias")
+bias_puni <- ifelse(params$pb_puni_pval < params$thres_puni_pval, "bias", "no bias")
+bias_punistar <- ifelse(params$pb_punistar_pval < params$thres_punistar_pval, "bias", "no bias")
+bias_pcurve <- ifelse((params$pb_pcurve_pval.half < 0.05) | ((params$pb_pcurve_pval.half < 0.1) & params$pb_pcurve_pval.full < 0.1), "no bias", "bias")
+bias_tes <- ifelse((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o), "bias", "no bias")
+bias_selmod <- ifelse(c(params$pb_sel_perc_mod1, params$pb_sel_perc_sev1, params$pb_sel_perc_mod2, params$pb_sel_perc_sev2) < params$thres_sel_adj, "no bias", "bias")
+
+```
+
 # Publication Bias Methods
 
 ## Small Study Effects
