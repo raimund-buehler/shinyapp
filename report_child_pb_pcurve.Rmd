@@ -1,0 +1,74 @@
+---
+title: "report_child_pb_pcurve"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_pcurve_powertab: NA
+  pb_pcurve_pval.full: NA
+  pb_pcurve_pval.half: NA
+---
+
+```{r bias_ind_pcurve, include = FALSE}
+bias_pcurve <- ifelse((params$pb_pcurve_pval.half < 0.05) | ((params$pb_pcurve_pval.half < 0.1) & params$pb_pcurve_pval.full < 0.1), "no bias", "bias")
+```
+
+
+## _p_-Curve
+
+_P_-curve is based on the notion that, if a given set of studies has evidential value, the distribution of those one-tailed p-values will be right skewed. This means that very small _p_-values (such as _p_ < .025) will be more numerous than larger _p_-values. If the distribution of significant _p_-values is left skewed and large _p_-values are more numerous than expected, it could be interpreted as evidence of _p_-hacking—researchers may be striving to obtain p-values that fall just below .05. _P_-curve uses two tests to assess whether the distribution is right skewed. The first is a binomial test comparing the proportion of observed _p_-values above and below .025; the second is a continuous test that calculates the probability of observing each individual _p_-value under the null hypothesis. The probabilities produced by this second test are then dubbed the studies’ “pp” values. These tests for right skew assess what is called the full _p_-curve. To test for “ambitious _p_-hacking,” or _p_-hacking to reach below .025 rather than .05, _p_-curve conducts the same tests for right skew on only the observed _p_-values that are below .025, or the “half _p_-curve.” If these tests for right skew are not significant, indicating that the studies lack evidential value and no true effect may be present, _p_-curve conducts another pair of binomial and continuous tests to assess whether the studies were underpowered (defined as having power below 33 percent).
+
+**Results of Binomial and Continuous Tests**
+
+```{r, pcurvetab, echo = FALSE}
+library(kableExtra)
+
+df.pcurvetab <- params$pb_pcurve_restab
+colnames(df.pcurvetab) <- c("Test", "Binomial Test", "Full p-curve", "Half p-curve")
+
+kableExtra::kbl(df.pcurvetab, booktabs = TRUE, col.names = rep("", 4), align = c("l", rep("c", 3))) %>%
+      kable_styling("striped") %>%
+      column_spec(1, bold = T, width = "25em") %>%
+      add_header_above(c(" " = 2, "Full p-curve\n (p's < .05)" = 1, "Half p-curve\n (p's < .05)" = 1)) %>%
+      add_header_above(c("", "Binomial Test" = 1, "Continuous Test" = 2)) %>%
+  kable_styling(position = "center")
+
+
+# kableExtra::kbl(df.pcurvetab, booktabs = TRUE) %>%
+  # kable_styling(position = "center")
+```
+
+
+**Statistical Power**
+
+```{r, pcurvepowertab, echo = FALSE}
+library(kableExtra)
+
+df.pcurvepow <- params$pb_pcurve_power
+colnames(df.pcurvepow) <- c("", "Estimate")
+
+
+# kableExtra::kbl(df.pcurvepow, booktabs = TRUE) %>% 
+  #kable_styling(position = "center")
+
+kableExtra::kbl(df.pcurvepow, booktabs = T, col.names = c("", ""), align = c("l", "l")) %>%
+      kable_styling("striped")
+```

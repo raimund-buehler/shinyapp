@@ -31,6 +31,8 @@ params:
   dwn_pb: NA
   dwn_pb_bm: NA
   dwn_pb_se: NA
+  dwn_pb_tf: NA
+  dwn_pb_pcurve: NA
   dwn_pb_puni: NA
   dwn_pb_selmods: NA
   dwn_pb_tes: NA

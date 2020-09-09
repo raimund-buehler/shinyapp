@@ -33,7 +33,7 @@ bias_bm <- ifelse(params$pb_bm_pval < params$thres_bm_pval, "bias", "no bias")
 ```
 
 
-### Begg & Mazumdar's Rank Test
+## Begg & Mazumdar's Rank Test
 
 Rank Correlation Test for Funnel Plot Asymmetry:
 

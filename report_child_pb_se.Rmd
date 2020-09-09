@@ -32,7 +32,7 @@ bias_se <- ifelse(params$pb_se_pval < params$thres_se_pval, "bias", "no bias")
 ```
 
 
-### Sterne & Egger's Regression Test
+## Sterne & Egger's Regression Test
 
 Test for Funnel Plot Asymmetry: 
 z = `r round(params$pb_se_zval, 4)`, _p_ `r if(params$pb_se_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_se_pval, 4), scientific = FALSE))}`.

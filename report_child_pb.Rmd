@@ -24,6 +24,8 @@ header-includes:
 params:
   dwn_pb_bm: NA
   dwn_pb_se: NA
+  dwn_pb_tf: NA
+  dwn_pb_pcurve: NA
   dwn_pb_puni: NA
   dwn_pb_selmods: NA
   dwn_pb_tes: NA
@@ -66,14 +68,14 @@ params:
 
 ```{r bias_ind, include = FALSE}
 
-bias_bm <- NA
-bias_se <- NA
-bias_tf <- ifelse((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj, "no bias", "bias")
-bias_puni <- NA
-bias_punistar <- NA
-bias_pcurve <- ifelse((params$pb_pcurve_pval.half < 0.05) | ((params$pb_pcurve_pval.half < 0.1) & params$pb_pcurve_pval.full < 0.1), "no bias", "bias")
-bias_tes <- NA
-bias_selmod <- NA
+bias_bm <- "Not investigated"
+bias_se <- "Not investigated"
+bias_tf <- "Not investigated"
+bias_puni <- "Not investigated"
+bias_punistar <- "Not investigated"
+bias_pcurve <- "Not investigated"
+bias_tes <- "Not investigated"
+bias_selmod <- rep("Not investigated", 4)
 
 ```
 
@@ -85,67 +87,14 @@ bias_selmod <- NA
 ```{r child_pb_se, child=if (params$dwn_pb_se) here('report_child_pb_se.Rmd')}
 ```
 
-### Trim-and-Fill
-
-This method is a nonparametric (rank-based) data augmentation technique. It can be used to estimate the number of studies missing from a meta-analysis due to the suppression of the most extreme results on one side of the funnel plot. The method then augments the observed data so that the funnel plot is more symmetric and recomputes the summary estimate based on the complete data. This should not be regarded as a way of yielding a more 'valid' estimate of the overall effect or outcome, but as a way of examining the sensitivity of the results to one particular selection mechanism (i.e., one particular form of publication bias).
-
-Imputed studies by trim-and-fill procedure: `r params$pb_tf_k` (Side: `r params$pb_tf_side`)
-
-Adjusted estimate according to trim-and-fill procedure: `r params$metric` = `r round(params$pb_tf_es, 2)`.
-
-Adjusted estimate (`r round(params$pb_tf_es, 2)`) is adjusted by `r round(abs(100 * ((params$meta_es - params$pb_tf_es)/params$meta_es)), 2)`% (`r round(params$meta_es - params$pb_tf_es, 2)`) of unadjusted estimate (`r round(params$meta_es, 2)`). 
-
-This result indicates `r if ((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj) {paste("no bias")} else {paste("bias")}` according to your defined threshold of `r round(as.numeric(params$thres_tf_adj) * 100, 0)`%.
-
-## Methods Based on _p_-Values
-
-### _p_-Curve
-
-_P_-curve is based on the notion that, if a given set of studies has evidential value, the distribution of those one-tailed p-values will be right skewed. This means that very small _p_-values (such as _p_ < .025) will be more numerous than larger _p_-values. If the distribution of significant _p_-values is left skewed and large _p_-values are more numerous than expected, it could be interpreted as evidence of _p_-hacking—researchers may be striving to obtain p-values that fall just below .05. _P_-curve uses two tests to assess whether the distribution is right skewed. The first is a binomial test comparing the proportion of observed _p_-values above and below .025; the second is a continuous test that calculates the probability of observing each individual _p_-value under the null hypothesis. The probabilities produced by this second test are then dubbed the studies’ “pp” values. These tests for right skew assess what is called the full _p_-curve. To test for “ambitious _p_-hacking,” or _p_-hacking to reach below .025 rather than .05, _p_-curve conducts the same tests for right skew on only the observed _p_-values that are below .025, or the “half _p_-curve.” If these tests for right skew are not significant, indicating that the studies lack evidential value and no true effect may be present, _p_-curve conducts another pair of binomial and continuous tests to assess whether the studies were underpowered (defined as having power below 33 percent).
-
-**Results of Binomial and Continuous Tests**
-
-```{r, pcurvetab, echo = FALSE}
-library(kableExtra)
-
-df.pcurvetab <- params$pb_pcurve_restab
-colnames(df.pcurvetab) <- c("Test", "Binomial Test", "Full p-curve", "Half p-curve")
-
-kableExtra::kbl(df.pcurvetab, booktabs = TRUE, col.names = rep("", 4), align = c("l", rep("c", 3))) %>%
-      kable_styling("striped") %>%
-      column_spec(1, bold = T, width = "25em") %>%
-      add_header_above(c(" " = 2, "Full p-curve\n (p's < .05)" = 1, "Half p-curve\n (p's < .05)" = 1)) %>%
-      add_header_above(c("", "Binomial Test" = 1, "Continuous Test" = 2)) %>%
-  kable_styling(position = "center")
-
-
-# kableExtra::kbl(df.pcurvetab, booktabs = TRUE) %>%
-  # kable_styling(position = "center")
+```{r child_pb_tf, child=if (params$dwn_pb_tf) here('report_child_pb_tf.Rmd')}
 ```
 
-
-**Statistical Power**
-
-```{r, pcurvepowertab, echo = FALSE}
-library(kableExtra)
-
-df.pcurvepow <- params$pb_pcurve_power
-colnames(df.pcurvepow) <- c("", "Estimate")
-
-
-# kableExtra::kbl(df.pcurvepow, booktabs = TRUE) %>% 
-  #kable_styling(position = "center")
-
-kableExtra::kbl(df.pcurvepow, booktabs = T, col.names = c("", ""), align = c("l", "l")) %>%
-      kable_styling("striped")
+```{r child_pb_pcurve, child=if (params$dwn_pb_pcurve) here('report_child_pb_pcurve.Rmd')}
 ```
-
 
 ```{r child_pb_puni, child=if (params$dwn_pb_puni) here('report_child_pb_puni.Rmd')}
 ```
-
-
-## Other Methods
 
 ```{r child_pb_selmods, child=if (params$dwn_pb_selmods) here('report_child_pb_selmods.Rmd')}
 ```
@@ -153,3 +102,51 @@ kableExtra::kbl(df.pcurvepow, booktabs = T, col.names = c("", ""), align = c("l"
 ```{r child_pb_tes, child=if (params$dwn_pb_tes) here('report_child_pb_tes.Rmd')}
 ```
 
+## Summary of Bias Indication
+
+## Summary of Bias Analyses
+
+```{r, summarytab, echo = FALSE}
+
+method <- c("Begg & Mazumdar's Rank Test",
+             "Sterne & Egger's Regression",
+             "Trim-and-Fill",
+             "p-uniform",
+             "p-uniform*",
+             "p-curve",
+             "Test of Excess Significance",
+             "Selection Models: Moderate one-tailed",
+             "Selection Models: Severe one-tailed",
+             "Selection Models: Moderate two-tailed",
+             "Selection Models: Severe two-tailed")
+
+bias_methods <- c(bias_bm, 
+                  bias_se,
+                  bias_tf,
+                  bias_puni,
+                  bias_punistar,
+                  bias_pcurve,
+                  bias_tes,
+                  bias_selmod)
+
+bias <- ifelse(bias_methods == "bias", "Bias Indication", 
+               ifelse(bias_methods == "no bias", "No Bias Indication", bias_methods))
+
+
+df.summary <- data.frame(
+  Method = method,
+  Bias = bias
+)
+
+
+#df.summary$Bias = kableExtra::cell_spec(df.summary$Bias,
+#                           background = factor(df.summary$Bias,c("Bias Indication", "No Bias Indication")
+#                                              , c("#666666", "#999999")))
+
+
+kableExtra::kbl(df.summary, booktabs = TRUE) %>% 
+  kableExtra::column_spec(2, background = ifelse(df.summary$Bias == "Bias Indication", "#ec6f6f", 
+                                                 ifelse(df.summary$Bias == "No Bias Indication", "#7dec6f",
+                                                        "#d3d3d3"))) %>%
+  kable_styling(position = "center")
+```

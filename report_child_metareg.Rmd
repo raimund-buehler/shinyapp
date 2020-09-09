@@ -36,7 +36,6 @@ params:
   metareg_I2: NA
   metareg_H2: NA
   metareg_R2: NA
-
 ---
 
 # Meta-Regression

@@ -38,7 +38,7 @@ params:
 bias_tes <- ifelse((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o), "bias", "no bias")
 ```
 
-### Test of Excess Significance
+## Test of Excess Significance
 
 The test of excess significance is a null hypothesis significance test that takes a given set of studies and asks whether too many are statistically significant or “positive.” The expected number of positive studies is calculated based on the studies’ power, and that expected number is compared with the observed number of positive studies using the chi-square statistic. Guidelines for the TES indicate that a _p_-value less than .10 should be considered significant. Note: this test should not be interpreted if there are fewer observed than expected significant studies.
 

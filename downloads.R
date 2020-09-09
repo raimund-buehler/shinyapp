@@ -16,6 +16,11 @@ params_sbgrp <- reactive({
   return(params_sbgrp)
 })
 
+params_metareg <- reactive({
+  source(here("params_metareg.R"), local = TRUE)
+  return(params_metareg)
+})
+
 params_pb_bm <- reactive({
   source(here("params_pb_bm.R"), local = TRUE)
   return(params_pb_bm)
@@ -24,6 +29,16 @@ params_pb_bm <- reactive({
 params_pb_se <- reactive({
   source(here("params_pb_se.R"), local = TRUE)
   return(params_pb_se)
+})
+
+params_pb_tf <- reactive({
+  source(here("params_pb_tf.R"), local = TRUE)
+  return(params_pb_tf) 
+})
+
+params_pb_pcurve <- reactive({
+  source(here("params_pb_pcurve.R"), local = TRUE)
+  return(params_pb_pcurve)
 })
 
 params_pb_puni <- reactive({
@@ -42,7 +57,10 @@ params_pb_tes <- reactive({
 })
 
 params <- reactive({
-  params <- c(params_report(), params_meta(), params_sbgrp(), params_pb_bm(), params_pb_se(), params_pb_puni(),
+  params <- c(params_report(), 
+              params_meta(), params_sbgrp(), params_metareg(), 
+              params_pb_bm(), params_pb_se(), params_pb_tf(), 
+              params_pb_pcurve(), params_pb_puni(), 
               params_pb_selmods(), params_pb_tes())
 })
 
@@ -89,6 +107,7 @@ output$dwn_report_pb <- renderUI({
 
 output$dwn_report_pb_bm <- renderUI({
   req(BMres$res)
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_bm",
     label = "Begg & Mazumdar's Rank Test", 
@@ -99,6 +118,7 @@ output$dwn_report_pb_bm <- renderUI({
 
 output$dwn_report_pb_se <- renderUI({
   req(SEres$SEz)
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_se",
     label = "Sterne & Egger's Regression", 
@@ -108,6 +128,7 @@ output$dwn_report_pb_se <- renderUI({
 
 output$dwn_report_pb_tf <- renderUI({
   req(TFres$res)
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_tf",
     label = "Trim-and-Fill", 
@@ -117,6 +138,7 @@ output$dwn_report_pb_tf <- renderUI({
 
 output$dwn_report_pb_pcurve <- renderUI({
   req(pcurve())
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_pcurve",
     label = "p-curve", 
@@ -127,6 +149,7 @@ output$dwn_report_pb_pcurve <- renderUI({
 output$dwn_report_pb_puni <- renderUI({
   req(p_uni_est())
   req(puni_star_est())
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_puni",
     label = "p-uniform & p-uniform*", 
@@ -136,6 +159,7 @@ output$dwn_report_pb_puni <- renderUI({
 
 output$dwn_report_pb_selmods <- renderUI({
   req(SelMods())
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_selmods",
     label = "Selection Models (Vevea & Woods)", 
@@ -145,6 +169,7 @@ output$dwn_report_pb_selmods <- renderUI({
 
 output$dwn_report_pb_tes <- renderUI({
   req(TFres$res)
+  req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_tes",
     label = "Test of excess significance", 

@@ -39,7 +39,7 @@ bias_selmod <- ifelse(c(params$pb_sel_perc_mod1, params$pb_sel_perc_sev1, params
 ```
 
 
-### Selection Models According to Vevea & Woods (2005)
+## Selection Models According to Vevea & Woods (2005)
 
 Selection models adjust meta-analytic data sets by specifying a model that describes the mechanism by which studies may be suppressed. This model is combined with an effect-size model that describes the distribution of effect sizes in the absence of publication bias. The Vevea and Woods (2005) approach, which is implemented here, attempts to model the suppression of studies as a function of _p_-values by specifying selection models of varying severity and estimating the meta-analytic parameters contingent on each hypothetical selection pattern. This can serve as a sensitivity analysis to investigate how a specified pattern of publication bias could affect the summary estimate
 
