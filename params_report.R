@@ -5,7 +5,7 @@ params <- list(
   # Elements ----
   dwn_dat = input$dwn_report_dat,
   dwn_meta = input$dwn_report_meta,
-  dwn_sbgrp = input$dwn_report_sbgrp,
+  dwn_sbgrp = if(input$go_moa > 0){input$dwn_report_sbgrp} else {FALSE},
   dwn_metareg = input$dwn_report_metareg,
   dwn_pb = input$dwn_report_pb
   
@@ -28,63 +28,8 @@ params <- c(params, list(
 )
 )
 
-if(input$go_meta > 0){
-  params <- c(params, 
-list( 
-  # Meta-Analysis ----
-  model_type = if(input$metamodel == "fe") {paste("Fixed-Effect")} else {paste("Random-Effects")},
-  k_meta = meta_res_output()$k.all,
-  estim = if(input$metamodel == "fe"){paste("not needed (fixed-effect model)")} else {paste(switch(meta_res_output()$method,
-                                                                      "DL" = "DerSimonian-Laird (DL)", 
-                                                                      "HE" = "Hedges (HE)",
-                                                                      "HS" = "Hunter-Schmidt (HS)",
-                                                                      "SJ" =  "Sidik-Jonkman (SJ)",
-                                                                      "ML" = "Maximum-Likelihood (ML)",
-                                                                      "REML" = "Restricted Maximum-Likelihood (REML)",
-                                                                      "EB" = "Empirical Bayes Estimator (EB)", 
-                                                                      "PM" = "Paule-Mandel Estimator (PM)"))},
-  meta_es = meta_res_output()$b,
-  meta_se = meta_res_output()$se,
-  meta_ci.lb = meta_res_output()$ci.lb,
-  meta_ci.ub = meta_res_output()$ci.ub,
-  meta_pval = if(meta_res_output()$pval < .0001){paste("< .0001")} else {paste("= ", round(meta_res_output()$pval, 4))},
-  meta_zval = meta_res_output()$zval,
-  meta_tau2 = meta_res_output()$tau2,
-  meta_I2 = meta_res_output()$I2,
-  meta_H2 = meta_res_output()$H2,
-  qtest_df = meta_res_output()$k.all - 1,
-  qtest_stat = meta_res_output()$QE,
-  qtest_pval = if(meta_res_output()$QEp < 0.0001){paste("< .0001")} else {paste("= ", format(round(meta_res_output()$QEp, 4), 
-                                                                                             scientific = FALSE))}
-  
-)
-)
-}
 
-if(input$go_moa > 0){
-  params <- c(params, 
-list(
-# Subgroup Analysis ----
-  sbgrp_k = mod_res_output()$results$intrcpt$k.all,
-  sbgrp_tau2 = mod_res_output()$results$intrcpt$tau2,
-  sbgrp_se.tau2 = mod_res_output()$results$intrcpt$se.tau2,
-  sbgrp_I2 = mod_res_output()$results$intrcpt$I2,
-  sbgrp_H2 = mod_res_output()$results$intrcpt$H2,
-  sbgrp_R2 = mod_res_output()$results$intrcpt$R2,
-  sbgrp_mods = length(mod_res_output()$results$no_intrcpt$b),
-  sbgrp_QE = mod_res_output()$results$intrcpt$QE,
-  sbgrp_QEp = mod_res_output()$results$intrcpt$QEp,
-  sbgrp_QM = mod_res_output()$results$intrcpt$QM,
-  sbgrp_QMp = mod_res_output()$results$intrcpt_knha$QMp,
-  sbgrp_QM_knha = mod_res_output()$results$intrcpt_knha$QM,
-  sbgrp_QMp_knha = mod_res_output()$results$intrcpt_knha$QMp,
-  sbgrp_df_coeff = mod_res_output()$coeff
-)
-)
-}
-
-if(input$go_metareg > 0){
-  params <- c(params, 
+params <- c(params, 
 list( 
  # Meta-Regression ----
   metareg_k = meta_reg_output()$results$res$k.all,
@@ -103,7 +48,7 @@ list(
   metareg_R2 = meta_reg_output()$results$res$R2
 )
 )
-}
+
 
 
  params <- c(params, list( 
