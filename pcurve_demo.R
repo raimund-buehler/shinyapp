@@ -5,7 +5,7 @@
 # Put calculations done inside the pcurve app into reactive
 # put objects necessary for outputs (plots, table, input datastring) into list
 
-pcurve <- reactive({
+pcurve <- eventReactive(input$go_pcurve, {
   req(meta_res_output())
   source(here("pcurve_functions.R"), local = TRUE)
   

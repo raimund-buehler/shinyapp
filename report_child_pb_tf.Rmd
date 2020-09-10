@@ -1,0 +1,52 @@
+---
+title: "report_child_pb_tf"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_sel_mod1: NA
+  pb_sel_sev1: NA
+  pb_sel_mod2: NA
+  pb_sel_sev2: NA
+  thres_sel_adj: NA
+  pb_sel_perc_mod1: NA
+  pb_sel_perc_sev1: NA
+  pb_sel_perc_mod2: NA
+  pb_sel_perc_sev2: NA
+  pb_sel_unadj: NA
+---
+
+```{r bias_ind_tf, include = FALSE}
+bias_tf <- ifelse((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj, "no bias", "bias")
+```
+
+## Trim-and-Fill
+
+This method is a nonparametric (rank-based) data augmentation technique. It can be used to estimate the number of studies missing from a meta-analysis due to the suppression of the most extreme results on one side of the funnel plot. The method then augments the observed data so that the funnel plot is more symmetric and recomputes the summary estimate based on the complete data. This should not be regarded as a way of yielding a more 'valid' estimate of the overall effect or outcome, but as a way of examining the sensitivity of the results to one particular selection mechanism (i.e., one particular form of publication bias).
+
+Imputed studies by trim-and-fill procedure: `r params$pb_tf_k` (Side: `r params$pb_tf_side`)
+
+Adjusted estimate according to trim-and-fill procedure: `r params$metric` = `r round(params$pb_tf_es, 2)`.
+
+Adjusted estimate (`r round(params$pb_tf_es, 2)`) is adjusted by `r round(abs(100 * ((params$meta_es - params$pb_tf_es)/params$meta_es)), 2)`% (`r round(params$meta_es - params$pb_tf_es, 2)`) of unadjusted estimate (`r round(params$meta_es, 2)`). 
+
+This result indicates `r if ((params$meta_es - params$pb_tf_es)/params$meta_es < params$thres_tf_adj) {paste("no bias")} else {paste("bias")}` according to your defined threshold of `r round(as.numeric(params$thres_tf_adj) * 100, 0)`%.
+

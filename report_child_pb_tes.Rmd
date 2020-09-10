@@ -1,0 +1,52 @@
+---
+title: "report_child_pb_tes"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    toc: true
+    number_sections: true
+    df_print: kable
+mainfont: Arial
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+params:
+  pb_sel_mod1: NA
+  pb_sel_sev1: NA
+  pb_sel_mod2: NA
+  pb_sel_sev2: NA
+  thres_sel_adj: NA
+  pb_sel_perc_mod1: NA
+  pb_sel_perc_sev1: NA
+  pb_sel_perc_mod2: NA
+  pb_sel_perc_sev2: NA
+  pb_sel_unadj: NA
+---
+
+```{r bias_ind_tes, include = FALSE}
+bias_tes <- ifelse((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o), "bias", "no bias")
+```
+
+## Test of Excess Significance
+
+The test of excess significance is a null hypothesis significance test that takes a given set of studies and asks whether too many are statistically significant or “positive.” The expected number of positive studies is calculated based on the studies’ power, and that expected number is compared with the observed number of positive studies using the chi-square statistic. Guidelines for the TES indicate that a _p_-value less than .10 should be considered significant. Note: this test should not be interpreted if there are fewer observed than expected significant studies.
+
+Expected number of significant studies: `r round(params$pb_tes_e, 0)`
+
+Observed number of significant studies: `r round(params$pb_tes_o, 0)`
+
+Test of excess significance: $\chi$^2^ (1) = `r round(params$pb_tes_res, 3)`, _p_ `r if(params$pb_tes_pval < .0001){paste("< .0001")} else {paste("= ", format(round(params$pb_tes_pval, 4), scientific = FALSE))}`. 
+
+Your results indicate `r if((params$pb_tes_pval < params$thres_tes_pval) & (params$pb_tes_e < params$pb_tes_o)){paste("bias")} else {paste("no bias")}` according to your defined threshold of _p_ < `r params$thres_tes_pval`.
+

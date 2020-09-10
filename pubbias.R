@@ -231,9 +231,9 @@ output$pcurveHelp <- renderText({"P-curve is based on the notion that, if a give
                                 and no true effect may be present, p-curve conducts another pair of binomial and continuous tests to 
                                 assess whether the studies were underpowered (defined as having power below 33 percent)."})
 
-observeEvent(input$go_pcurve, {
-source(here("pcurve_demo.R"), local = TRUE)}
-)
+
+source(here("pcurve_demo.R"), local = TRUE)
+
 
 ##puniform----
 ##needs r, --> calc-effectsize

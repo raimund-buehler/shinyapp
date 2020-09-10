@@ -29,6 +29,13 @@ params:
   dwn_sbgrp: NA
   dwn_metareg: NA
   dwn_pb: NA
+  dwn_pb_bm: NA
+  dwn_pb_se: NA
+  dwn_pb_tf: NA
+  dwn_pb_pcurve: NA
+  dwn_pb_puni: NA
+  dwn_pb_selmods: NA
+  dwn_pb_tes: NA
   dat: NA
   metric: NA
   k: NA
@@ -131,7 +138,9 @@ params:
 ```
 
 ```{r child_pb, child=if (params$dwn_pb) here('report_child_pb.Rmd')}
+
 ```
+
 
 
 
