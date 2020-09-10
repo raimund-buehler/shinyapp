@@ -193,11 +193,13 @@ output$TRFImodel <- renderTable({
   TFres$TRFImodel
 }, rownames = TRUE)
 
+observeEvent(input$go_TRFI, {
+  req(meta_res_output())
 output$FunnelTRFI <- renderPlot({
   req(normal_funnel_input())
   print(normal_funnel_input())
 })
-
+})
 
 output$TRFIhelp <- renderText({
    "This method is a nonparametric (rank-based) data augmentation technique. 

@@ -17,10 +17,6 @@ observeEvent(input$file, {
   }
 })
 
-output$checkCols <- renderPrint({
-  ranktest(rma$res)
-})
-
 
 ##RENDER DATA TABLE
 output$table <- renderUI({
@@ -51,16 +47,20 @@ output$choices <- renderUI({
       uiOutput("candidateSelect"),
       uiOutput("primaryPublSelect"),
       uiOutput("candidatePublSelect"),
-      fluidRow(
-        column(width = 12, align = 'center',
+    
                actionBttn(inputId = "SubmitButton", label = "Submit",
                           style = "material-flat",
                           color = "default",
                           size = "s",
-                          block = TRUE),
-               br(), br(),
-               valueBox(subtitle = "", value = if(isTruthy(data_reac$DTall)){tags$p("Submit Successful", style = "font-size: 40%")}else{tags$p("Please submit the data!", style = "font-size: 40%")}, 
-                       color = if(isTruthy(data_reac$DTall)){"green"}else{"red"}, width = NULL)))
+                          block = TRUE)
   )
   
 })
+
+output$SubmitUpdate <- renderUI({
+  req(input$file)
+  box(if(isTruthy(data_reac$DTall)){tags$p("Submit Successful", style = "font-size: 120%")}else{tags$p("Please submit the data!", style = "font-size: 120%")}, 
+           background = if(isTruthy(data_reac$DTall)){"green"}else{"red"}, width = NULL, align = 'center')
+})
+
+  
