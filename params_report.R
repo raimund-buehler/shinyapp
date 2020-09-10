@@ -14,7 +14,7 @@ params <- list(
   dwn_pb_puni = if(input$go_puni > 0){input$dwn_report_pb_puni} else {FALSE},
   dwn_pb_selmods = if(input$go_selmod > 0){input$dwn_report_pb_selmods} else {FALSE},
   dwn_pb_tes = if(input$go_tes > 0){input$dwn_report_pb_tes} else {FALSE},
-  dwn_pb = input$dwn_report_pb,
+  dwn_pb = if(sum(c(input$go_BM, input$go_SE, input$go_TRFI, input$go_pcurve, input$go_puni, input$go_selmod, input$go_tes)) > 0){input$dwn_report_pb} else {FALSE},
 
   # Data ----
   dat = input$file$name,
