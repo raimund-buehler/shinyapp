@@ -6,7 +6,7 @@ params <- list(
   dwn_dat = input$dwn_report_dat,
   dwn_meta = input$dwn_report_meta,
   dwn_sbgrp = if(input$go_moa > 0){input$dwn_report_sbgrp} else {FALSE},
-  dwn_metareg = input$dwn_report_metareg,
+  dwn_metareg = if(input$go_metareg > 0){input$dwn_report_metareg} else {FALSE},
   dwn_pb_bm = if(input$go_BM > 0){input$dwn_report_pb_bm} else {FALSE},
   dwn_pb_se = if(input$go_SE > 0){input$dwn_report_pb_se} else {FALSE},
   dwn_pb_tf = if(input$go_TRFI > 0){input$dwn_report_pb_tf} else {FALSE},

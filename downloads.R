@@ -168,7 +168,7 @@ output$dwn_report_pb_selmods <- renderUI({
 })
 
 output$dwn_report_pb_tes <- renderUI({
-  req(TFres$res)
+  req(TESres()$res)
   req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_tes",

@@ -102,8 +102,6 @@ bias_selmod <- rep("Not investigated", 4)
 ```{r child_pb_tes, child=if (params$dwn_pb_tes) here('report_child_pb_tes.Rmd')}
 ```
 
-## Summary of Bias Indication
-
 ## Summary of Bias Analyses
 
 ```{r, summarytab, echo = FALSE}
