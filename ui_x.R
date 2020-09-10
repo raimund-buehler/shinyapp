@@ -50,7 +50,8 @@ ui <- dashboardPage(
                          width = NULL,
                          fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "No file selected")
                        ),
-                       uiOutput("choices")
+                       uiOutput("choices"),
+                       uiOutput("SubmitUpdate", width = NULL)
                 ),
                 column(width = 8,
                        uiOutput("table")
