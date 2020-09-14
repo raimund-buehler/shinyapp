@@ -1,7 +1,6 @@
 # UI ----
 ui <- dashboardPage(
   dashboardHeader(title = "Decline Effects App"),
-  
   # Sidebar ----
   dashboardSidebar(
     sidebarMenu(
@@ -32,9 +31,10 @@ ui <- dashboardPage(
       menuItem("Report & Downloads", tabName = "dwn", icon = icon("download"))
     )
     ),
-  
   # Body ----
   dashboardBody(
+    useShinyjs(),                                          
+    # extendShinyjs(text = jsResetCode, functions = 'reset'),
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "font_correction.css")),
     tabItems(
       

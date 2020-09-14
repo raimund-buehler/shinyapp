@@ -2,6 +2,7 @@
 # ** Meta-Analysis ----
 # **** Selection of between-study variance estimator
 # Only shown if re-model was selected (default)
+
 output$select_re_type <- renderUI({
   req(input$metamodel)
   if(input$metamodel == "re"){
@@ -80,7 +81,7 @@ output$meta_out_1 <- renderTable({meta_out_1()}, striped = TRUE, bordered = TRUE
 
 
 output$meta_out_2 <- renderTable({
-  req(para$es)
+  req(meta_res_output())
   dt <- data.table("temp" = meta_res_output()$b, "se" = meta_res_output()$se,
                    "95% CI" = paste0("[", round(meta_res_output()$ci.lb, 3), " ; ", round(meta_res_output()$ci.ub, 3), "]"), 
                    "zval" = meta_res_output()$zval, "pval" = format.pval(meta_res_output()$pval, eps = 0.0001, digits = 3))

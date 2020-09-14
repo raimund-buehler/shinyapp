@@ -101,20 +101,20 @@ output$StudyID<- renderUI({
 
 ##CHOOSE PUBLICATION STATUS
 
-output$PubStatus<- renderUI({
-  req(input$file)
-  vec <- repcols$DT$pub
-  if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
-    box(background = "green", width = NULL, height = "75px",
-    selectInput(inputId = "pub", label = "Publication Status:", choices = vec[1]))
-  } else if (length(unique(vec)) > 1) {
-    box(background = "yellow", width = NULL, height = "75px",
-    selectInput(inputId = "pub", label = "Publication Status:", choices = c("Choose one" = "", unique(vec))))
-  } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
-    box(background = "yellow", width = NULL, height = "75px",
-    selectInput(inputId = "pub", label = "Publication Status:", choices = c("Choose one" = "", colnames(data_reac$DT))))
-  }
-})
+# output$PubStatus<- renderUI({
+#   req(input$file)
+#   vec <- repcols$DT$pub
+#   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
+#     box(background = "green", width = NULL, height = "75px",
+#     selectInput(inputId = "pub", label = "Publication Status:", choices = vec[1]))
+#   } else if (length(unique(vec)) > 1) {
+#     box(background = "yellow", width = NULL, height = "75px",
+#     selectInput(inputId = "pub", label = "Publication Status:", choices = c("Choose one" = "", unique(vec))))
+#   } else if (length(unique(vec)) == 1 & is.na(vec[1]) == TRUE) {
+#     box(background = "yellow", width = NULL, height = "75px",
+#     selectInput(inputId = "pub", label = "Publication Status:", choices = c("Choose one" = "", colnames(data_reac$DT))))
+#   }
+# })
 
 # pub values
 
@@ -161,5 +161,5 @@ observeEvent(input$SubmitButton, {
   para$id <- input$id
   
   ##PUB
-  para$pub <- input$pub
+  #para$pub <- input$pub
 })
