@@ -1,6 +1,7 @@
 # LIBRARIES ----
 library(shiny)
 library(shinyWidgets)
+library(shinyjs)
 library(foreign)
 library(data.table)
 library(here)
@@ -22,6 +23,8 @@ library(haven)
 library(htmltools)
 library(rmarkdown)
 options(scipen=999)
+
+# jsResetCode <- "shinyjs.reset = function() {history.go(0)}"
 
 # UI ----
 source(here("ui_x.R"), local = TRUE)
