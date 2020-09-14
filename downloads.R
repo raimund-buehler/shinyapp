@@ -95,7 +95,7 @@ prettyCheckbox(
 })
 
 output$dwn_report_pb <- renderUI({
-  req(sum(c(input$go_BM, input$go_SE, input$go_puni, input$go_selmod, input$go_test)) > 0)
+  req(sum(c(input$go_BM, input$go_SE, input$go_TRFI, input$go_pcurve, input$go_puni, input$go_selmod, input$go_tes)) > 0)
   prettyCheckbox(
   inputId = "dwn_report_pb",
   label = "Results of Publication Bias Analyses", 
@@ -168,7 +168,7 @@ output$dwn_report_pb_selmods <- renderUI({
 })
 
 output$dwn_report_pb_tes <- renderUI({
-  req(TFres$res)
+  req(TESres()$res)
   req(input$dwn_report_pb==TRUE)
   prettyCheckbox(
     inputId = "dwn_report_pb_tes",
