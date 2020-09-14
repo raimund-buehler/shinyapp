@@ -32,13 +32,11 @@ output$BMp <- renderValueBox({
 observeEvent(input$go_BM, {
   req(meta_res_output())
   output$FunnelBM <- renderPlot({
-  #   p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
-  #                   egger = FALSE,
-  #                   trim_and_fill = FALSE,
-  #                   method = estim())
-  #   as.ggplot(p)
-  req(normal_funnel_input())
-  print(normal_funnel_input())
+  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+                     egger = FALSE,
+                     trim_and_fill = FALSE,
+                     method = estim())
+     as.ggplot(p)
   })
 })
 
@@ -95,13 +93,11 @@ output$SEmodel <- renderTable({
 observeEvent(input$go_SE, {
   req(meta_res_output())
 output$FunnelSE <- renderPlot({
-  # p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
-  #                 egger = TRUE,
-  #                 trim_and_fill = FALSE,
-  #                 method = estim())
-  # as.ggplot(p)
-  req(normal_funnel_input())
-  print(normal_funnel_input())
+  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+                   egger = TRUE,
+                   trim_and_fill = FALSE,
+                   method = estim())
+   as.ggplot(p)
 })
 })
 
@@ -196,8 +192,17 @@ output$TRFImodel <- renderTable({
 observeEvent(input$go_TRFI, {
   req(meta_res_output())
 output$FunnelTRFI <- renderPlot({
-  req(normal_funnel_input())
-  print(normal_funnel_input())
+  if (sign(meta_res_output()$b) == 1) {
+    tf_side <- "left"
+  } else if (sign(meta_res_output()$b) == -1) {
+    tf_side <- "right" 
+  }
+  p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
+                  egger = FALSE,
+                  trim_and_fill = TRUE,
+                  method = estim(),
+                  trim_and_fill_side = tf_side)
+  as.ggplot(p)
 })
 })
 
@@ -383,6 +388,7 @@ SelMods <- eventReactive(input$go_selmod, {
 
   data <- as.data.table(data_reac$DTall)
   es <- para$es
+  se <- para$se
   prim <- which(data[[para$id]] == para$prim)
 
   #sign_primary
@@ -391,17 +397,17 @@ SelMods <- eventReactive(input$go_selmod, {
   # Use coined effect sizes in case of negative initial effect
   if (sign_primary == -1){
     vevwoo.res <- lapply(vevwoo_weights_list, function(x){
-      data[, weightfunct(effect = z,
-                         v = z.SE^2,
+      weightfunct(effect = data[[es]],
+                         v = data[[se]] ^ 2,
                          steps = vevwoo_steps,
-                         weights = rev(x))]
+                         weights = rev(x))
     })
   } else {
     vevwoo.res <- lapply(vevwoo_weights_list, function(x){
-      data[, weightfunct(effect = z,
-                         v = z.SE^2,
+      weightfunct(effect = data[[es]],
+                         v = data[[se]]^2,
                          steps = vevwoo_steps,
-                         weights = x)]
+                         weights = x)
     })
   }
   out <- list(mod1 = vevwoo.res$moderate_one,

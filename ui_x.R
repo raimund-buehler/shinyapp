@@ -378,9 +378,9 @@ ui <- dashboardPage(
                                 h4("Publication Bias Test", align = "center"), br(),
                                 valueBoxOutput("puni_L.pb", width = NULL),
                                 valueBoxOutput("puni_pval.pb", width = NULL), br(),
-                                h4("Adjusted effect size", align = "center"),
+                                h4("Adjusted effect size (r-metric)", align = "center"),
                                 div(tableOutput("p_uni_est"), style = "font-size: 115%"),
-                                h4("Unadjusted effect size", align = "center"),
+                                h4("Unadjusted effect size (r-metric)", align = "center"),
                                 div(tableOutput("puni_est_fe"), style = "font-size: 115%")
                            ), width = NULL, align = "center"
                          )
@@ -391,9 +391,9 @@ ui <- dashboardPage(
                                     h4("Publication Bias Test", align = "center"), br(),
                                     valueBoxOutput("puni_star_L.pb", width = NULL),
                                     valueBoxOutput("puni_star_pval.pb", width = NULL), br(),
-                                    h4("Adjusted effect size", align = "center"),
+                                    h4("Adjusted effect size (r-metric)", align = "center"),
                                     div(tableOutput("puni_star_est"), style = "font-size: 115%"),
-                                    h4("Unadjusted effect size", align = "center"),
+                                    h4("Unadjusted effect size (r-metric)", align = "center"),
                                     div(tableOutput("puni_star_est_fe"), style = "font-size: 115%")
                              ), width = NULL, align = "center"
                          )

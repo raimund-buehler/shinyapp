@@ -113,12 +113,14 @@ output$forest <- renderUI({
 normal_funnel_input <- reactive({
   req(para$es)
   req(para$se)
+
   
   if (sign(meta_res_output()$b) == 1) {
     tf_side <- "left"
   } else if (sign(meta_res_output()$b) == -1) {
     tf_side <- "right" 
   }
+
   
   p <- viz_funnel(data_reac$DT[, .SD, .SDcols = c(para$es, para$se)],
                   egger = input$choice_egger,
@@ -134,6 +136,9 @@ output$normal_funnel <- renderPlot({
   print(normal_funnel_input())
   
 })
+
+# funnel plots for publication bias analyses
+
 
 sunset_funnel_input <- reactive({
   req(para$es)
