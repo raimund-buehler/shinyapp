@@ -258,13 +258,20 @@ PUNIres <- reactiveValues()
 
 p_uni_est <- eventReactive(input$go_puni, {
   n <- para$n
+  if (sign(meta_res_output()$b) == 1){
+    data_dir <-data_reac$DTall[r > 0, ]
+  } else if (sign(meta_res_output()$b) == -1) {
+    data_dir <-data_reac$DTall[r < 0, ]
+  }
   tryCatch(
     if (sign(meta_res_output()$b) == 1){
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
+      PUNIres$res <- puniform(ri = data_dir$r, ni = data_dir$n, side="right", method="P")
+      PUNIres$n <- data_dir$n
       DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
       DT
     } else if (sign(meta_res_output()$b) == -1) {
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
+      PUNIres$res <- puniform(ri = data_dir$r, ni = data_dir$n, side="left",method="P")
+      PUNIres$n <- data_dir$n
       DT <- data.table("est" = PUNIres$res$est, "ci.lb" = PUNIres$res$ci.lb, "ci.ub" = PUNIres$res$ci.ub, "zval" = PUNIres$res$L.0, "pval" = PUNIres$res$pval.0)
       DT
     },           error = function(e){
@@ -277,19 +284,27 @@ output$p_uni_est <- renderTable({p_uni_est()})
 
 puni_est_fe <- eventReactive(input$go_puni, {
   n <- para$n
+  if (sign(meta_res_output()$b) == 1){
+    data_dir <-data_reac$DTall[r > 0, ]
+  } else if (sign(meta_res_output()$b) == -1) {
+    data_dir <-data_reac$DTall[r < 0, ]
+  }
   tryCatch(
     if (sign(meta_res_output()$b) == 1){
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
+      PUNIres$res <- puniform(ri = data_dir$r, ni = data_dir$n, side="right", method="P")
+      PUNIres$n <- data_dir$n
       DT <- data.table("est" = PUNIres$res$est.fe, "se" = PUNIres$res$se.fe, "ci.lb" = PUNIres$res$ci.lb.fe, "ci.ub" = PUNIres$res$ci.ub.fe, "zval" = PUNIres$res$zval.fe, "pval" = PUNIres$res$pval.fe)
       DT
     } else if (sign(meta_res_output()$b) == -1) {
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
+      PUNIres$res <- puniform(ri = data_dir$r, ni = data_dir$n, side="left",method="P")
+      PUNIres$n <- data_dir$n
       DT <- data.table("est" = PUNIres$res$est.fe, "se" = PUNIres$res$se.fe, "ci.lb" = PUNIres$res$ci.lb.fe, "ci.ub" = PUNIres$res$ci.ub.fe, "zval" = PUNIres$res$zval.fe, "pval" = PUNIres$res$pval.fe)
       DT
     },           error = function(e){
       "Please execute the Meta-Analysis first!"
     })
 })
+
 
 output$puni_est_fe <- renderTable({puni_est_fe()})
 
@@ -304,7 +319,6 @@ output$puni_L.pb <- renderValueBox({
 output$puni_pval.pb <- renderValueBox({
   valueBox(tags$p(format.pval(PUNIres$res$pval.pb, eps = 0.0001, digits = 3), style = "font-size: 50%"), subtitle = "P-value", color = "light-blue") 
 })
-
 
 
 PUNISTres <- reactiveValues()
@@ -330,19 +344,22 @@ puni_star_est_fe <- eventReactive(input$go_puni, {
   n <- para$n
   tryCatch(
     if (sign(meta_res_output()$b) == 1){
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
-      DT <- data.table("est" = PUNIres$res$est.fe, "se" = PUNIres$res$se.fe, "ci.lb" = PUNIres$res$ci.lb.fe, "ci.ub" = PUNIres$res$ci.ub.fe, "zval" = PUNIres$res$zval.fe, "pval" = PUNIres$res$pval.fe)
-      DT
+      res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="right", method="P")
+      DT <- data.table("est" = res$est.fe, "se" = res$se.fe, "ci.lb" = res$ci.lb.fe, "ci.ub" = res$ci.ub.fe, "zval" = PUNIres$res$zval.fe, "pval" = PUNIres$res$pval.fe)
+      out <- list(DT = DT, 
+                  n = data_reac$DTall$n)
     } else if (sign(meta_res_output()$b) == -1) {
-      PUNIres$res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
-      DT <- data.table("est" = PUNIres$res$est.fe, "se" = PUNIres$res$se.fe, "ci.lb" = PUNIres$res$ci.lb.fe, "ci.ub" = PUNIres$res$ci.ub.fe, "zval" = PUNIres$res$zval.fe, "pval" = PUNIres$res$pval.fe)
-      DT
-    },           error = function(e){
+      res <- puniform(ri = data_reac$DTall$r, ni = data_reac$DTall$n, side="left",method="P")
+      DT <- data.table("est" = res$est.fe, "se" = res$se.fe, "ci.lb" = res$ci.lb.fe, "ci.ub" = res$ci.ub.fe, "zval" = res$zval.fe, "pval" = res$pval.fe)
+      out <- list(DT = DT, 
+                  n = data_reac$DTall$n)
+    }
+    ,           error = function(e){
       "Please execute the Meta-Analysis first!"
     })
 })
 
-output$puni_star_est_fe <- renderTable({puni_star_est_fe()})
+output$puni_star_est_fe <- renderTable({puni_star_est_fe()$DT})
 
 output$puni_star_L.pb <- renderValueBox({
   valueBox(tryCatch(
@@ -351,6 +368,54 @@ output$puni_star_L.pb <- renderValueBox({
       ""
     }), subtitle = "Test Statistic: Z", color = "light-blue")
 })
+
+
+puni_es_back <- eventReactive(input$go_puni, {
+  
+  source(here("backcalc_effectsize.R"), local = TRUE)
+  out <- list(
+    # puniform
+    puni_adj_es = es.backconv(PUNIres$res$est, PUNIres$n),
+    puni_adj_ci.lb = es.backconv(PUNIres$res$ci.lb, PUNIres$n),
+    puni_adj_ci.ub = es.backconv(PUNIres$res$ci.ub, PUNIres$n),
+    puni_unadj_es = es.backconv(PUNIres$res$est.fe, PUNIres$n),
+    puni_unadj_ci.lb = es.backconv(PUNIres$res$ci.lb.fe, PUNIres$n),
+    puni_unadj_ci.ub = es.backconv(PUNIres$res$ci.ub.fe, PUNIres$n),
+    
+    # puniform star
+    punist_adj_es = es.backconv(PUNISTres$res$est, data_reac$DTall$n),
+    punist_adj_ci.lb = es.backconv(PUNISTres$res$ci.lb, data_reac$DTall$n),
+    punist_adj_ci.ub = es.backconv(PUNISTres$res$ci.lb, data_reac$DTall$n),
+    punist_unadj_es = es.backconv(puni_star_est_fe()$DT$est, puni_star_est_fe()$DT$n),
+    punist_unadj_ci.lb = es.backconv(puni_star_est_fe()$DT$ci.lb, puni_star_est_fe()$DT$n),
+    punist_unadj_ci.ub = es.backconv(puni_star_est_fe()$DT$ci.ub, puni_star_est_fe()$DT$n)
+  )
+})
+
+output$puni_adj_conv <- renderTable({data.frame(
+  es = puni_es_back()$puni_adj_es,
+  ci.lb = puni_es_back()$puni_adj_ci.lb,
+  ci.ub = puni_es_back()$puni_adj_ci.ub
+)}, digits = 2)
+
+output$puni_unadj_conv <- renderTable({data.frame(
+  es = puni_es_back()$puni_unadj_es,
+  ci.lb = puni_es_back()$puni_unadj_ci.lb,
+  ci.ub = puni_es_back()$puni_unadj_ci.ub
+)}, digits = 2)
+
+output$punist_adj_conv <- renderTable({data.frame(
+  es = puni_es_back()$punist_adj_es,
+  ci.lb = puni_es_back()$punist_adj_ci.lb,
+  ci.ub = puni_es_back()$punist_adj_ci.ub
+)}, digits = 2)
+
+output$punist_unadj_conv <- renderTable({data.frame(
+  es = puni_es_back()$punist_unadj_es,
+  ci.lb = puni_es_back()$punist_unadj_ci.lb,
+  ci.ub = puni_es_back()$punist_unadj_ci.ub
+)}, digits = 2)
+
 
 output$puni_star_pval.pb <- renderValueBox({
   valueBox(tags$p(format.pval(PUNISTres$res$pval.pb, eps = 0.0001, digits = 3), style = "font-size: 50%"), subtitle = "P-value", color = "light-blue") 

@@ -381,7 +381,13 @@ ui <- dashboardPage(
                                 h4("Adjusted effect size (r-metric)", align = "center"),
                                 div(tableOutput("p_uni_est"), style = "font-size: 115%"),
                                 h4("Unadjusted effect size (r-metric)", align = "center"),
-                                div(tableOutput("puni_est_fe"), style = "font-size: 115%")
+                                div(tableOutput("puni_est_fe"), style = "font-size: 115%"),
+                                br(),
+                                h4("Adjusted effect size (original metric)"),
+                                div(tableOutput("puni_adj_conv"), style = "font-size: 115%"),
+                                h4("Unadjusted effect size (original metric)"),
+                                div(tableOutput("puni_unadj_conv"), style = "font-size: 115%")
+                                
                            ), width = NULL, align = "center"
                          )
                   ),
@@ -394,7 +400,12 @@ ui <- dashboardPage(
                                     h4("Adjusted effect size (r-metric)", align = "center"),
                                     div(tableOutput("puni_star_est"), style = "font-size: 115%"),
                                     h4("Unadjusted effect size (r-metric)", align = "center"),
-                                    div(tableOutput("puni_star_est_fe"), style = "font-size: 115%")
+                                    div(tableOutput("puni_star_est_fe"), style = "font-size: 115%"),
+                                    br(),
+                                    h4("Adjusted effect size (original metric)"),
+                                    div(tableOutput("punist_adj_conv"), style = "font-size: 115%"),
+                                    h4("Unadjusted effect size (original metric)"),
+                                    div(tableOutput("punist_unadj_conv"), style = "font-size: 115%")
                              ), width = NULL, align = "center"
                          )
                   )
