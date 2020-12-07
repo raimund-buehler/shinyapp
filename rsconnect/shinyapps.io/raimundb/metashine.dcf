@@ -1,0 +1,12 @@
+name: metashine
+title: metashine
+username:
+account: raimundb
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3366449
+bundleId: 3955115
+url: https://raimundb.shinyapps.io/metashine/
+when: 1607352401.73329
+asMultiple: FALSE
+asStatic: FALSE

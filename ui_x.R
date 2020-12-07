@@ -1,6 +1,6 @@
 # UI ----
 ui <- dashboardPage(
-  dashboardHeader(title = "Decline Effects App"),
+  dashboardHeader(title = "MetaShine"),
   # Sidebar ----
   dashboardSidebar(
     sidebarMenu(
