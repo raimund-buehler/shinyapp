@@ -1,6 +1,7 @@
 ## READ DATA FILE and coerce to data.table
 
 data_reac <- reactiveValues()
+data_reac$DT <- as.data.table(read.spss("/Users/raimundbuehler/Documents/GitHub/shinyapp/mozart.sav"))
 
 ##RESET APP WHEN NEW FILE IS LOADED
 
@@ -21,6 +22,15 @@ observeEvent(input$file, {
   #output$meta_out_2 <- renderTable({ })
 })
 
+# default_file <- reactive({
+#   if(is.null(input$file)) {
+#     data_reac$DT <- as.data.table(read.spss("/Users/raimundbuehler/Documents/GitHub/shinyapp/mozart.sav"))
+#   } else {
+#   data_reac$DT <- as.data.table(read.spss(input$file$datapath))
+#   }
+# })
+
+
 observeEvent(input$file, {
   req(input$file)
   data_reac$DT <- as.data.table(read.spss(input$file$datapath))
@@ -28,9 +38,17 @@ observeEvent(input$file, {
 
 #CHECK COLNAMES
 repcols <- reactiveValues()
-observeEvent(input$file, {
+
+# repcols$DT <- {
+#   # req(input$file)
+#   data <- data_reac$DT
+#   source(here("check_colnames_shiny.R"), local = TRUE)
+#   report.colnames
+# }
+
+observe({
   repcols$DT <- {
-    req(input$file)
+    # req(input$file)
     data <- data_reac$DT
     source(here("check_colnames_shiny.R"), local = TRUE)
     report.colnames
@@ -40,7 +58,7 @@ observeEvent(input$file, {
 
 ##RENDER DATA TABLE
 output$table <- renderUI({
-  req(input$file)
+  # req(input$file)
   box(title = "Datafile", width = NULL, dataTableOutput("DTable"))
 }) 
 
@@ -50,7 +68,7 @@ output$DTable <- DT::renderDataTable(data_reac$DT,
 
 ##RENDER USER MENU FOR DATAFILE
 output$choices <- renderUI({
-  req(input$file)
+  # req(input$file)
   box(title = "Input",
       width = NULL,
       div(id = 'UIinput',
@@ -80,7 +98,7 @@ output$choices <- renderUI({
 })
 
 output$SubmitUpdate <- renderUI({
-  req(input$file)
+  # req(input$file)
   box(if(isTruthy(data_reac$DTall)){tags$p("Submit Successful", style = "font-size: 120%")}else{tags$p("Please submit the data!", style = "font-size: 120%")}, 
            background = if(isTruthy(data_reac$DTall)){"green"}else{"red"}, width = NULL, align = 'center')
 })

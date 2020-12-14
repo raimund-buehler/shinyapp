@@ -9,7 +9,7 @@
 para <- reactiveValues()
 
 output$EStype <- renderUI({
-  req(input$file)
+  # req(input$file)
   vec <- repcols$DT$es
   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
     box(background = "green", width = NULL, height = "75px",
@@ -25,7 +25,7 @@ output$EStype <- renderUI({
 
 #  If no column name matches, both ES type and column have to be specified
 output$EScolumn <- renderUI({
-  req(input$file)
+  # req(input$file)
   if (length(unique(repcols$DT$es)) == 1 & is.na(repcols$DT$es[1]) == TRUE) {
     box(background = "yellow", width = NULL, height = "75px",
     selectInput(inputId = "EScol", label = "Please choose the column that contains the effect size values", choices = c("Choose one" = "", colnames(data_reac$DT))))
@@ -35,7 +35,7 @@ output$EScolumn <- renderUI({
 ##CHOOSE STANDARD ERROR COLUMN
 
 output$SEcolumn <- renderUI({
-  req(input$file)
+  # req(input$file)
   vec <- repcols$DT$se
   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
     box(background = "green", width = NULL, height = "75px",
@@ -52,7 +52,7 @@ output$SEcolumn <- renderUI({
 # ##CHOOSE YEAR
 
 output$Year<- renderUI({
-  req(input$file)
+  # req(input$file)
   vec <- repcols$DT$year
   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
     box(background = "green", width = NULL, height = "75px",
@@ -69,7 +69,7 @@ output$Year<- renderUI({
 ##CHOOSE SAMPLE SIZE
 
 output$SampleSize<- renderUI({
-  req(input$file)
+  # req(input$file)
   vec <- repcols$DT$n
   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
     box(background = "green", width = NULL, height = "75px",
@@ -85,7 +85,7 @@ output$SampleSize<- renderUI({
 
 ##CHOOSE STUDY ID
 output$StudyID<- renderUI({
-  req(input$file)
+  # req(input$file)
   vec <- repcols$DT$id
   if (length(unique(vec)) == 1 & is.na(vec[1]) == FALSE) {
     box(background = "green", width = NULL, height = "75px",
