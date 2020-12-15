@@ -432,7 +432,7 @@ output$puniref <- renderUI({HTML(paste(strong("References:"), br(), "Van Aert, R
 
 ##Vevea and woods selection models----
 SelMods <- eventReactive(input$go_selmod, {
-  req(input$file)
+  # req(input$file)
   req(para$prim)
   req(para$es)
   req(para$id)

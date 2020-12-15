@@ -1,7 +1,7 @@
 
 #preselect earliest overall studies in dataset (column "studyname" required)
 primary_temp <- reactive({
-  req(input$file)
+  # req(input$file)
   req(input$year)
   req(input$id)
   data <- data_reac$DT
@@ -18,7 +18,7 @@ primary_temp <- reactive({
 #Let user choose the earliest study, if more than one study of same (earliest) year is found
 #if less than one: just confirm the study that was found 
 output$primarySelect <- renderUI({
-  req(input$file)
+  # req(input$file)
   if(length(primary_temp())>1){
     # if(input$SE == ""){
     box(background = "yellow", width = NULL, height = "140px",      

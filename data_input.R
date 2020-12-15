@@ -1,7 +1,7 @@
 ## READ DATA FILE and coerce to data.table
 
 data_reac <- reactiveValues()
-data_reac$DT <- as.data.table(read.spss("/Users/raimundbuehler/Documents/GitHub/shinyapp/mozart.sav"))
+data_reac$DT <- as.data.table(read.spss(here("mozart.sav")))
 
 ##RESET APP WHEN NEW FILE IS LOADED
 

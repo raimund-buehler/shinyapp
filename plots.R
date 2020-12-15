@@ -2,7 +2,7 @@
 
 # sorting variable (forest plot)
 output$sortingvar <- renderUI({
-  req(input$file)
+  req(data_reac$DT)
   selectInput(inputId = "sortingvar",
               label = "Select Sorting Variable",
               choices = colnames(data_reac$DT),
