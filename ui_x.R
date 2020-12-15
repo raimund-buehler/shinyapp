@@ -7,7 +7,6 @@ ui <- dashboardPage(
       menuItem("About", tabName = "about"),
       menuItem("Data", tabName = "file", icon = icon("table")),
       
-      
       menuItem("Meta-Analysis", tabName = "MA", selected = TRUE,
                menuSubItem("Meta-Analysis", tabName = "MAsub"),
                menuSubItem("Subgroup Analysis", tabName = "MoA"),
@@ -36,19 +35,47 @@ ui <- dashboardPage(
     useShinyjs(),                                          
     # extendShinyjs(text = jsResetCode, functions = 'reset'),
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "font_correction.css")),
+    
     tabItems(
       
       # ** About ----
       tabItem(tabName = "about",
-              h2("ABOUT PAGE")),
+                fluidRow(
+                  box(
+                    title = "About", htmlOutput("AboutText") , width = 4
+                  ),
+                  box(
+                    title = "Data", htmlOutput("AboutData"), width = 4, collapsible = TRUE, collapsed = TRUE
+                  ),
+                  box(
+                    title = "Meta-Analysis",  htmlOutput("AboutMA"), width = 4, collapsible = TRUE, collapsed = TRUE
+                  )
+                ),
+                fluidRow(
+                  box(
+                    title = "Plots", htmlOutput("AboutPlots"), width = 4, collapsible = TRUE, collapsed = TRUE
+                  ),
+                  box(
+                    title = "Publication Bias", htmlOutput("AboutPubbias"), width = 4, collapsible = TRUE, collapsed = TRUE
+                  ),
+                  box(
+                    title = "Reports and Downloads", htmlOutput("AboutRepDown"), width = 4, collapsible = TRUE, collapsed = TRUE
+                  )
+                )
+              ),
       
       # ** Data input ----
       tabItem(tabName = "file",
               fluidRow(
                 column(width = 4,
-                       box(
+                       box( #title = uiOutput("helpFile"),
                          width = NULL,
-                         fileInput(inputId = "file", label = "Please select a .sav file", accept = ".sav", placeholder = "mozart.sav")
+                         fileInput(inputId = "file", label = "Please select a .sav file",
+                                                                # bsButton("q1", label = "", icon = icon("question-circle"),
+                                                                # style = "info", size = "extra-small")
+                                                                accept = ".sav", placeholder = "mozart.sav"
+                                   ),
+                         #tags$style(type = "text/css", "#q1 {vertical-align: top;, text-align: right;, position: relative; top: -50px;}")
                        ),
                        uiOutput("choices"),
                        uiOutput("SubmitUpdate", width = NULL)
