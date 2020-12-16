@@ -45,7 +45,7 @@ ui <- dashboardPage(
                     title = "About", htmlOutput("AboutText") , width = 4
                   ),
                   box(
-                    title = "Data", htmlOutput("AboutData"), width = 4, collapsible = TRUE, collapsed = TRUE
+                    title = "Data", htmlOutput("AboutData"), width = 4, collapsible = TRUE
                   ),
                   box(
                     title = "Meta-Analysis",  htmlOutput("AboutMA"), width = 4, collapsible = TRUE, collapsed = TRUE
