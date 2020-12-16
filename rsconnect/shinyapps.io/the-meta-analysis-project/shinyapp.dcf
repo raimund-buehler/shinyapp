@@ -1,0 +1,12 @@
+name: shinyapp
+title: shinyapp
+username:
+account: the-meta-analysis-project
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3408277
+bundleId: 3997184
+url: https://the-meta-analysis-project.shinyapps.io/shinyapp/
+when: 1608130196.01561
+asMultiple: FALSE
+asStatic: FALSE
