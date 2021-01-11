@@ -2,7 +2,7 @@
 title: "report_child_meta"
 output:
   pdf_document:
-    latex_engine: lualatex
+    latex_engine: pdflatex
     toc: true
     number_sections: true
     df_print: kable

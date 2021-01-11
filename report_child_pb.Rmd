@@ -2,7 +2,7 @@
 title: "report_child_pb"
 output:
   pdf_document:
-    latex_engine: lualatex
+    latex_engine: pdflatex
     toc: true
     number_sections: true
     df_print: kable
@@ -142,9 +142,11 @@ df.summary <- data.frame(
 #                                              , c("#666666", "#999999")))
 
 
-kableExtra::kbl(df.summary, booktabs = TRUE) %>% 
-  kableExtra::column_spec(2, background = ifelse(df.summary$Bias == "Bias Indication", "#ec6f6f", 
-                                                 ifelse(df.summary$Bias == "No Bias Indication", "#7dec6f",
-                                                        "#d3d3d3"))) %>%
-  kable_styling(position = "center")
+#kableExtra::kbl(df.summary, booktabs = TRUE) %>% 
+#  kableExtra::column_spec(2, background = ifelse(df.summary$Bias == "Bias Indication", "#ec6f6f", 
+#                                                 ifelse(df.summary$Bias == "No Bias Indication", "#7dec6f",
+#                                                        "#d3d3d3"))) %>%
+#  kable_styling(position = "center")
+
+kableExtra::kbl(df.summary, booktabs = TRUE)
 ```
